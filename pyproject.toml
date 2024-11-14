@@ -14,7 +14,7 @@ readme = "README.md"
 keywords = ["transceiver", "emulation", "network"]
 
 dependencies = [
-  "grpcio<=1.41.3",
+  "grpcio",
   "prompt-toolkit<=3.0.20"
 ]
 
@@ -24,7 +24,7 @@ xcvr-emush = "xcvr_emu.xcvr_emush:main"
 
 [project.optional-dependencies]
 dev = [
-  "grpcio-tools<=1.15.3",
+  "grpcio-tools",
   "black"
 ]
 
