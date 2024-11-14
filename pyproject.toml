@@ -15,7 +15,7 @@ keywords = ["transceiver", "emulation", "network"]
 
 dependencies = [
   "grpcio",
-  "prompt-toolkit<=3.0.20"
+  "prompt-toolkit",
 ]
 
 [project.scripts]

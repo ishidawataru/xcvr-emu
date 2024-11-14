@@ -1,0 +1,3 @@
+[submodule "submodules/sonic-platform-common"]
+	path = submodules/sonic-platform-common
+	url = https://github.com/sonic-net/sonic-platform-common.git

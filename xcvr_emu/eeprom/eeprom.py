@@ -1,5 +1,5 @@
-from sonic_platform_base.sonic_xcvr.xcvr_eeprom import XcvrEeprom
-from sonic_platform_base.sonic_xcvr.fields.xcvr_field import (
+from .sonic_xcvr import XcvrEeprom
+from .sonic_xcvr.fields.xcvr_field import (
     CodeRegField,
     NumberRegField,
     RegBitsField,
@@ -8,8 +8,7 @@ from sonic_platform_base.sonic_xcvr.fields.xcvr_field import (
 
 import struct
 from types import SimpleNamespace
-
-import emulator_pb2 as pb2
+from .proto import emulator_pb2 as pb2
 
 
 def regFieldEncode(self, val, raw_state=None):
@@ -24,7 +23,9 @@ def regFieldEncode(self, val, raw_state=None):
 
 def codeRegFieldEncode(self, val, raw_state=None):
     if val not in self.code_dict:
-        raise ValueError(f"Invalid code {val}for field {self.name}. Valid codes are {self.code_dict.keys()}")
+        raise ValueError(
+            f"Invalid code {val}for field {self.name}. Valid codes are {self.code_dict.keys()}"
+        )
     return regFieldEncode(self, val, raw_state)
 
 
