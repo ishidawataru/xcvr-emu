@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package emulator;
+
+// ReadRequest
+message ReadRequest {
+  uint32 index = 1;
+  uint32 bank = 2;
+  uint32 page = 3;
+  uint32 offset = 4;
+
+  // Length
+  uint32 length = 5;
+
+  bool force = 6; // return value even if not present
+}
+
+// ReadResponse
+message ReadResponse {
+  // Data
+  bytes data = 1;
+}
+
+// WriteRequest
+message WriteRequest {
+  uint32 index = 1;
+  uint32 bank = 2;
+  uint32 page = 3;
+  uint32 offset = 4;
+
+  // Data
+  bytes data = 5;
+  uint32 length = 6;
+}
+
+// WriteResponse
+message WriteResponse {
+}
+
+message GetInfoRequest {
+  uint32 index = 1;
+}
+
+message DataPathStateMachine {
+  uint32 dpid = 1;
+  uint32 appsel = 2;
+  string state = 3;
+}
+
+message ModuleState {
+  string state = 1;
+  string vendor_name = 2;
+}
+
+message GetInfoResponse {
+  bool present = 1;
+  uint32 index = 2;
+  ModuleState msm = 3;
+  repeated DataPathStateMachine dpsms = 4;
+}
+
+message UpdateInfoRequest {
+  uint32 index = 1;
+  bool present = 2;
+}
+
+message UpdateInfoResponse {
+}
+
+message MonitorRequest {
+  uint32 index = 1; // 0 to monitor all
+}
+
+message MonitorResponse {
+  uint32 index = 1;
+  uint32 bank = 2;
+  uint32 page = 3;
+  uint32 offset = 4;
+  bytes data = 5;
+  uint32 length = 6;
+  bool present = 7;
+  bool write = 8; // true: write, false: read
+}
+
+message ListRequest {
+}
+
+message ListResponse {
+  repeated GetInfoResponse infos = 1;
+}
+
+service SfpEmulatorService {
+  rpc Read(ReadRequest) returns (ReadResponse) {}
+
+  rpc Write(WriteRequest) returns (WriteResponse) {}
+
+  rpc GetInfo(GetInfoRequest) returns (GetInfoResponse) {}
+
+  rpc UpdateInfo(UpdateInfoRequest) returns (UpdateInfoResponse) {}
+
+  rpc Monitor(MonitorRequest) returns (stream MonitorResponse) {}
+
+  rpc List(ListRequest) returns (ListResponse) {}
+
+}
