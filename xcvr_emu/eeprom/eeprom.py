@@ -11,6 +11,10 @@ from types import SimpleNamespace
 from ..proto.emulator_pb2 import ReadRequest, WriteRequest
 from typing import Dict, Tuple, Union, Protocol
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def regFieldEncode(self, val: int | float, raw_state: bytes = b"") -> bytearray:
     bitmask = self.get_bitmask()
@@ -142,8 +146,8 @@ class XcvrEEPROM:
             )
 
             data = conn.Read(req).data
-            print(
-                f"read: index; {index}, bank: {req.bank}, page: {req.page:02X}h, offset: {req.offset}, length: {req.length}, data: {data if len(data) != 1 else bin(data[0])}"
+            logger.debug(
+                f"read: index; {index}, bank: {req.bank}, page: {req.page:02X}h, offset: {req.offset}, length: {req.length}, data: {data if len(data) != 1 else bin(data[0])!r}"
             )
             return data
 
@@ -167,8 +171,8 @@ class XcvrEEPROM:
                 data=data,
             )
 
-            print(
-                f"write: index: {index}, bank: {req.bank}, page: {req.page:02X}h, offset: {req.offset}, length: {req.length}, data: {data if len(data) > 1 else bin(data[0])}"
+            logger.debug(
+                f"write: index: {index}, bank: {req.bank}, page: {req.page:02X}h, offset: {req.offset}, length: {req.length}, data: {data if len(data) > 1 else bin(data[0])!r}"
             )
 
             return conn.Write(req)
