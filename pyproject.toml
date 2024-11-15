@@ -6,18 +6,12 @@ build-backend = "setuptools.build_meta"
 name = "xcvr-emu"
 version = "0.1.0"
 description = "A package for transceiver emulation"
-authors = [
-  { name = "Wataru Ishida", email = "wataru.ishid@gmail.com" }
-]
+authors = [{ name = "Wataru Ishida", email = "wataru.ishid@gmail.com" }]
 license = { text = "Apache-2.0" }
 readme = "README.md"
 keywords = ["transceiver", "emulation", "network"]
 
-dependencies = [
-  "grpcio",
-  "prompt-toolkit",
-  "protobuf",
-]
+dependencies = ["grpcio", "prompt-toolkit", "protobuf"]
 
 [project.scripts]
 xcvr-emud = "xcvr_emu.xcvr_emud:main"
