@@ -1,4 +1,4 @@
-from .sonic_xcvr import XcvrEeprom
+from .sonic_xcvr.xcvr_eeprom import XcvrEeprom
 from .sonic_xcvr.fields.xcvr_field import (
     CodeRegField,
     NumberRegField,
@@ -8,7 +8,7 @@ from .sonic_xcvr.fields.xcvr_field import (
 
 import struct
 from types import SimpleNamespace
-from .proto import emulator_pb2 as pb2
+from ..proto import emulator_pb2 as pb2
 
 
 def regFieldEncode(self, val, raw_state=None):
@@ -62,7 +62,7 @@ class RawEEPROM:
         self.lower_page = bytearray(128)
         self.higher_pages = {}  # key: (bank, page), value: b"" * 128
 
-    def Read(self, req):
+    def Read(self, req : pb2.ReadRequest) -> SimpleNamespace:
         bank = req.bank
         page = req.page
         offset = req.offset

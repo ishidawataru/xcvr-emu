@@ -25,8 +25,12 @@ xcvr-emush = "xcvr_emu.xcvr_emush:main"
 [project.optional-dependencies]
 dev = [
   "grpcio-tools",
-  "black"
+  "black",
+  "pytest",
 ]
+
+[tool.pytest.ini_options]
+addopts = ["--ignore=submodules"]
 
 [tool.setuptools]
 packages = ["xcvr_emu"]
