@@ -9,6 +9,7 @@ def eeprom():
 
 def test_eeprom_read(eeprom: XcvrEEPROM):
     res = eeprom.read(consts.ADMIN_INFO_FIELD)
+    assert isinstance(res, dict)
     assert consts.APPLS_ADVT_FIELD in res
 
 

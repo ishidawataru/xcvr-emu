@@ -184,7 +184,7 @@ class XcvrEEPROM:
 
         self._eeprom = XcvrEeprom(read_eeprom, write_eeprom, mem_map)
 
-    def read(self, name: str) -> dict:
+    def read(self, name: str) -> dict | int | float | str | bytearray:
         return self._eeprom.read(name)
 
     def write(self, name: str, data: Union[int, float, str, bytearray]) -> bool:

@@ -22,6 +22,7 @@ dev = [
   "grpcio-tools",
   "black",
   "pytest",
+  "pytest-asyncio",
   "mypy",
   "types-protobuf",
   "mypy-protobuf",
