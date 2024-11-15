@@ -8,44 +8,44 @@ from .sonic_xcvr.fields.xcvr_field import (
 
 import struct
 from types import SimpleNamespace
-from ..proto import emulator_pb2 as pb2
+from ..proto.emulator_pb2 import ReadRequest, ReadResponse, WriteRequest
+from typing import Optional, Dict, Tuple, Union, Protocol
 
 
-def regFieldEncode(self, val, raw_state=None):
+def regFieldEncode(self, val: int | float, raw_state: Optional[bytes] = None) -> bytearray:
     bitmask = self.get_bitmask()
     if not bitmask:
         return bytearray(struct.pack(self.format, val))
-
+    assert raw_state is not None
     raw_state = struct.unpack(self.format, raw_state)[0]
     val = ((val << self.start_bitpos) & bitmask) | (raw_state & ~bitmask)
     return bytearray(struct.pack(self.format, val))
 
 
-def codeRegFieldEncode(self, val, raw_state=None):
+def codeRegFieldEncode(self, val: int, raw_state: Optional[bytes] = None) -> bytearray:
     if val not in self.code_dict:
         raise ValueError(
             f"Invalid code {val}for field {self.name}. Valid codes are {self.code_dict.keys()}"
         )
     return regFieldEncode(self, val, raw_state)
 
+CodeRegField.encode = codeRegFieldEncode # type: ignore
+CodeRegField.read_before_write = lambda _: True # type: ignore
 
-CodeRegField.encode = codeRegFieldEncode
-CodeRegField.read_before_write = lambda _: True
-
-StringRegField.encode = lambda self, val, raw_state=None: bytearray(val.encode())
+StringRegField.encode = lambda self, val, raw_state=None: bytearray(val.encode()) # type: ignore
 
 
-def numberRegFieldEncode(self, val, raw_state=None):
+def numberRegFieldEncode(self, val: int | float, raw_state: Optional[bytes] = None) -> bytearray:
     if self.scale is not None:
         return bytearray(struct.pack(self.format, int(val * self.scale)))
     return regFieldEncode(self, val, raw_state)
 
 
-NumberRegField.encode = numberRegFieldEncode
-NumberRegField.read_before_write = lambda _: True
+NumberRegField.encode = numberRegFieldEncode # type: ignore
+NumberRegField.read_before_write = lambda _: True # type: ignore
 
 
-def regBitsFieldEncode(self, val, raw_value=None):
+def regBitsFieldEncode(self, val: int, raw_value: Optional[bytes] = None) -> bytearray:
     assert raw_value is not None
     val = val & ((1 << self.size) - 1)
     byte = raw_value[0]
@@ -54,15 +54,15 @@ def regBitsFieldEncode(self, val, raw_value=None):
     return bytearray([byte])
 
 
-RegBitsField.encode = regBitsFieldEncode
+RegBitsField.encode = regBitsFieldEncode # type: ignore
 
 
 class RawEEPROM:
-    def __init__(self):
-        self.lower_page = bytearray(128)
-        self.higher_pages = {}  # key: (bank, page), value: b"" * 128
+    def __init__(self) -> None:
+        self.lower_page: bytearray = bytearray(128)
+        self.higher_pages: Dict[Tuple[int, int], bytearray] = {}  # key: (bank, page), value: b"" * 128
 
-    def Read(self, req : pb2.ReadRequest) -> SimpleNamespace:
+    def Read(self, req: ReadRequest) -> SimpleNamespace:
         bank = req.bank
         page = req.page
         offset = req.offset
@@ -78,12 +78,12 @@ class RawEEPROM:
 
         higher_page = self.higher_pages[key]
 
-        page = self.lower_page + higher_page
+        full_page = self.lower_page + higher_page
 
-        value = page[offset : offset + length]
+        value = full_page[offset : offset + length]
         return SimpleNamespace(data=value)
 
-    def Write(self, req):
+    def Write(self, req: WriteRequest) -> bool:
         bank = req.bank
         page = req.page
         offset = req.offset
@@ -101,17 +101,30 @@ class RawEEPROM:
         if key not in self.higher_pages:
             self.higher_pages[key] = bytearray(128)
 
-        page = self.lower_page + self.higher_pages[key]
+        full_page = self.lower_page + self.higher_pages[key]
 
-        page = page[:offset] + data + page[offset + length :]
+        full_page = full_page[:offset] + data + full_page[offset + length :]
 
-        self.lower_page = page[:128]
-        self.higher_pages[key] = page[128:]
+        self.lower_page, self.higher_pages[key] = full_page[:128], full_page[128:]
+
+
+
+        return True
+
+class HasDataField(Protocol):
+    data: bytes
+
+class ConnInterface(Protocol):
+    def Read(self, req: ReadRequest) -> HasDataField:
+        ...
+
+    def Write(self, req: WriteRequest) -> bool:
+        ...
 
 
 class XcvrEEPROM:
-    def __init__(self, index, conn, mem_map):
-        def read_eeprom(offset, length):
+    def __init__(self, index: int, conn: ConnInterface, mem_map: Dict[str, Tuple[int, int, int]]):
+        def read_eeprom(offset: int, length: int) -> bytes:
             # convert optoe offset to SFF page and offset
             # optoe maps the SFF 2D address to a linear address
             page = offset // 128
@@ -121,7 +134,7 @@ class XcvrEEPROM:
             if offset > 128:
                 offset = (offset % 128) + 128
 
-            req = pb2.ReadRequest(
+            req = ReadRequest(
                 index=index, bank=0, offset=offset, page=page, length=length, force=True
             )
 
@@ -131,7 +144,7 @@ class XcvrEEPROM:
             )
             return data
 
-        def write_eeprom(offset, length, write_buffer: bytearray):
+        def write_eeprom(offset: int, length: int, write_buffer: bytearray) -> bool:
             # convert optoe offset to SFF page and offset
             # optoe maps the SFF 2D address to a linear address
             page = offset // 128
@@ -142,7 +155,7 @@ class XcvrEEPROM:
                 offset = (offset % 128) + 128
 
             data = bytes(write_buffer)
-            req = pb2.WriteRequest(
+            req = WriteRequest(
                 index=index,
                 bank=0,
                 page=page,
@@ -157,15 +170,15 @@ class XcvrEEPROM:
 
             return conn.Write(req)
 
-        self.index = index
+        self.index: int = index
 
         self._read = read_eeprom
         self._write = write_eeprom
 
         self._eeprom = XcvrEeprom(read_eeprom, write_eeprom, mem_map)
 
-    def read(self, name):
+    def read(self, name: str) -> dict:
         return self._eeprom.read(name)
 
-    def write(self, name, data):
+    def write(self, name: str, data: Union[int, float, str, bytearray]) -> bool:
         return self._eeprom.write(name, data)
