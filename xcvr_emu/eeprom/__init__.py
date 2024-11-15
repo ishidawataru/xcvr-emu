@@ -5,7 +5,16 @@ from .sonic_xcvr.mem_maps.public.cmis import CmisMemMap as mem_map
 
 from .sonic_xcvr.fields import consts
 
+
 class CmisMemMap(mem_map):
     def __init__(self):
         codes = cmis_codes.CmisCodes
         super().__init__(codes)
+
+
+__all__ = [
+    "RawEEPROM",
+    "XcvrEEPROM",
+    "CmisMemMap",
+    "consts",
+]

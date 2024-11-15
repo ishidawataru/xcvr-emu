@@ -8,11 +8,11 @@ from .sonic_xcvr.fields.xcvr_field import (
 
 import struct
 from types import SimpleNamespace
-from ..proto.emulator_pb2 import ReadRequest, ReadResponse, WriteRequest
-from typing import Optional, Dict, Tuple, Union, Protocol
+from ..proto.emulator_pb2 import ReadRequest, WriteRequest
+from typing import Dict, Tuple, Union, Protocol
 
 
-def regFieldEncode(self, val: int | float, raw_state: Optional[bytes] = None) -> bytearray:
+def regFieldEncode(self, val: int | float, raw_state: bytes = b"") -> bytearray:
     bitmask = self.get_bitmask()
     if not bitmask:
         return bytearray(struct.pack(self.format, val))
@@ -22,30 +22,31 @@ def regFieldEncode(self, val: int | float, raw_state: Optional[bytes] = None) ->
     return bytearray(struct.pack(self.format, val))
 
 
-def codeRegFieldEncode(self, val: int, raw_state: Optional[bytes] = None) -> bytearray:
+def codeRegFieldEncode(self, val: int, raw_state: bytes = b"") -> bytearray:
     if val not in self.code_dict:
         raise ValueError(
             f"Invalid code {val}for field {self.name}. Valid codes are {self.code_dict.keys()}"
         )
     return regFieldEncode(self, val, raw_state)
 
-CodeRegField.encode = codeRegFieldEncode # type: ignore
-CodeRegField.read_before_write = lambda _: True # type: ignore
 
-StringRegField.encode = lambda self, val, raw_state=None: bytearray(val.encode()) # type: ignore
+CodeRegField.encode = codeRegFieldEncode  # type: ignore
+CodeRegField.read_before_write = lambda _: True  # type: ignore
+
+StringRegField.encode = lambda self, val, raw_state=None: bytearray(val.encode())  # type: ignore
 
 
-def numberRegFieldEncode(self, val: int | float, raw_state: Optional[bytes] = None) -> bytearray:
+def numberRegFieldEncode(self, val: int | float, raw_state: bytes = b"") -> bytearray:
     if self.scale is not None:
         return bytearray(struct.pack(self.format, int(val * self.scale)))
     return regFieldEncode(self, val, raw_state)
 
 
-NumberRegField.encode = numberRegFieldEncode # type: ignore
-NumberRegField.read_before_write = lambda _: True # type: ignore
+NumberRegField.encode = numberRegFieldEncode  # type: ignore
+NumberRegField.read_before_write = lambda _: True  # type: ignore
 
 
-def regBitsFieldEncode(self, val: int, raw_value: Optional[bytes] = None) -> bytearray:
+def regBitsFieldEncode(self, val: int, raw_value: bytes = b"") -> bytearray:
     assert raw_value is not None
     val = val & ((1 << self.size) - 1)
     byte = raw_value[0]
@@ -54,13 +55,15 @@ def regBitsFieldEncode(self, val: int, raw_value: Optional[bytes] = None) -> byt
     return bytearray([byte])
 
 
-RegBitsField.encode = regBitsFieldEncode # type: ignore
+RegBitsField.encode = regBitsFieldEncode  # type: ignore
 
 
 class RawEEPROM:
     def __init__(self) -> None:
         self.lower_page: bytearray = bytearray(128)
-        self.higher_pages: Dict[Tuple[int, int], bytearray] = {}  # key: (bank, page), value: b"" * 128
+        self.higher_pages: Dict[Tuple[int, int], bytearray] = (
+            {}
+        )  # key: (bank, page), value: b"" * 128
 
     def Read(self, req: ReadRequest) -> SimpleNamespace:
         bank = req.bank
@@ -107,23 +110,23 @@ class RawEEPROM:
 
         self.lower_page, self.higher_pages[key] = full_page[:128], full_page[128:]
 
-
-
         return True
+
 
 class HasDataField(Protocol):
     data: bytes
 
-class ConnInterface(Protocol):
-    def Read(self, req: ReadRequest) -> HasDataField:
-        ...
 
-    def Write(self, req: WriteRequest) -> bool:
-        ...
+class ConnInterface(Protocol):
+    def Read(self, req: ReadRequest) -> HasDataField: ...
+
+    def Write(self, req: WriteRequest) -> bool: ...
 
 
 class XcvrEEPROM:
-    def __init__(self, index: int, conn: ConnInterface, mem_map: Dict[str, Tuple[int, int, int]]):
+    def __init__(
+        self, index: int, conn: ConnInterface, mem_map: Dict[str, Tuple[int, int, int]]
+    ):
         def read_eeprom(offset: int, length: int) -> bytes:
             # convert optoe offset to SFF page and offset
             # optoe maps the SFF 2D address to a linear address
