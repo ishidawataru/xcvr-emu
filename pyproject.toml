@@ -26,14 +26,17 @@ dev = [
   "mypy",
   "types-protobuf",
   "mypy-protobuf",
+  "pip-tools",
 ]
 
+[tool.setuptools]
+package-dir = { "" = "src" }
+
 [tool.ruff]
-exclude = ["submodules", "xcvr_emu/proto", ".venv"]
+exclude = ["submodules", "src/xcvr_emu/proto", ".venv"]
 
 line-length = 88
 indent-width = 4
-
 
 [tool.ruff.lint]
 ignore = ["E203", "E501", "E701", "E741"]
@@ -44,6 +47,3 @@ addopts = ["--ignore=submodules"]
 
 [tool.mypy]
 ignore_missing_imports = true
-
-[tool.setuptools]
-packages = ["xcvr_emu"]

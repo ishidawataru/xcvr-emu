@@ -10,7 +10,6 @@ generate-grpc:
 
 test: ruff mypy pytest
 
-
 pytest:
 	$(PYTHON) -m pytest -v
 
@@ -18,4 +17,4 @@ ruff:
 	$(PYTHON) -m ruff check .
 
 mypy:
-	$(PYTHON) -m mypy xcvr_emu tests
+	$(PYTHON) -m mypy src/xcvr_emu tests
