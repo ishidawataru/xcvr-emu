@@ -71,7 +71,6 @@ class Completer(PromptCompleter):
 
 
 class Command:
-
     COMMAND_DICT: dict[str, "Command"] = {}
     REGISTERED_COMMANDS: dict = {}
 
@@ -272,7 +271,6 @@ class Command:
 
 
 class Context:
-
     REGISTERED_COMMANDS: dict = {}
 
     def __init__(self, parent, fuzzy_completion=None):

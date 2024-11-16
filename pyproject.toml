@@ -19,15 +19,25 @@ xcvr-emush = "xcvr_emu.xcvr_emush:main"
 
 [project.optional-dependencies]
 dev = [
+  "ruff",
   "grpcio-tools",
-  "black",
   "pytest",
   "pytest-asyncio",
   "mypy",
   "types-protobuf",
   "mypy-protobuf",
-  "flake8",
 ]
+
+[tool.ruff]
+exclude = ["submodules", "xcvr_emu/proto", ".venv"]
+
+line-length = 88
+indent-width = 4
+
+
+[tool.ruff.lint]
+ignore = ["E203", "E501", "E701", "E741"]
+fixable = ["ALL"]
 
 [tool.pytest.ini_options]
 addopts = ["--ignore=submodules"]
