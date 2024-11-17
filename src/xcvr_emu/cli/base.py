@@ -1,17 +1,17 @@
-from prompt_toolkit.document import Document
+import logging
+import subprocess
+import sys
+import typing
+from itertools import chain, zip_longest
+
 from prompt_toolkit.completion import (
+    Completer as PromptCompleter,
     Completion,
     FuzzyCompleter,
     FuzzyWordCompleter,
-    Completer as PromptCompleter,
     merge_completers,
 )
-
-from itertools import chain, zip_longest
-import sys
-import subprocess
-import logging
-import typing
+from prompt_toolkit.document import Document
 
 stdout = logging.getLogger("stdout")
 stderr = logging.getLogger("stderr")
@@ -126,8 +126,8 @@ class Command:
             yield k, (cls, options)
 
     # derived class overrides this method in typical case
-    def arguments(self):
-        return []
+    def arguments(self) -> typing.Iterable[str]:
+        return iter([])
 
     def _list(self, include_hidden=False):
         args = self.arguments()
@@ -163,8 +163,9 @@ class Command:
                 candidates = cmpl(c, arg)
 
         if len(candidates) == 0:
+            target = "argument" if self.parent else "command"
             raise NoMatch(
-                f"invalid command '{arg}'. available commands: {list(self.list())}",
+                f"invalid {target} '{arg}'. candidates: {list(self.list())}",
                 self.list(),
             )
         elif len(candidates) == 1:
