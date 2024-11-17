@@ -1,6 +1,6 @@
 PYTHON ?= python
 
-PROTO_DIR = xcvr_emu/proto
+PROTO_DIR = src/xcvr_emu/proto
 PROT_FILE = $(PROTO_DIR)/emulator.proto
 OUT_DIR = $(PROTO_DIR)
 
