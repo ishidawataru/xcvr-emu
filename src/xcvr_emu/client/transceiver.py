@@ -1,4 +1,5 @@
 import logging
+from typing import Generator
 
 from xcvr_emu.cli import Context, Command
 from xcvr_emu.proto import emulator_pb2 as pb2
@@ -201,20 +202,17 @@ class TransceiverContext(Context):
 
 
 class Transceiver(Command):
-    def __init__(self, context, parent, name, **options):
-        super().__init__(context, parent, name, **options, no_completion_on_exec=True)
-
-    def arguments(self):
+    def arguments(self) -> Generator[str, None, None]:
         res = self.context.conn.List(pb2.ListRequest())
-        return [str(info.index) for info in res.infos]
+        return (str(info.index) for info in res.infos)
 
     def exec(self, line):
-        if len(line) != 1:
-            stderr.info("usage: transceiver <index>")
+        if not line:
+            stderr.error(f"usage: {self.name} <index>")
             return
-        try:
-            index = atoi(line)
-        except ValueError:
-            stderr.info("Invalid index")
+
+        if line[0] not in list(self.arguments()):
+            stderr.error(f"Transceiver({line[0]}) does not exist")
             return
-        return TransceiverContext(self.context, index)
+
+        return TransceiverContext(self.context, int(line[0]))

@@ -1,13 +1,11 @@
-from enum import Enum
 import asyncio
-from types import SimpleNamespace
 import logging
+from enum import Enum
+from types import SimpleNamespace
 
-from ..eeprom import CmisMemMap, consts
-from ..eeprom import RawEEPROM, XcvrEEPROM
 from ..dpsm import DataPathStateMachine
-
-from ..proto.emulator_pb2 import WriteRequest, ReadRequest
+from ..eeprom import CmisMemMap, RawEEPROM, XcvrEEPROM, consts
+from ..proto.emulator_pb2 import ReadRequest, WriteRequest
 
 logger = logging.getLogger(__name__)
 
@@ -170,6 +168,7 @@ class CMISTransceiver:
                 await self._task
             except asyncio.CancelledError:
                 self._task = None
+            logger.debug(f"Transceiver({self._index}) task cancelled")
 
     async def plugin(self) -> None:
         self._init()
