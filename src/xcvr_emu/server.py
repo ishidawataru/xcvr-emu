@@ -4,7 +4,7 @@ import traceback
 import asyncio
 import logging
 
-from .xcvr import CMISTransceiver
+from .transceiver import CMISTransceiver
 
 from .proto import emulator_pb2 as pb2
 

@@ -3,11 +3,11 @@ import asyncio
 from types import SimpleNamespace
 import logging
 
-from .eeprom import CmisMemMap, consts
-from .eeprom import RawEEPROM, XcvrEEPROM
-from .dpsm import DataPathStateMachine
+from ..eeprom import CmisMemMap, consts
+from ..eeprom import RawEEPROM, XcvrEEPROM
+from ..dpsm import DataPathStateMachine
 
-from .proto.emulator_pb2 import WriteRequest, ReadRequest
+from ..proto.emulator_pb2 import WriteRequest, ReadRequest
 
 logger = logging.getLogger(__name__)
 
