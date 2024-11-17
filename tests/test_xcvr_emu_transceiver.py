@@ -1,4 +1,4 @@
-from xcvr_emu.xcvr import CMISTransceiver
+from xcvr_emu.transceiver import CMISTransceiver
 
 from xcvr_emu.proto.emulator_pb2 import ReadRequest, WriteRequest
 
