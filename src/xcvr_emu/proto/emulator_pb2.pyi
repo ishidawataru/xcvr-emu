@@ -13,6 +13,59 @@ import typing
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
 @typing.final
+class CreateRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    INDEX_FIELD_NUMBER: builtins.int
+    TYPE_FIELD_NUMBER: builtins.int
+    index: builtins.int
+    type: builtins.str
+    def __init__(
+        self,
+        *,
+        index: builtins.int = ...,
+        type: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["index", b"index", "type", b"type"]) -> None: ...
+
+global___CreateRequest = CreateRequest
+
+@typing.final
+class CreateResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___CreateResponse = CreateResponse
+
+@typing.final
+class DeleteRequest(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    INDEX_FIELD_NUMBER: builtins.int
+    index: builtins.int
+    def __init__(
+        self,
+        *,
+        index: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["index", b"index"]) -> None: ...
+
+global___DeleteRequest = DeleteRequest
+
+@typing.final
+class DeleteResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    def __init__(
+        self,
+    ) -> None: ...
+
+global___DeleteResponse = DeleteResponse
+
+@typing.final
 class ReadRequest(google.protobuf.message.Message):
     """ReadRequest"""
 
