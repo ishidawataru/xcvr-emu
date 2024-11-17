@@ -42,6 +42,18 @@ indent-width = 4
 ignore = ["E203", "E501", "E701", "E741"]
 fixable = ["ALL"]
 
+[tool.ruff.lint.isort]
+combine-as-imports = true
+known-first-party = ["musubi_restapi"]
+section-order = [
+  "future",
+  "standard-library",
+  "third-party",
+  "first-party",
+  "local-folder",
+]
+split-on-trailing-comma = true
+
 [tool.pytest.ini_options]
 addopts = ["--ignore=submodules"]
 
