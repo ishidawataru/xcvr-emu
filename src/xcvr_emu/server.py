@@ -4,6 +4,8 @@ import traceback
 import asyncio
 import logging
 
+import grpc
+
 from .transceiver import CMISTransceiver
 
 from .proto import emulator_pb2 as pb2
@@ -17,17 +19,19 @@ from .proto import emulator_pb2_grpc  # noqa E402
 logger = logging.getLogger(__name__)
 
 
-class EmulatorServer(emulator_pb2_grpc.SfpEmulatorService):
-    def __init__(self):
+class EmulatorServer(emulator_pb2_grpc.SfpEmulatorServiceServicer):
+    def __init__(self) -> None:
         super().__init__()
-        self.xcvrs = {}
-        self.monitors = []
+        self.xcvrs: dict[int, CMISTransceiver] = {}
+        self.monitors: list[asyncio.Queue] = []
 
-    async def Read(self, req, context):
+    async def Read(self, req: pb2.ReadRequest, context) -> pb2.ReadResponse:
         if req.index not in self.xcvrs:
-            self.xcvrs[req.index] = CMISTransceiver(req.index)
-        xcvr = self.xcvrs[req.index]
+            raise grpc.RpcError(
+                grpc.StatusCode.NOT_FOUND, f"Transceiver({req.index}) does not exist"
+            )
 
+        xcvr = self.xcvrs[req.index]
         data = bytes(await xcvr.read(req))
 
         await self.notify_monitors(
@@ -45,9 +49,12 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorService):
 
         return pb2.ReadResponse(data=data)
 
-    async def Write(self, req, context):
+    async def Write(self, req: pb2.WriteRequest, context) -> pb2.WriteResponse:
         if req.index not in self.xcvrs:
-            self.xcvrs[req.index] = CMISTransceiver(req.index)
+            raise grpc.RpcError(
+                grpc.StatusCode.NOT_FOUND, f"Transceiver({req.index}) does not exist"
+            )
+
         xcvr = self.xcvrs[req.index]
         data = req.data
         logger.debug(
@@ -76,9 +83,12 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorService):
 
         return pb2.WriteResponse()
 
-    async def GetInfo(self, req, context):
+    async def GetInfo(self, req: pb2.GetInfoRequest, context) -> pb2.GetInfoResponse:
         if req.index not in self.xcvrs:
-            self.xcvrs[req.index] = CMISTransceiver(req.index)
+            raise grpc.RpcError(
+                grpc.StatusCode.NOT_FOUND, f"Transceiver({req.index}) does not exist"
+            )
+
         xcvr = self.xcvrs[req.index]
         dpsms = [
             pb2.DataPathStateMachine(
@@ -88,9 +98,12 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorService):
         ]
         return pb2.GetInfoResponse(present=xcvr.present, dpsms=dpsms)
 
-    async def UpdateInfo(self, req, context):
+    async def UpdateInfo(self, req: pb2.UpdateInfoRequest, context) -> pb2.UpdateInfoResponse:
         if req.index not in self.xcvrs:
-            self.xcvrs[req.index] = CMISTransceiver(req.index)
+            raise grpc.RpcError(
+                grpc.StatusCode.NOT_FOUND, f"Transceiver({req.index}) does not exist"
+            )
+
         xcvr = self.xcvrs[req.index]
         if req.present:
             await xcvr.plugin()
@@ -103,8 +116,8 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorService):
         for queue in self.monitors:
             await queue.put(message)
 
-    async def Monitor(self, request, context):
-        queue = asyncio.Queue()
+    async def Monitor(self, request: pb2.MonitorRequest, context):
+        queue: asyncio.Queue = asyncio.Queue()
         self.monitors.append(queue)
 
         index = request.index
@@ -120,7 +133,7 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorService):
         finally:
             self.monitors.remove(queue)
 
-    async def List(self, req, context):
+    async def List(self, req: pb2.ListRequest, context) -> pb2.ListResponse:
         infos = []
         for k, v in self.xcvrs.items():
             info = pb2.GetInfoResponse()
