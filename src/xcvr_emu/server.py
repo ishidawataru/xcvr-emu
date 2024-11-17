@@ -25,6 +25,36 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorServiceServicer):
         self.xcvrs: dict[int, CMISTransceiver] = {}
         self.monitors: list[asyncio.Queue] = []
 
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc_value, traceback):
+        for xcvr in self.xcvrs.values():
+            await xcvr.plugout()
+
+    async def Create(self, req: pb2.CreateRequest, context) -> pb2.CreateResponse:
+        if req.index in self.xcvrs:
+            raise grpc.RpcError(
+                grpc.StatusCode.ALREADY_EXISTS,
+                f"Transceiver({req.index}) already exists",
+            )
+
+        xcvr = CMISTransceiver(req.index)
+        self.xcvrs[req.index] = xcvr
+
+        return pb2.CreateResponse()
+
+    async def Delete(self, req: pb2.DeleteRequest, context) -> pb2.DeleteResponse:
+        if req.index not in self.xcvrs:
+            raise grpc.RpcError(
+                grpc.StatusCode.NOT_FOUND, f"Transceiver({req.index}) does not exist"
+            )
+
+        xcvr = self.xcvrs.pop(req.index)
+        await xcvr.plugout()
+
+        return pb2.DeleteResponse()
+
     async def Read(self, req: pb2.ReadRequest, context) -> pb2.ReadResponse:
         if req.index not in self.xcvrs:
             raise grpc.RpcError(
@@ -58,7 +88,7 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorServiceServicer):
         xcvr = self.xcvrs[req.index]
         data = req.data
         logger.debug(
-            f"write: bank: {req.bank}, page: {req.page:02X}h, offset: {req.offset}, length: {req.length}, data: {data if len(data) > 1 else bin(data[0])}"
+            f"write: bank: {req.bank}, page: {req.page:02X}h, offset: {req.offset}, length: {req.length}, data: {data if len(data) > 1 else bin(data[0])!r}"
         )
 
         try:
