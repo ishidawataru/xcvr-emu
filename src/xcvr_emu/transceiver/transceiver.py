@@ -177,6 +177,8 @@ class CMISTransceiver:
 
     async def _run(self):
 
+        logger.info(f"Transceiver({self._index}) started")
+
         while True:
             ev = await self._queue.get()
             field_names = [f.name for f in ev.fields]

@@ -1,13 +1,13 @@
-import asyncio
-import grpc
-import sys
-import os
-import logging
 import argparse
+import asyncio
+import logging
+import os
+import sys
 
-from .server import EmulatorServer
+import grpc
 
 from .proto import emulator_pb2 as pb2
+from .server import EmulatorServer
 
 # see https://github.com/grpc/grpc/issues/29459#issuecomment-1641587881
 proto_dir = os.path.dirname(pb2.__file__)
@@ -17,23 +17,46 @@ from .proto import emulator_pb2_grpc  # noqa E402
 
 logger = logging.getLogger(__name__)
 
+class Emud:
+    def __init__(self, port:int, grace:int=10) -> None:
+        self.port = port
+        self.grace = grace
+        self.server = grpc.aio.server()
+        self.emulator = EmulatorServer()
+        emulator_pb2_grpc.add_SfpEmulatorServiceServicer_to_server(self.emulator, self.server)
+        self.server.add_insecure_port(f"[::]:{port}")
 
-async def start(port: int) -> grpc.aio.Server:
-    server = grpc.aio.server()
-    emulator_pb2_grpc.add_SfpEmulatorServiceServicer_to_server(EmulatorServer(), server)
-    server.add_insecure_port(f"[::]:{port}")
-    await server.start()
-    return server
+    async def start(self) -> None:
+        return await self.server.start()
+
+    async def wait_for_termination(self) -> None:
+        await self.server.wait_for_termination()
+
+    async def stop(self, grace: float | None) -> None:
+        _raised_exception = None
+        try:
+            await self.server.stop(grace=grace)
+        except asyncio.CancelledError as e:
+            _raised_exception = e
+
+        await self.emulator.stop()
+        if _raised_exception:
+            raise _raised_exception
+
+    async def __aenter__(self):
+        await self.start()
+        return self
+
+    async def __aexit__(self, exc_type, exc_value, traceback):
+        await self.stop(grace=self.grace)
+
+
 
 
 async def _main(port: int) -> None:
-    server = await start(port)
-    try:
-        logger.info(f"Server started on port {port}")
-        await server.wait_for_termination()
-    except asyncio.CancelledError:
-        logger.info("Server is shutting down due to KeyboardInterrupt...")
-        await server.stop(grace=10)
+    async with Emud(port) as emud:
+        logger.info(f"Server started at port {port}")
+        await emud.wait_for_termination()
 
 
 def main():
@@ -53,6 +76,6 @@ def main():
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
 
     try:
-        asyncio.run(_main(args.port))
+        asyncio.run(_main(args.port), debug=args.verbose)
     except KeyboardInterrupt:
-        logger.info("Server interrupted by user, shutting down...")
+        logger.info("Server intterupted by user, exiting...")

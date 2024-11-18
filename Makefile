@@ -4,6 +4,8 @@ PROTO_DIR = src/xcvr_emu/proto
 PROT_FILE = $(PROTO_DIR)/emulator.proto
 OUT_DIR = $(PROTO_DIR)
 
+VERSION ?= $(shell git describe --tags --always --dirty)
+
 .PHONY: generate-grpc
 generate-grpc:
 	$(PYTHON) -m grpc.tools.protoc -I$(PROTO_DIR) --python_out=$(OUT_DIR) --grpc_python_out=$(OUT_DIR) --mypy_out=$(OUT_DIR) $(PROT_FILE)
@@ -18,3 +20,6 @@ ruff:
 
 mypy:
 	$(PYTHON) -m mypy src/xcvr_emu tests
+
+docker:
+	docker build -t xcvr_emu:$(VERSION) .
