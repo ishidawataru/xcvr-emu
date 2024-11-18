@@ -79,3 +79,6 @@ def main():
         asyncio.run(_main(args.port), debug=args.verbose)
     except KeyboardInterrupt:
         logger.info("Server intterupted by user, exiting...")
+
+if __name__ == "__main__":
+    main()
