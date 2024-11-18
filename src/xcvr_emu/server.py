@@ -1,14 +1,13 @@
-import sys
-import os
-import traceback
 import asyncio
 import logging
+import os
+import sys
+import traceback
 
 import grpc
 
-from .transceiver import CMISTransceiver
-
 from .proto import emulator_pb2 as pb2
+from .transceiver import CMISTransceiver
 
 # see https://github.com/grpc/grpc/issues/29459#issuecomment-1641587881
 proto_dir = os.path.dirname(pb2.__file__)
@@ -28,9 +27,13 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorServiceServicer):
     async def __aenter__(self):
         return self
 
-    async def __aexit__(self, exc_type, exc_value, traceback):
+    async def stop(self):
+        logger.info("Stopping emulator server")
         for xcvr in self.xcvrs.values():
             await xcvr.plugout()
+
+    async def __aexit__(self, exc_type, exc_value, traceback):
+        await self.stop()
 
     async def Create(self, req: pb2.CreateRequest, context) -> pb2.CreateResponse:
         if req.index in self.xcvrs:
