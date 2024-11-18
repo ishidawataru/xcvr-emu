@@ -9,6 +9,14 @@ from ..proto.emulator_pb2 import ReadRequest, WriteRequest
 
 logger = logging.getLogger(__name__)
 
+# CMIS v5.2 Table 8-11 Module Global Controls
+# Byte 26
+class ModuleGlobalControls(Enum):
+    BankBroadcastEnable = 1 << 7
+    LowPwrAllowRequestHW = 1 << 6
+    SquelchMethodSelect = 1 << 5
+    LowPwrRequestSW = 1 << 4
+    SoftwareReset = 1 << 3
 
 class CMISTransceiver:
 
@@ -143,7 +151,8 @@ class CMISTransceiver:
         v = v[0] | (1 << field.bitpos)
         self._eeprom._write(field.get_offset(), 1, bytearray([v]))
 
-        self._eeprom.write(consts.MODULE_STATE, 0b01)  # low power
+        self._eeprom.write(consts.MODULE_STATE, self.State.LowPwr.value)  # low power
+        self._eeprom.write(consts.MODULE_LEVEL_CONTROL, ModuleGlobalControls.LowPwrRequestSW.value)  # low power
 
     @property
     def present(self) -> bool:
@@ -175,6 +184,13 @@ class CMISTransceiver:
         self._present = True
         self._task = asyncio.create_task(self._run())
 
+        # send ModuleGlobalControls to start the state machine
+        offset = 26
+        res = self._raw_eeprom.Read(ReadRequest(index=self._index, offset=offset, length=1))
+        req = WriteRequest(index=self._index, offset=offset, length=1, data=bytes(res.data))
+        fields = self._offset_to_field.get(offset, [])
+        await self._queue.put(SimpleNamespace(req=req, fields=fields))
+
     async def _run(self):
 
         logger.info(f"Transceiver({self._index}) started")
@@ -185,10 +201,11 @@ class CMISTransceiver:
             if consts.MODULE_LEVEL_CONTROL in field_names:
                 control = ev.req.data[0]
                 prev_state = self._state
-                if control & 0b100:
+                if control & ModuleGlobalControls.SoftwareReset.value:
+                    logger.info("Software reset")
                     self._init()
 
-                if control & 0b1000:
+                if control & ModuleGlobalControls.LowPwrRequestSW.value:
                     state = self.State.LowPwr
                 else:
                     state = self.State.Ready
