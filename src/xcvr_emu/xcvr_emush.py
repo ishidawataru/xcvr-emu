@@ -1,15 +1,13 @@
-import grpc
-import logging
+import argparse
 import asyncio
+import logging
 import os
 import sys
-import argparse
 
-from prompt_toolkit import PromptSession
-from prompt_toolkit import patch_stdout
+import grpc
+from prompt_toolkit import PromptSession, patch_stdout
 
 from xcvr_emu.client import Shell
-
 from xcvr_emu.proto import emulator_pb2 as pb2
 
 # see https://github.com/grpc/grpc/issues/29459#issuecomment-1641587881
@@ -103,3 +101,6 @@ def main():
         await asyncio.gather(*tasks)
 
     asyncio.run(_main())
+
+if __name__ == "__main__":
+    main()
