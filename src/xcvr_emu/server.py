@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 import traceback
+from typing import AsyncGenerator
 
 import grpc
 
@@ -149,7 +150,7 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorServiceServicer):
         for queue in self.monitors:
             await queue.put(message)
 
-    async def Monitor(self, request: pb2.MonitorRequest, context):
+    async def Monitor(self, request: pb2.MonitorRequest, context) -> AsyncGenerator[pb2.MonitorResponse, None]:
         queue: asyncio.Queue = asyncio.Queue()
         self.monitors.append(queue)
 
