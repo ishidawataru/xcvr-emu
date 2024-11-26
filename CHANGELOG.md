@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0](https://github.com/ishidawataru/xcvr-emu/compare/v0.2.0...v0.3.0) (2024-11-26)
+
+
+### Features
+
+* **client:** Create/Delete support ([10c4c1e](https://github.com/ishidawataru/xcvr-emu/commit/10c4c1ebea9bad504079ba6800bc149253c51e0c))
+* **server:** refactor server management and improve shutdown handling ([a149972](https://github.com/ishidawataru/xcvr-emu/commit/a149972a30ce0725dbea0b531205d2dbe2a6a7fd))
+
 ## [0.2.0](https://github.com/ishidawataru/xcvr-emu/compare/v0.1.0...v0.2.0) (2024-11-17)
 
 
