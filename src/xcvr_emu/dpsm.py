@@ -1,25 +1,19 @@
-from enum import Enum
 import logging
 
-from .eeprom import consts, XcvrEEPROM
-
+from cmis import (
+    DPDeinitLane,
+    DPInitPendingLane,
+    DPStateHostLane,
+    MemMap,
+    OutputDisableTx,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class DataPathStateMachine:
-    class State(Enum):
-        Unknown = 0
-        Deactivated = 1
-        Init = 2
-        Deinit = 3
-        Activated = 4
-        TxTurnOn = 5
-        TxTurnOff = 6
-        Initialized = 7
-
-    def __init__(self, eeprom: XcvrEEPROM, dpid: int) -> None:
-        self._eeprom = eeprom
+    def __init__(self, mem_map: MemMap, dpid: int) -> None:
+        self._mem_map = mem_map
         self._dpid = dpid
 
         self._lanemask = [0] * 8
@@ -27,7 +21,7 @@ class DataPathStateMachine:
         self._explicit_controls = [0] * 8
 
         self._appsel = 0
-        self._state = self.State.Unknown
+        self._state = DPStateHostLane.DPDEACTIVATED
 
     def add_lane(self, idx: int, appsel: int, explicit_control: bool) -> None:
         self._lanemask[idx] = 1
@@ -35,10 +29,8 @@ class DataPathStateMachine:
         self._explicit_controls[idx] = explicit_control
 
     def update_state(self) -> bool:
-        deinit = self._eeprom.read(consts.DATAPATH_DEINIT_FIELD)
-        assert isinstance(deinit, int)
-        txdis = self._eeprom.read(consts.TX_DISABLE_FIELD)
-        assert isinstance(txdis, int)
+        deinit = self._mem_map.DPDeinitLane
+        txdis = self._mem_map.OutputDisableTx
 
         logger.debug(f"{deinit=}, {txdis=}, {self._lanemask=}, {self._appsels=}")
 
@@ -51,13 +43,13 @@ class DataPathStateMachine:
         if not all_same:
             return False
 
-        deinits = [(deinit & (1 << i) > 0) for i in lanes]
+        deinits = [deinit[i].value for i in lanes]
         all_same = all(x == deinits[0] for x in deinits)
         if not all_same:
             self._deinit = True
             return False
 
-        txdiss = [(txdis & (1 << i) > 0) for i in lanes]
+        txdiss = [txdis[i].value for i in lanes]
         all_same = all(x == txdiss[0] for x in txdiss)
         if not all_same:
             self._txdis = True
@@ -67,21 +59,24 @@ class DataPathStateMachine:
         deinit = deinits[0]
         txdis = txdiss[0]
 
+        logger.info(f"{deinit=}, {txdis=}, {lanes=}, {appsels=}")
+
         prev_state = self._state
 
-        state = self.State.Initialized
-        if deinit:
-            state = self.State.Deactivated
-        elif not txdis:
-            state = self.State.Activated
+        state = DPStateHostLane.DPINITIALIZED
+        if deinit == DPDeinitLane.DEINITIALIZE:
+            state = DPStateHostLane.DPDEINIT
+        elif txdis == OutputDisableTx.DISABLED:
+            state = DPStateHostLane.DPACTIVATED
 
         if state != prev_state:
             for i in lanes:
-                self._eeprom.write(f"DP{i+1}State", state.value)
-                if state != self.State.Deactivated:
-                    self._eeprom.write(
-                        f"{consts.DPINIT_PENDING}{i+1}", 0
-                    )  # flag down DP Pending
+                self._mem_map.DPStateHostLane[i].value = state
+                if state != DPStateHostLane.DPACTIVATED:
+                    self._mem_map.DPInitPendingLane[i].value = (
+                        DPInitPendingLane.NOT_PENDING
+                    )
+                    # flag down DP Pending
 
             logger.info(f"updating DPSM({self._dpid}) state: {prev_state} -> {state}")
             self._state = state
