@@ -1,10 +1,9 @@
 import logging
 from typing import Generator
 
-from xcvr_emu.cli import Context, Command
+from xcvr_emu.cli import Command, Context
+from xcvr_emu.eeprom.cmis import Address, MemMap
 from xcvr_emu.proto import emulator_pb2 as pb2
-from xcvr_emu.eeprom import CmisMemMap, XcvrEEPROM
-
 
 stdout = logging.getLogger("stdout")
 stderr = logging.getLogger("stderr")
@@ -32,109 +31,124 @@ class TransceiverCommand(Command):
         return self.context.mem_map
 
 
-def atoi(l, default=0):
-    if len(l) == 0:
-        return default
-    return int(l[0], 0)
+class RegisterCommand(TransceiverCommand):
+    def __init__(self, context, parent, name, **options):
+        super().__init__(context, parent, name, **options)
+        self._arguments = []
+        for key in self.mem_map.group_map.keys():
+            self._arguments.append(key)
+        for key in self.mem_map.field_map.keys():
+            self._arguments.append(key)
+
+    def arguments(self):
+        return self._arguments
 
 
-def print_field(field, prefix):
-    for k, v in field.items():
-        if type(v) is dict:
-            stdout.info(f"{prefix}{k}:")
-            print_field(v, prefix + "  ")
+class Read(RegisterCommand):
+    def exec(self, line):
+        if len(line) == 0:
+            stderr.info("No field specified")
+            return
+        name = line[0]
+
+        field = self.mem_map.search_by_name(
+            name, include_groups=True, include_fields=True
+        )
+        if field is None:
+            try:
+                address = Address.from_str(name)
+            except ValueError:
+                stderr.info("Usage: read <field> | <address>")
+                return
         else:
-            stdout.info(f"{prefix}{k}: {v}")
+            address = field.address
+
+        v = self.read(
+            bank=0,
+            page=address.page,
+            offset=address.start_byte,
+            length=address.byte_size,
+        )
+
+        if field is None:
+            for f, v in self.mem_map.decode(address.page, address.start_byte, v):
+                stdout.info(f.to_str(value=v))
+        else:
+            stdout.info(field.to_str(value=v, recursive=True))
 
 
-class Read(TransceiverCommand):
-    def __init__(self, context, parent, name, **options):
-        super().__init__(context, parent, name, **options)
-        self._arguments = []
-        self.renamed = {}
-        for key in self.mem_map._get_all_fields().keys():
-            if " " in key:
-                new = key.replace(" ", "-")
-                self.renamed[new] = key
-                self._arguments.append(new)
-            else:
-                self._arguments.append(key)
-
-    def arguments(self):
-        return self._arguments
-
-    def exec(self, line):
-        if len(line) == 0:
-            stderr.info("No field specified")
-            return
-        name = line[0]
-        try:
-            (page, offset) = name.split(":")
-            page = int(page, 0)
-            offset = int(offset, 0)
-            v = self.read(pb2.ReadRequest(page=page, offset=offset, length=1))
-            stdout.info(f"{name}: {v.data[0]:0b}")
-            return
-        except ValueError:
-            pass
-
-        if name in self.renamed:
-            name = self.renamed[name]
-
-        try:
-            field = self.mem_map.get_field(name)
-        except AttributeError:
-            stderr.info(f"Unknown field: {name}")
-            return
-        field = self.eeprom.read(name)
-        print_field({name: field}, "")
-
-
-class ReadRaw(TransceiverCommand):
-    def exec(self, line):
-        if len(line) == 0:
-            stderr.info("No field specified")
-            return
-        name = line[0]
-        (page, offset) = name.split(":")
-        page = int(page, 0)
-        offset = int(offset, 0)
-        v = self.read(pb2.ReadRequest(page=page, offset=offset, length=1))
-        stdout.info(f"{name}: {v.data[0]:0b}")
-
-
-class Write(TransceiverCommand):
-    def __init__(self, context, parent, name, **options):
-        super().__init__(context, parent, name, **options)
-        self._arguments = []
-        self.renamed = {}
-        for key in self.mem_map._get_all_fields().keys():
-            if " " in key:
-                new = key.replace(" ", "-")
-                self.renamed[new] = key
-                self._arguments.append(new)
-            else:
-                self._arguments.append(key)
-
-    def arguments(self):
-        return self._arguments
-
+class Write(RegisterCommand):
     def exec(self, line):
         if len(line) < 2:
             stderr.info("Not enough arguments")
             return
 
         name = line[0]
-        if name in self.renamed:
-            name = self.renamed[name]
+
+        field = self.mem_map.search_by_name(
+            name, include_groups=True, include_fields=True
+        )
+        if field is None:
+            try:
+                address = Address.from_str(name)
+            except ValueError:
+                stderr.info("Usage: read <field> | <address>")
+                return
+        else:
+            address = field.address
 
         try:
-            self.mem_map.get_field(name)
-        except AttributeError:
-            stderr.info(f"Unknown field: {name}")
+            src_int = int(line[1], 0)
+            if address.bit is not None:
+                dst = self.read(
+                    bank=0,
+                    page=address.page,
+                    offset=address.start_byte,
+                    length=address.byte_size,
+                )
+                dst_int = int.from_bytes(dst, "big")
+                start_bit = address.start_bit % 8
+
+                mask = ((1 << address.size) - 1) << start_bit
+                dst_cleared = dst_int & ~mask
+                src_shifted = (src_int << start_bit) & mask
+
+                src_int = dst_cleared | src_shifted
+
+            data = src_int.to_bytes(address.byte_size, "big")
+        except ValueError:
+            stderr.info("Invalid value")
             return
-        self.eeprom.write(name, int(line[1], 0))
-        return
+
+        self.write(
+            bank=0,
+            page=address.page,
+            offset=address.start_byte,
+            length=address.byte_size,
+            data=data,
+        )
+
+
+class RegInfo(RegisterCommand):
+    def exec(self, line):
+        if len(line) == 0:
+            stderr.info("No field specified")
+            return
+        name = line[0]
+
+        field = self.mem_map.search_by_name(
+            name, include_groups=True, include_fields=True
+        )
+        if field is None:
+            try:
+                address = Address.from_str(name)
+            except ValueError:
+                stderr.info("Usage: read <field> | <address>")
+                return
+            for f in self.mem_map.search(address.page, address.offset, address.bit):
+                stdout.info(f.to_str())
+        else:
+            stdout.info(field.describe())
 
 
 class Remove(TransceiverCommand):
@@ -176,23 +190,51 @@ class Info(TransceiverCommand):
                 )
 
 
+class MemoryAccessor:
+    def __init__(self, index, conn):
+        self.index = index
+        self.conn = conn
+
+    def read(self, bank: int, page: int, offset: int, length: int) -> bytes:
+        res = self.conn.Read(
+            pb2.ReadRequest(
+                index=self.index, bank=bank, page=page, offset=offset, length=length
+            )
+        )
+        stdout.info(f"Read: {bank=}, {page=}, {offset=}, {length=}, {res.data=}")
+        return res.data
+
+    def write(
+        self, bank: int, page: int, offset: int, length: int, data: bytes
+    ) -> None:
+        stdout.info(f"Write: {bank=}, {page=}, {offset=}, {length=}, {data=}")
+        self.conn.Write(
+            pb2.WriteRequest(
+                index=self.index,
+                bank=bank,
+                page=page,
+                offset=offset,
+                length=length,
+                data=data,
+            )
+        )
+
+
 class TransceiverContext(Context):
     def __init__(self, parent, index):
         super().__init__(parent, fuzzy_completion=True)
         self.index = index
 
-        mem_map = CmisMemMap()
+        acc = MemoryAccessor(index, parent.conn)
 
-        self.mem_map = mem_map
+        self.mem_map = MemMap(acc)
 
-        self.eeprom = XcvrEEPROM(index, parent.conn, mem_map)
+        self.read = acc.read
+        self.write = acc.write
 
-        self.read = self.parent.conn.Read
-        self.write = self.parent.conn.Write
-
-        self.add_command("read", Read)
-        self.add_command("read-raw", ReadRaw)
-        self.add_command("write", Write)
+        self.add_command("read", Read, no_completion_on_exec=True)
+        self.add_command("write", Write, no_completion_on_exec=True)
+        self.add_command("reginfo", RegInfo, no_completion_on_exec=True)
         self.add_command("remove", Remove)
         self.add_command("insert", Insert)
         self.add_command("info", Info)

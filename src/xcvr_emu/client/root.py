@@ -10,14 +10,15 @@ from xcvr_emu.proto import emulator_pb2 as pb2
 stdout = logging.getLogger("stdout")
 stderr = logging.getLogger("stderr")
 
+
 def catch_rpc_errors(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except RpcError as e:
             stderr.error(f"RPC Error: {e.code()}: {e.details()}")
-    return wrapper
 
+    return wrapper
 
 
 class List(Command):
@@ -42,6 +43,7 @@ class Create(Command):
             return
 
         self.context.conn.Create(req)
+
 
 class Delete(Command):
     def arguments(self) -> Iterable[str]:

@@ -1,3 +1,3 @@
-from .transceiver import CMISTransceiver, ModuleGlobalControls
+from .transceiver import CMISTransceiver
 
-__all__ = ['CMISTransceiver', 'ModuleGlobalControls']
+__all__ = ["CMISTransceiver"]

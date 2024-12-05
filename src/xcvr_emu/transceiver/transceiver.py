@@ -1,31 +1,15 @@
 import asyncio
 import logging
-from enum import Enum
-from types import SimpleNamespace
+
+from cmis import Address, LowPwrRequestSW, MemMap, ModuleState
 
 from ..dpsm import DataPathStateMachine
-from ..eeprom import CmisMemMap, RawEEPROM, XcvrEEPROM, consts
 from ..proto.emulator_pb2 import ReadRequest, WriteRequest
 
 logger = logging.getLogger(__name__)
 
-# CMIS v5.2 Table 8-11 Module Global Controls
-# Byte 26
-class ModuleGlobalControls(Enum):
-    BankBroadcastEnable = 1 << 7
-    LowPwrAllowRequestHW = 1 << 6
-    SquelchMethodSelect = 1 << 5
-    LowPwrRequestSW = 1 << 4
-    SoftwareReset = 1 << 3
 
 class CMISTransceiver:
-
-    class State(Enum):
-        LowPwr = 0b001
-        PwrUp = 0b010
-        Ready = 0b011
-        PwrDn = 0b100
-        Fault = 0b101
 
     def __init__(self, index):
         super().__init__()
@@ -34,23 +18,20 @@ class CMISTransceiver:
         self._task = None
         self._present = False
 
-        self.mem_map = CmisMemMap()
+        self.mem_map = MemMap()
 
         self._init()
         self._dpsms = {}
 
     def _init(self):
-        self._state = self.State.LowPwr
+        self._state = ModuleState.MODULE_LOW_PWR
         self._init_eeprom()
 
     def _init_dpsms(self):
 
-        field = self.mem_map.get_field(consts.ACTIVE_APSEL_CODE)
-        acs = self._eeprom._read(field.offset, 8)
-
         dpsms = {}
-        for i, v in enumerate(acs):
-            appsel = (v & 0b11110000) >> 4
+        for i, acs in enumerate(self.mem_map.ACS_DPConfigLane):
+            appsel = acs.AppSelCode.value
             # CMIS v5.2 6.2.3.2
             # The special AppSel code value 0000b in the Data Path Configuration register of a host lane indicates that the
             # lane (together with its associated resources) is unused and not part of a Data Path. The DataPathID and
@@ -58,13 +39,11 @@ class CMISTransceiver:
             if appsel == 0:
                 continue
 
-            dpid = (v & 0b00001110) >> 1
+            dpid = acs.DataPathID.value
             if dpid not in dpsms:
-                dpsms[dpid] = DataPathStateMachine(self._eeprom, dpid)
+                dpsms[dpid] = DataPathStateMachine(self.mem_map, dpid)
 
-            appsel = (v & 0b11110000) >> 4
-            explicit_control = (v & 0b00000001) == 1
-
+            explicit_control = acs.ExplicitControl.value
             dpsm = dpsms[dpid]
             dpsm.add_lane(i, appsel, explicit_control)
 
@@ -75,84 +54,86 @@ class CMISTransceiver:
         self._dpsms = dpsms
 
     def _apply_dpinit(self):
-        for i in range(1, 9):
-            value = self._eeprom.read(f"{consts.STAGED_CTRL_APSEL_FIELD}_0_{i}")
+        for i, scs in enumerate(self.mem_map.SCS0_DPConfigLane):
+            value = scs.value
             logger.info(f"Applying DPInit({i}): {value:b}")
-            name = f"{consts.ACTIVE_APSEL_HOSTLANE}{i}"
-            field = self.mem_map.get_field(name)
-            self._eeprom._write(field.get_offset(), 1, bytearray([value]))
-            appsel = (value & 0b11110000) >> 4
-            if appsel == 0:
+            self.mem_map.ACS_DPConfigLane[i].value = value
+            if scs.AppSelCode.value == 0:
                 continue
 
             # TODO validate the config and set appropriate status
-            self._eeprom.write(f"{consts.CONFIG_LANE_STATUS}{i}", 1)  # ConfigSuccess
-            self._eeprom.write(f"{consts.DPINIT_PENDING}{i}", 1)  # DP Pending
+            self.mem_map.DPInitPendingLane[i].value = (
+                self.mem_map.DPInitPendingLane.PENDING
+            )
+            self.mem_map.ConfigStatusLane[i].value = (
+                self.mem_map.ConfigStatusLane.SUCCESS
+            )
+
         return True
 
     def _init_eeprom(self):
-        self._raw_eeprom = RawEEPROM()
+        self.mem_map.SFF8024Identifier.value = 24
+        self.mem_map.SFF8024IdentifierCopy.value = 24
+        self.mem_map.VendorName.value = "dummy"
+        self.mem_map.CmisRevision.Major.value = 5
+        self.mem_map.CmisRevision.Minor.value = 3
+        self.mem_map.MediaType.value = 2  # sm_media_interface
+        self.mem_map.ModulePowerClass.value = self.mem_map.ModulePowerClass.CLASS_8
 
-        self._offset_to_field = {}
-        for field in self.mem_map._get_all_fields().values():
-            if field.offset not in self._offset_to_field:
-                self._offset_to_field[field.offset] = []
-            self._offset_to_field[field.offset].append(field)
+        self.mem_map.ApplicationDescriptor[0].HostInterfaceID.value = (
+            79  # 400GAUI-4-S C2M (Annex 120G)
+        )
+        self.mem_map.ApplicationDescriptor[0].MediaInterfaceID.value = (
+            28  # 400GBASE-DR4 (Cl 124)
+        )
+        self.mem_map.ApplicationDescriptor[0].HostLaneCount.value = 4
+        self.mem_map.ApplicationDescriptor[0].MediaLaneCount.value = 4
+        self.mem_map.ApplicationDescriptor[0].HostLaneAssignmentOptions.value = (
+            0b00000001
+        )
+        self.mem_map.MediaLaneAssignmentOptions[0].value = 0b00000001
 
-        self._eeprom = XcvrEEPROM(self._index, self._raw_eeprom, self.mem_map)
-
-        self._eeprom.write(consts.ID_FIELD, 24)  # QSFP-DD
-        self._eeprom.write(consts.ID_ABBRV_FIELD, 24)  # QSFP-DD
-        self._eeprom.write(consts.VENDOR_NAME_FIELD, "dummy")
-        self._eeprom.write(consts.CMIS_MAJOR_REVISION, 5)
-        self._eeprom.write(consts.CMIS_MINOR_REVISION, 3)
-        self._eeprom.write(consts.MEDIA_TYPE_FIELD, 2)  # sm_media_interface
-        self._eeprom.write(consts.POWER_CLASS_FIELD, 0b111)  # Power class 8
-
-        # see sff8024.py for the following codes
-        self._eeprom.write(
-            f"{consts.HOST_ELECTRICAL_INTERFACE}_1", 79
-        )  # 79: '400GAUI-4-S C2M (Annex 120G)'
-        self._eeprom.write(
-            f"{consts.MODULE_MEDIA_INTERFACE_SM}_1", 28
-        )  # 28: '400GBASE-DR4 (Cl 124)',
-        self._eeprom.write(f"{consts.HOST_LANE_COUNT}_1", 4)
-        self._eeprom.write(f"{consts.MEDIA_LANE_COUNT}_1", 4)
-        self._eeprom.write(f"{consts.HOST_LANE_ASSIGNMENT_OPTION}_1", 0b00000001)
-        self._eeprom.write(f"{consts.MEDIA_LANE_ASSIGNMENT_OPTION}_1", 0b00000001)
-
-        self._eeprom.write(
-            f"{consts.HOST_ELECTRICAL_INTERFACE}_2", 71
-        )  # 71: '200GBASE-CR2 (Clause 162)
-        self._eeprom.write(
-            f"{consts.MODULE_MEDIA_INTERFACE_SM}_2", 23
-        )  # 23: '200GBASE-DR4 (Cl 121)',
-        self._eeprom.write(f"{consts.HOST_LANE_COUNT}_2", 2)
-        self._eeprom.write(f"{consts.MEDIA_LANE_COUNT}_2", 2)
-        self._eeprom.write(f"{consts.HOST_LANE_ASSIGNMENT_OPTION}_2", 0b00000101)
-        self._eeprom.write(f"{consts.MEDIA_LANE_ASSIGNMENT_OPTION}_2", 0b00000101)
+        self.mem_map.ApplicationDescriptor[1].HostInterfaceID.value = (
+            71  # 200GBASE-CR2 (Clause 162)
+        )
+        self.mem_map.ApplicationDescriptor[1].MediaInterfaceID.value = (
+            23  # 200GBASE-DR4 (Cl 121)
+        )
+        self.mem_map.ApplicationDescriptor[1].HostLaneCount.value = 2
+        self.mem_map.ApplicationDescriptor[1].MediaLaneCount.value = 2
+        self.mem_map.ApplicationDescriptor[1].HostLaneAssignmentOptions.value = (
+            0b00000101
+        )
+        self.mem_map.MediaLaneAssignmentOptions[1].value = 0b00000101
 
         # default staged control set 0, data path configuration
         # and default active control set
-        for i in range(1, 9):
-            value = 0b00010010  # appsel: 1, dpid: 1
-            if i > 4:
-                value = 0
-            self._eeprom.write(f"{consts.STAGED_CTRL_APSEL_FIELD}_0_{i}", value)
+        for i, acs in enumerate(self.mem_map.ACS_DPConfigLane):
+            if i > 3:
+                acs.AppSelCode.value = 0
+                acs.DataPathID.value = 0
+            else:
+                acs.AppSelCode.value = 1
+                acs.DataPathID.value = 1
 
-            name = f"{consts.ACTIVE_APSEL_HOSTLANE}{i}"
-            field = self.mem_map.get_field(name)
-            self._eeprom._write(field.get_offset(), 1, bytearray([value]))
+        for i, scs in enumerate(self.mem_map.SCS0_DPConfigLane):
+            if i > 3:
+                scs.AppSelCode.value = 0
+                scs.DataPathID.value = 0
+            else:
+                scs.AppSelCode.value = 1
+                scs.DataPathID.value = 1
 
-        self._eeprom.write(consts.DP_PATH_INIT_DURATION, 0b0111)  # 1s < t < 5s
+        self.mem_map.MaxDurationDPInit.value = (
+            self.mem_map.MaxDurationDPInit.BETWEEN_1_AND_5_S
+        )
 
-        field = self.mem_map.get_field(consts.TX_DISABLE_SUPPORT_FIELD)
-        v = self._eeprom._read(field.get_offset(), 1)
-        v = v[0] | (1 << field.bitpos)
-        self._eeprom._write(field.get_offset(), 1, bytearray([v]))
+        self.mem_map.OutputDisableTxSupported.value = (
+            self.mem_map.OutputDisableTxSupported.SUPPORTED
+        )
 
-        self._eeprom.write(consts.MODULE_STATE, self.State.LowPwr.value)  # low power
-        self._eeprom.write(consts.MODULE_LEVEL_CONTROL, ModuleGlobalControls.LowPwrRequestSW.value)  # low power
+        self.mem_map.ModuleState.value = ModuleState.MODULE_LOW_PWR
+        self.mem_map.LowPwrRequestSW.value = LowPwrRequestSW.LOW_POWER_MODE
 
     @property
     def present(self) -> bool:
@@ -161,13 +142,15 @@ class CMISTransceiver:
     async def read(self, req: ReadRequest) -> bytearray:
         if not req.force and not self.present:
             return bytearray(b"\x00" * req.length)
-        return self._raw_eeprom.Read(req).data
+        return self.mem_map.read(req.index, req.page, req.offset, req.length)
 
     async def write(self, req: WriteRequest) -> None:
-        self._raw_eeprom.Write(req)
-        offset = req.page * 128 + req.offset
-        fields = self._offset_to_field.get(offset, [])
-        await self._queue.put(SimpleNamespace(req=req, fields=fields))
+        self.mem_map.write(req.index, req.page, req.offset, req.length, req.data)
+        if req.length == 1:
+            address = Address(req.page, req.offset)
+        else:
+            address = Address(req.page, (req.offset, req.offset + req.length - 1))
+        await self._queue.put((req, address))
 
     async def plugout(self) -> None:
         self._present = False
@@ -183,53 +166,58 @@ class CMISTransceiver:
         self._init()
         self._present = True
         self._task = asyncio.create_task(self._run())
+        control = self.mem_map.ModuleGlobalControls
+        await self.write(
+            WriteRequest(
+                page=control.address.page,
+                offset=control.address.offset,
+                length=control.address.byte_size,
+                data=bytes([control.value]),
+            )
+        )
 
-        # send ModuleGlobalControls to start the state machine
-        offset = 26
-        res = self._raw_eeprom.Read(ReadRequest(index=self._index, offset=offset, length=1))
-        req = WriteRequest(index=self._index, offset=offset, length=1, data=bytes(res.data))
-        fields = self._offset_to_field.get(offset, [])
-        await self._queue.put(SimpleNamespace(req=req, fields=fields))
-
-    async def _run(self):
+    async def _run(self) -> None:
 
         logger.info(f"Transceiver({self._index}) started")
 
         while True:
-            ev = await self._queue.get()
-            field_names = [f.name for f in ev.fields]
-            if consts.MODULE_LEVEL_CONTROL in field_names:
-                control = ev.req.data[0]
+            ev: tuple[WriteRequest, Address] = await self._queue.get()
+            address: Address = ev[1]
+
+            logger.debug(f"Handling address: {address}")
+
+            if address == self.mem_map.ModuleGlobalControls.address:
                 prev_state = self._state
-                if control & ModuleGlobalControls.SoftwareReset.value:
+                software_reset = self.mem_map.SoftwareReset
+                if software_reset.value == software_reset.RESET:
                     logger.info("Software reset")
                     self._init()
 
-                if control & ModuleGlobalControls.LowPwrRequestSW.value:
-                    state = self.State.LowPwr
+                low_pwr = self.mem_map.LowPwrRequestSW
+                if low_pwr.value == low_pwr.LOW_POWER_MODE:
+                    state = ModuleState.MODULE_LOW_PWR
                 else:
-                    state = self.State.Ready
+                    state = ModuleState.MODULE_READY
                     self._init_dpsms()
 
                 if state != prev_state:
                     logger.info(f"Updating module state: {prev_state} -> {state}")
-                    self._eeprom.write(consts.MODULE_STATE, state.value)
+                    self.mem_map.ModuleState.value = state
                     self._state = state
-                continue
 
             match self._state:
-                case self.State.LowPwr:
+                case ModuleState.MODULE_LOW_PWR:
                     pass
-                case self.State.Ready:
-                    logger.info(f"ready: {field_names}, {ev.req.data[0]:x}")
+                case ModuleState.MODULE_READY:
+                    logger.info(f"ready: {address}")
                     dp_state_fields = [
-                        consts.DATAPATH_DEINIT_FIELD,
-                        consts.TX_DISABLE_FIELD,
+                        self.mem_map.DPInitPendingLane,
+                        self.mem_map.OutputDisableTx,
                     ]
-                    if any(f in field_names for f in dp_state_fields):
+                    if any(address == f.address for f in dp_state_fields):
                         for dpsm in self._dpsms.values():
                             if not dpsm.update_state():
                                 logger.warn(f"DPSM invalid config: {dpsm}")
-                    elif f"{consts.STAGED_CTRL_APPLY_DPINIT_FIELD}_0" in field_names:
+                    elif self.mem_map.SCS0_ApplyTriggers.address.overraps(address):
                         if self._apply_dpinit():
                             self._init_dpsms()
