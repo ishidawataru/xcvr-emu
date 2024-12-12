@@ -14,6 +14,7 @@ class MediaLaneUnsupportedLaneEnum(Enum):
 
 
 class MediaLaneUnsupportedLane(Field):
+
     EnumClass = MediaLaneUnsupportedLaneEnum
 
     SUPPORTED = MediaLaneUnsupportedLaneEnum.SUPPORTED
@@ -35,6 +36,7 @@ class MediaLaneUnsupportedLaneRange(RangeGroup, MediaLaneUnsupportedLane):
 
 class CmisRevision(Group):
     class MajorCls(Field):
+
         pass
 
     @property
@@ -43,6 +45,7 @@ class CmisRevision(Group):
         return CmisRevision.MajorCls(self.mem_map, field, self.index)
 
     class MinorCls(Field):
+
         pass
 
     @property
@@ -52,6 +55,7 @@ class CmisRevision(Group):
 
 
 class LanesEnum(Enum):
+
     ONE_LANE = 1
     TWO_LANES = 2
     FOUR_LANES = 4
@@ -60,6 +64,7 @@ class LanesEnum(Enum):
 
 class ApplicationDescriptor(Group):
     class HostInterfaceIDCls(Field):
+
         pass
 
     @property
@@ -68,6 +73,7 @@ class ApplicationDescriptor(Group):
         return ApplicationDescriptor.HostInterfaceIDCls(self.mem_map, field, self.index)
 
     class MediaInterfaceIDCls(Field):
+
         pass
 
     @property
@@ -78,6 +84,7 @@ class ApplicationDescriptor(Group):
         )
 
     class HostLaneCountCls(Field):
+
         EnumClass = LanesEnum
 
         ONE_LANE = LanesEnum.ONE_LANE
@@ -91,6 +98,7 @@ class ApplicationDescriptor(Group):
         return ApplicationDescriptor.HostLaneCountCls(self.mem_map, field, self.index)
 
     class MediaLaneCountCls(Field):
+
         EnumClass = LanesEnum
 
         ONE_LANE = LanesEnum.ONE_LANE
@@ -104,6 +112,7 @@ class ApplicationDescriptor(Group):
         return ApplicationDescriptor.MediaLaneCountCls(self.mem_map, field, self.index)
 
     class HostLaneAssignmentOptionsCls(Field):
+
         pass
 
     @property
@@ -129,6 +138,7 @@ class ApplicationDescriptorRange(RangeGroup, ApplicationDescriptor):
 
 class DateCode(Group):
     class YearCls(Field):
+
         pass
 
     @property
@@ -137,6 +147,7 @@ class DateCode(Group):
         return DateCode.YearCls(self.mem_map, field, self.index)
 
     class MonthCls(Field):
+
         pass
 
     @property
@@ -145,6 +156,7 @@ class DateCode(Group):
         return DateCode.MonthCls(self.mem_map, field, self.index)
 
     class DayOfMonthCls(Field):
+
         pass
 
     @property
@@ -153,6 +165,7 @@ class DateCode(Group):
         return DateCode.DayOfMonthCls(self.mem_map, field, self.index)
 
     class LotCodeCls(Field):
+
         pass
 
     @property
@@ -162,17 +175,20 @@ class DateCode(Group):
 
 
 class IdleOrBusyEnum(Enum):
+
     IDLE = 0
     BUSY = 1
 
 
 class SuccessOrFailedEnum(Enum):
+
     SUCCESS = 0
     FAILED = 1
 
 
 class CdbStatus(Group):
     class CdbIsBusyCls(Field):
+
         EnumClass = IdleOrBusyEnum
 
         IDLE = IdleOrBusyEnum.IDLE
@@ -184,6 +200,7 @@ class CdbStatus(Group):
         return CdbStatus.CdbIsBusyCls(self.mem_map, field, self.index)
 
     class CdbHasFailedCls(Field):
+
         EnumClass = SuccessOrFailedEnum
 
         SUCCESS = SuccessOrFailedEnum.SUCCESS
@@ -195,6 +212,7 @@ class CdbStatus(Group):
         return CdbStatus.CdbHasFailedCls(self.mem_map, field, self.index)
 
     class CdbCommandResultCls(Field):
+
         pass
 
     @property
@@ -214,6 +232,7 @@ class CdbStatusRange(RangeGroup, CdbStatus):
 
 
 class MediaLaneMappingTx(Field):
+
     pass
 
 
@@ -229,6 +248,7 @@ class MediaLaneMappingTxRange(RangeGroup, MediaLaneMappingTx):
 
 
 class MediaLaneMappingRx(Field):
+
     pass
 
 
@@ -249,6 +269,7 @@ class OutputStatusRxEnum(Enum):
 
 
 class OutputStatusRx(Field):
+
     EnumClass = OutputStatusRxEnum
 
     INVALID_OR_MUTED = OutputStatusRxEnum.INVALID_OR_MUTED
@@ -272,6 +293,7 @@ class OutputStatusTxEnum(Enum):
 
 
 class OutputStatusTx(Field):
+
     EnumClass = OutputStatusTxEnum
 
     INVALID_OR_MUTED = OutputStatusTxEnum.INVALID_OR_MUTED
@@ -290,6 +312,7 @@ class OutputStatusTxRange(RangeGroup, OutputStatusTx):
 
 
 class DPStateChangedFlag(Field):
+
     pass
 
 
@@ -305,6 +328,7 @@ class DPStateChangedFlagRange(RangeGroup, DPStateChangedFlag):
 
 
 class OpticalPowerTx(Field):
+
     pass
 
 
@@ -320,6 +344,7 @@ class OpticalPowerTxRange(RangeGroup, OpticalPowerTx):
 
 
 class LaserBiasTx(Field):
+
     pass
 
 
@@ -334,6 +359,7 @@ class LaserBiasTxRange(RangeGroup, LaserBiasTx):
 
 
 class OpticalPowerRx(Field):
+
     pass
 
 
@@ -354,6 +380,7 @@ class DPInitPendingLaneEnum(Enum):
 
 
 class DPInitPendingLane(Field):
+
     EnumClass = DPInitPendingLaneEnum
 
     NOT_PENDING = DPInitPendingLaneEnum.NOT_PENDING
@@ -382,6 +409,7 @@ class DPStateHostLaneEnum(Enum):
 
 
 class DPStateHostLane(Field):
+
     EnumClass = DPStateHostLaneEnum
 
     DPDEACTIVATED = DPStateHostLaneEnum.DPDEACTIVATED
@@ -417,6 +445,7 @@ class ConfigStatusLaneEnum(Enum):
 
 
 class ConfigStatusLane(Field):
+
     EnumClass = ConfigStatusLaneEnum
 
     UNDEFINED = ConfigStatusLaneEnum.UNDEFINED
@@ -442,6 +471,7 @@ class ConfigStatusLaneRange(RangeGroup, ConfigStatusLane):
 
 
 class LOSFlagRx(Field):
+
     pass
 
 
@@ -456,6 +486,7 @@ class LOSFlagRxRange(RangeGroup, LOSFlagRx):
 
 
 class CDRLOLFlagRx(Field):
+
     pass
 
 
@@ -470,6 +501,7 @@ class CDRLOLFlagRxRange(RangeGroup, CDRLOLFlagRx):
 
 
 class OpticalPowerHighAlarmFlagRx(Field):
+
     pass
 
 
@@ -487,6 +519,7 @@ class OpticalPowerHighAlarmFlagRxRange(RangeGroup, OpticalPowerHighAlarmFlagRx):
 
 
 class OpticalPowerLowAlarmFlagRx(Field):
+
     pass
 
 
@@ -504,6 +537,7 @@ class OpticalPowerLowAlarmFlagRxRange(RangeGroup, OpticalPowerLowAlarmFlagRx):
 
 
 class OpticalPowerHighWarningFlagRx(Field):
+
     pass
 
 
@@ -521,6 +555,7 @@ class OpticalPowerHighWarningFlagRxRange(RangeGroup, OpticalPowerHighWarningFlag
 
 
 class OpticalPowerLowWarningFlagRx(Field):
+
     pass
 
 
@@ -538,6 +573,7 @@ class OpticalPowerLowWarningFlagRxRange(RangeGroup, OpticalPowerLowWarningFlagRx
 
 
 class OutputStatusChangedFlagRx(Field):
+
     pass
 
 
@@ -555,23 +591,27 @@ class OutputStatusChangedFlagRxRange(RangeGroup, OutputStatusChangedFlagRx):
 
 
 class FixedOrAdaptiveEnum(Enum):
+
     FIXED = 0
     ADAPTIVE = 1
 
 
 class RecallBufferEnum(Enum):
+
     DO_NOT_RECALL = 0
     RECALL_BUFFER_1 = 1
     RECALL_BUFFER_2 = 2
 
 
 class BypassedOrEnabledEnum(Enum):
+
     BYPASSED = 0
     ENABLED = 1
 
 
 class TxControls(Group):
     class AdaptiveInputEqEnableTxCls(Field):
+
         EnumClass = FixedOrAdaptiveEnum
 
         FIXED = FixedOrAdaptiveEnum.FIXED
@@ -597,6 +637,7 @@ class TxControls(Group):
         )
 
     class AdaptiveInputEqRecallTxCls(Field):
+
         EnumClass = RecallBufferEnum
 
         DO_NOT_RECALL = RecallBufferEnum.DO_NOT_RECALL
@@ -623,6 +664,7 @@ class TxControls(Group):
         )
 
     class FixedInputEqTargetTxCls(Field):
+
         pass
 
     class FixedInputEqTargetTxRangeCls(RangeGroup):
@@ -643,6 +685,7 @@ class TxControls(Group):
         return TxControls.FixedInputEqTargetTxRangeCls(self.mem_map, field, self.index)
 
     class CDREnableTxCls(Field):
+
         EnumClass = BypassedOrEnabledEnum
 
         BYPASSED = BypassedOrEnabledEnum.BYPASSED
@@ -668,6 +711,7 @@ class TxControls(Group):
 
 class RxControls(Group):
     class CDREnableRxCls(Field):
+
         EnumClass = BypassedOrEnabledEnum
 
         BYPASSED = BypassedOrEnabledEnum.BYPASSED
@@ -691,6 +735,7 @@ class RxControls(Group):
         return RxControls.CDREnableRxRangeCls(self.mem_map, field, self.index)
 
     class OutputEqPreCursorTargetRxCls(Field):
+
         pass
 
     class OutputEqPreCursorTargetRxRangeCls(RangeGroup):
@@ -715,6 +760,7 @@ class RxControls(Group):
         )
 
     class OutputEqPostCursorTargetRxCls(Field):
+
         pass
 
     class OutputEqPostCursorTargetRxRangeCls(RangeGroup):
@@ -739,6 +785,7 @@ class RxControls(Group):
         )
 
     class OutputAmplitudeTargetRxCls(Field):
+
         pass
 
     class OutputAmplitudeTargetRxRangeCls(RangeGroup):
@@ -762,6 +809,7 @@ class RxControls(Group):
 
 
 class FailureFlagTx(Field):
+
     pass
 
 
@@ -777,6 +825,7 @@ class FailureFlagTxRange(RangeGroup, FailureFlagTx):
 
 
 class LOSFlagTx(Field):
+
     pass
 
 
@@ -791,6 +840,7 @@ class LOSFlagTxRange(RangeGroup, LOSFlagTx):
 
 
 class CDRLOLFlagTx(Field):
+
     pass
 
 
@@ -805,6 +855,7 @@ class CDRLOLFlagTxRange(RangeGroup, CDRLOLFlagTx):
 
 
 class AdaptiveInputEqFailFlagTx(Field):
+
     pass
 
 
@@ -822,6 +873,7 @@ class AdaptiveInputEqFailFlagTxRange(RangeGroup, AdaptiveInputEqFailFlagTx):
 
 
 class OpticalPowerHighAlarmFlagTx(Field):
+
     pass
 
 
@@ -839,6 +891,7 @@ class OpticalPowerHighAlarmFlagTxRange(RangeGroup, OpticalPowerHighAlarmFlagTx):
 
 
 class OpticalPowerLowAlarmFlagTx(Field):
+
     pass
 
 
@@ -856,6 +909,7 @@ class OpticalPowerLowAlarmFlagTxRange(RangeGroup, OpticalPowerLowAlarmFlagTx):
 
 
 class OpticalPowerHighWarningFlagTx(Field):
+
     pass
 
 
@@ -873,6 +927,7 @@ class OpticalPowerHighWarningFlagTxRange(RangeGroup, OpticalPowerHighWarningFlag
 
 
 class OpticalPowerLowWarningFlagTx(Field):
+
     pass
 
 
@@ -890,6 +945,7 @@ class OpticalPowerLowWarningFlagTxRange(RangeGroup, OpticalPowerLowWarningFlagTx
 
 
 class LaserBiasHighAlarmFlagTx(Field):
+
     pass
 
 
@@ -907,6 +963,7 @@ class LaserBiasHighAlarmFlagTxRange(RangeGroup, LaserBiasHighAlarmFlagTx):
 
 
 class LaserBiasLowAlarmFlagTx(Field):
+
     pass
 
 
@@ -922,6 +979,7 @@ class LaserBiasLowAlarmFlagTxRange(RangeGroup, LaserBiasLowAlarmFlagTx):
 
 
 class LaserBiasHighWarningFlagTx(Field):
+
     pass
 
 
@@ -939,6 +997,7 @@ class LaserBiasHighWarningFlagTxRange(RangeGroup, LaserBiasHighWarningFlagTx):
 
 
 class LaserBiasLowWarningFlagTx(Field):
+
     pass
 
 
@@ -956,12 +1015,14 @@ class LaserBiasLowWarningFlagTxRange(RangeGroup, LaserBiasLowWarningFlagTx):
 
 
 class ExplicitControlFlagEnum(Enum):
+
     APPLICATION_DEPENDENT = 0
     HOST_DEFINED = 1
 
 
 class DPConfigLane(Group):
     class AppSelCodeCls(Field):
+
         pass
 
     @property
@@ -970,6 +1031,7 @@ class DPConfigLane(Group):
         return DPConfigLane.AppSelCodeCls(self.mem_map, field, self.index)
 
     class DataPathIDCls(Field):
+
         pass
 
     @property
@@ -978,6 +1040,7 @@ class DPConfigLane(Group):
         return DPConfigLane.DataPathIDCls(self.mem_map, field, self.index)
 
     class ExplicitControlCls(Field):
+
         EnumClass = ExplicitControlFlagEnum
 
         APPLICATION_DEPENDENT = ExplicitControlFlagEnum.APPLICATION_DEPENDENT
@@ -1005,6 +1068,7 @@ class DPDeinitLaneEnum(Enum):
 
 
 class DPDeinitLane(Field):
+
     EnumClass = DPDeinitLaneEnum
 
     INITIALIZE = DPDeinitLaneEnum.INITIALIZE
@@ -1023,6 +1087,7 @@ class DPDeinitLaneRange(RangeGroup, DPDeinitLane):
 
 class TxControl(Group):
     class AdaptiveInputEqEnableTxCls(Field):
+
         EnumClass = FixedOrAdaptiveEnum
 
         FIXED = FixedOrAdaptiveEnum.FIXED
@@ -1048,6 +1113,7 @@ class TxControl(Group):
         )
 
     class AdaptiveInputEqRecallTxCls(Field):
+
         EnumClass = RecallBufferEnum
 
         DO_NOT_RECALL = RecallBufferEnum.DO_NOT_RECALL
@@ -1074,6 +1140,7 @@ class TxControl(Group):
         )
 
     class FixedInputEqTargetTxCls(Field):
+
         pass
 
     class FixedInputEqTargetTxRangeCls(RangeGroup):
@@ -1094,6 +1161,7 @@ class TxControl(Group):
         return TxControl.FixedInputEqTargetTxRangeCls(self.mem_map, field, self.index)
 
     class CDREnableTxCls(Field):
+
         EnumClass = BypassedOrEnabledEnum
 
         BYPASSED = BypassedOrEnabledEnum.BYPASSED
@@ -1118,17 +1186,20 @@ class TxControl(Group):
 
 
 class ApplyDPInitLaneFlagEnum(Enum):
+
     NO_ACTION = 0
     PROVISION = 1
 
 
 class ApplyImmediateDPInitLaneFlagEnum(Enum):
+
     NO_ACTION = 0
     PROVISION_AND_COMMISSION = 1
 
 
 class ApplyTriggers(Group):
     class ApplyDPInitLaneCls(Field):
+
         EnumClass = ApplyDPInitLaneFlagEnum
 
         NO_ACTION = ApplyDPInitLaneFlagEnum.NO_ACTION
@@ -1152,6 +1223,7 @@ class ApplyTriggers(Group):
         return ApplyTriggers.ApplyDPInitLaneRangeCls(self.mem_map, field, self.index)
 
     class ApplyImmediateLaneCls(Field):
+
         EnumClass = ApplyImmediateDPInitLaneFlagEnum
 
         NO_ACTION = ApplyImmediateDPInitLaneFlagEnum.NO_ACTION
@@ -1183,6 +1255,7 @@ class InputPolarityFlipTxEnum(Enum):
 
 
 class InputPolarityFlipTx(Field):
+
     EnumClass = InputPolarityFlipTxEnum
 
     NO_FLIP = InputPolarityFlipTxEnum.NO_FLIP
@@ -1206,6 +1279,7 @@ class OutputDisableTxEnum(Enum):
 
 
 class OutputDisableTx(Field):
+
     EnumClass = OutputDisableTxEnum
 
     ENABLED = OutputDisableTxEnum.ENABLED
@@ -1229,6 +1303,7 @@ class AutoSquelchDisableTxEnum(Enum):
 
 
 class AutoSquelchDisableTx(Field):
+
     EnumClass = AutoSquelchDisableTxEnum
 
     ENABLED = AutoSquelchDisableTxEnum.ENABLED
@@ -1252,6 +1327,7 @@ class OutputSquelchForceTxEnum(Enum):
 
 
 class OutputSquelchForceTx(Field):
+
     EnumClass = OutputSquelchForceTxEnum
 
     NO_IMPACT = OutputSquelchForceTxEnum.NO_IMPACT
@@ -1275,6 +1351,7 @@ class AdaptiveInputEqFreezeTxEnum(Enum):
 
 
 class AdaptiveInputEqFreezeTx(Field):
+
     EnumClass = AdaptiveInputEqFreezeTxEnum
 
     NO_IMPACT = AdaptiveInputEqFreezeTxEnum.NO_IMPACT
@@ -1298,6 +1375,7 @@ class AdaptiveInputEqStoreTxEnum(Enum):
 
 
 class AdaptiveInputEqStoreTx(Field):
+
     EnumClass = AdaptiveInputEqStoreTxEnum
 
     STORE_BUFFER_1 = AdaptiveInputEqStoreTxEnum.STORE_BUFFER_1
@@ -1321,6 +1399,7 @@ class OutputPolarityFlipRxEnum(Enum):
 
 
 class OutputPolarityFlipRx(Field):
+
     EnumClass = OutputPolarityFlipRxEnum
 
     NO_FLIP = OutputPolarityFlipRxEnum.NO_FLIP
@@ -1344,6 +1423,7 @@ class OutputDisableRxEnum(Enum):
 
 
 class OutputDisableRx(Field):
+
     EnumClass = OutputDisableRxEnum
 
     ENABLED = OutputDisableRxEnum.ENABLED
@@ -1367,6 +1447,7 @@ class AutoSquelchDisableRxEnum(Enum):
 
 
 class AutoSquelchDisableRx(Field):
+
     EnumClass = AutoSquelchDisableRxEnum
 
     ENABLED = AutoSquelchDisableRxEnum.ENABLED
@@ -1386,6 +1467,7 @@ class AutoSquelchDisableRxRange(RangeGroup, AutoSquelchDisableRx):
 
 class UnidirectionalApplyTriggers(Group):
     class ApplyImmediateTxCls(Field):
+
         EnumClass = ApplyImmediateDPInitLaneFlagEnum
 
         NO_ACTION = ApplyImmediateDPInitLaneFlagEnum.NO_ACTION
@@ -1419,6 +1501,7 @@ class UnidirectionalApplyTriggers(Group):
         )
 
     class ApplyImmediateRxCls(Field):
+
         EnumClass = ApplyImmediateDPInitLaneFlagEnum
 
         NO_ACTION = ApplyImmediateDPInitLaneFlagEnum.NO_ACTION
@@ -1453,6 +1536,7 @@ class UnidirectionalApplyTriggers(Group):
 
 
 class DPStateChangedMask(Field):
+
     pass
 
 
@@ -1468,6 +1552,7 @@ class DPStateChangedMaskRange(RangeGroup, DPStateChangedMask):
 
 
 class FailureMaskTx(Field):
+
     pass
 
 
@@ -1483,6 +1568,7 @@ class FailureMaskTxRange(RangeGroup, FailureMaskTx):
 
 
 class LOSMaskTx(Field):
+
     pass
 
 
@@ -1497,6 +1583,7 @@ class LOSMaskTxRange(RangeGroup, LOSMaskTx):
 
 
 class CDRLOLMaskTx(Field):
+
     pass
 
 
@@ -1511,6 +1598,7 @@ class CDRLOLMaskTxRange(RangeGroup, CDRLOLMaskTx):
 
 
 class AdaptiveInputEqFailMaskTx(Field):
+
     pass
 
 
@@ -1528,6 +1616,7 @@ class AdaptiveInputEqFailMaskTxRange(RangeGroup, AdaptiveInputEqFailMaskTx):
 
 
 class OpticalPowerHighAlarmMaskTx(Field):
+
     pass
 
 
@@ -1545,6 +1634,7 @@ class OpticalPowerHighAlarmMaskTxRange(RangeGroup, OpticalPowerHighAlarmMaskTx):
 
 
 class OpticalPowerLowAlarmMaskTx(Field):
+
     pass
 
 
@@ -1562,6 +1652,7 @@ class OpticalPowerLowAlarmMaskTxRange(RangeGroup, OpticalPowerLowAlarmMaskTx):
 
 
 class OpticalPowerHighWarningMaskTx(Field):
+
     pass
 
 
@@ -1579,6 +1670,7 @@ class OpticalPowerHighWarningMaskTxRange(RangeGroup, OpticalPowerHighWarningMask
 
 
 class OpticalPowerLowWarningMaskTx(Field):
+
     pass
 
 
@@ -1596,6 +1688,7 @@ class OpticalPowerLowWarningMaskTxRange(RangeGroup, OpticalPowerLowWarningMaskTx
 
 
 class LaserBiasHighAlarmMaskTx(Field):
+
     pass
 
 
@@ -1613,6 +1706,7 @@ class LaserBiasHighAlarmMaskTxRange(RangeGroup, LaserBiasHighAlarmMaskTx):
 
 
 class LaserBiasLowAlarmMaskTx(Field):
+
     pass
 
 
@@ -1628,6 +1722,7 @@ class LaserBiasLowAlarmMaskTxRange(RangeGroup, LaserBiasLowAlarmMaskTx):
 
 
 class LaserBiasHighWarningMaskTx(Field):
+
     pass
 
 
@@ -1645,6 +1740,7 @@ class LaserBiasHighWarningMaskTxRange(RangeGroup, LaserBiasHighWarningMaskTx):
 
 
 class LaserBiasLowWarningMaskTx(Field):
+
     pass
 
 
@@ -1662,6 +1758,7 @@ class LaserBiasLowWarningMaskTxRange(RangeGroup, LaserBiasLowWarningMaskTx):
 
 
 class LOSMaskRx(Field):
+
     pass
 
 
@@ -1676,6 +1773,7 @@ class LOSMaskRxRange(RangeGroup, LOSMaskRx):
 
 
 class CDRLOLMaskRx(Field):
+
     pass
 
 
@@ -1690,6 +1788,7 @@ class CDRLOLMaskRxRange(RangeGroup, CDRLOLMaskRx):
 
 
 class OpticalPowerHighAlarmMaskRx(Field):
+
     pass
 
 
@@ -1707,6 +1806,7 @@ class OpticalPowerHighAlarmMaskRxRange(RangeGroup, OpticalPowerHighAlarmMaskRx):
 
 
 class OpticalPowerLowAlarmMaskRx(Field):
+
     pass
 
 
@@ -1724,6 +1824,7 @@ class OpticalPowerLowAlarmMaskRxRange(RangeGroup, OpticalPowerLowAlarmMaskRx):
 
 
 class OpticalPowerHighWarningMaskRx(Field):
+
     pass
 
 
@@ -1741,6 +1842,7 @@ class OpticalPowerHighWarningMaskRxRange(RangeGroup, OpticalPowerHighWarningMask
 
 
 class OpticalPowerLowWarningMaskRx(Field):
+
     pass
 
 
@@ -1758,6 +1860,7 @@ class OpticalPowerLowWarningMaskRxRange(RangeGroup, OpticalPowerLowWarningMaskRx
 
 
 class OutputStatusChangedMaskRx(Field):
+
     pass
 
 
@@ -1775,6 +1878,7 @@ class OutputStatusChangedMaskRxRange(RangeGroup, OutputStatusChangedMaskRx):
 
 
 class MediaLaneAssignmentOptions(Field):
+
     pass
 
 
@@ -1792,16 +1896,19 @@ class MediaLaneAssignmentOptionsRange(RangeGroup, MediaLaneAssignmentOptions):
 
 
 class SupportFlagEnum(Enum):
+
     NOT_SUPPORTED = 0
     SUPPORTED = 1
 
 
 class SupportFlag:
+
     NOT_SUPPORTED = SupportFlagEnum.NOT_SUPPORTED
     SUPPORTED = SupportFlagEnum.SUPPORTED
 
 
 class DurationEnum(Enum):
+
     LESS_THAN_1_MS = 0
     BETWEEN_1_AND_5_MS = 1
     BETWEEN_5_AND_10_MS = 2
@@ -1819,6 +1926,7 @@ class DurationEnum(Enum):
 
 
 class Duration:
+
     LESS_THAN_1_MS = DurationEnum.LESS_THAN_1_MS
     BETWEEN_1_AND_5_MS = DurationEnum.BETWEEN_1_AND_5_MS
     BETWEEN_5_AND_10_MS = DurationEnum.BETWEEN_5_AND_10_MS
@@ -1836,186 +1944,232 @@ class Duration:
 
 
 class CdbCmdCompleteMask2(Field):
+
     pass
 
 
 class CdbCmdCompleteMask1(Field):
+
     pass
 
 
 class DataPathFirmwareErrorMask(Field):
+
     pass
 
 
 class ModuleFirmwareErrorMask(Field):
+
     pass
 
 
 class ModuleStateChangedMask(Field):
+
     pass
 
 
 class VccMonLowWarningMask(Field):
+
     pass
 
 
 class VccMonHighWarningMask(Field):
+
     pass
 
 
 class VccMonLowAlarmMask(Field):
+
     pass
 
 
 class VccMonHighAlarmMask(Field):
+
     pass
 
 
 class TempMonLowWarningMask(Field):
+
     pass
 
 
 class TempMonHighWarningMask(Field):
+
     pass
 
 
 class TempMonLowAlarmMask(Field):
+
     pass
 
 
 class TempMonHighAlarmMask(Field):
+
     pass
 
 
 class Aux2MonLowWarningMask(Field):
+
     pass
 
 
 class Aux2MonHighWarningMask(Field):
+
     pass
 
 
 class Aux2MonLowAlarmMask(Field):
+
     pass
 
 
 class Aux2MonHighAlarmMask(Field):
+
     pass
 
 
 class Aux1MonLowWarningMask(Field):
+
     pass
 
 
 class Aux1MonHighWarningMask(Field):
+
     pass
 
 
 class Aux1MonLowAlarmMask(Field):
+
     pass
 
 
 class Aux1MonHighAlarmMask(Field):
+
     pass
 
 
 class CustomMonLowWarningMask(Field):
+
     pass
 
 
 class CustomMonHighWarningMask(Field):
+
     pass
 
 
 class CustomMonLowAlarmMask(Field):
+
     pass
 
 
 class CustomMonHighAlarmMask(Field):
+
     pass
 
 
 class Aux3MonLowWarningMask(Field):
+
     pass
 
 
 class Aux3MonHighWarningMask(Field):
+
     pass
 
 
 class Aux3MonLowAlarmMask(Field):
+
     pass
 
 
 class Aux3MonHighAlarmMask(Field):
+
     pass
 
 
 class FlagsSummaryBank0Page2Ch(Field):
+
     pass
 
 
 class FlagsSummaryBank0Page14h(Field):
+
     pass
 
 
 class FlagsSummaryBank0Page12h(Field):
+
     pass
 
 
 class FlagsSummaryBank0Page11h(Field):
+
     pass
 
 
 class FlagsSummaryBank1Page2Ch(Field):
+
     pass
 
 
 class FlagsSummaryBank1Page14h(Field):
+
     pass
 
 
 class FlagsSummaryBank1Page12h(Field):
+
     pass
 
 
 class FlagsSummaryBank1Page11h(Field):
+
     pass
 
 
 class FlagsSummaryBank2Page2Ch(Field):
+
     pass
 
 
 class FlagsSummaryBank2Page14h(Field):
+
     pass
 
 
 class FlagsSummaryBank2Page12h(Field):
+
     pass
 
 
 class FlagsSummaryBank2Page11h(Field):
+
     pass
 
 
 class FlagsSummaryBank3Page2Ch(Field):
+
     pass
 
 
 class FlagsSummaryBank3Page14h(Field):
+
     pass
 
 
 class FlagsSummaryBank3Page12h(Field):
+
     pass
 
 
 class FlagsSummaryBank3Page11h(Field):
+
     pass
 
 
 class ModuleStateEnum(Enum):
+
     MODULE_LOW_PWR = 1
     MODULE_PWR_UP = 2
     MODULE_READY = 3
@@ -2024,6 +2178,7 @@ class ModuleStateEnum(Enum):
 
 
 class ModuleState(Field):
+
     EnumClass = ModuleStateEnum
 
     MODULE_LOW_PWR = ModuleStateEnum.MODULE_LOW_PWR
@@ -2034,11 +2189,13 @@ class ModuleState(Field):
 
 
 class InterruptDeassertedEnum(Enum):
+
     ASSERTED = 0
     NOT_ASSERTED = 1
 
 
 class InterruptDeasserted(Field):
+
     EnumClass = InterruptDeassertedEnum
 
     ASSERTED = InterruptDeassertedEnum.ASSERTED
@@ -2046,47 +2203,58 @@ class InterruptDeasserted(Field):
 
 
 class AttenuationAt5GHz(Field):
+
     pass
 
 
 class AttenuationAt7GHz(Field):
+
     pass
 
 
 class AttenuationAt12p9GHz(Field):
+
     pass
 
 
 class AttenuationAt25p8GHz(Field):
+
     pass
 
 
 class ModuleActiveFirmwareMajorRevision(Field):
+
     pass
 
 
 class ModuleActiveFirmwareMinorRevision(Field):
+
     pass
 
 
 class FarEndConfiguration(Field):
+
     pass
 
 
 class BankSelect(Field):
+
     pass
 
 
 class PageSelect(Field):
+
     pass
 
 
 class BankBroadcastEnableEnum(Enum):
+
     DISABLED = 0
     ENABLED = 1
 
 
 class BankBroadcastEnable(Field):
+
     EnumClass = BankBroadcastEnableEnum
 
     DISABLED = BankBroadcastEnableEnum.DISABLED
@@ -2094,11 +2262,13 @@ class BankBroadcastEnable(Field):
 
 
 class LowPwrAllowRequestHWEnum(Enum):
+
     IGNORE = 0
     EVALUATE = 1
 
 
 class LowPwrAllowRequestHW(Field):
+
     EnumClass = LowPwrAllowRequestHWEnum
 
     IGNORE = LowPwrAllowRequestHWEnum.IGNORE
@@ -2106,11 +2276,13 @@ class LowPwrAllowRequestHW(Field):
 
 
 class SquelchMethodSelectEnum(Enum):
+
     REDUCES_OMA = 0
     REDUCES_PAV = 1
 
 
 class SquelchMethodSelect(Field):
+
     EnumClass = SquelchMethodSelectEnum
 
     REDUCES_OMA = SquelchMethodSelectEnum.REDUCES_OMA
@@ -2118,11 +2290,13 @@ class SquelchMethodSelect(Field):
 
 
 class LowPwrRequestSWEnum(Enum):
+
     NO_REQUEST = 0
     LOW_POWER_MODE = 1
 
 
 class LowPwrRequestSW(Field):
+
     EnumClass = LowPwrRequestSWEnum
 
     NO_REQUEST = LowPwrRequestSWEnum.NO_REQUEST
@@ -2130,11 +2304,13 @@ class LowPwrRequestSW(Field):
 
 
 class SoftwareResetEnum(Enum):
+
     NO_ACTION = 0
     RESET = 1
 
 
 class SoftwareReset(Field):
+
     EnumClass = SoftwareResetEnum
 
     NO_ACTION = SoftwareResetEnum.NO_ACTION
@@ -2142,19 +2318,23 @@ class SoftwareReset(Field):
 
 
 class ModuleGlobalControls(Field):
+
     pass
 
 
 class SFF8024Identifier(Field):
+
     pass
 
 
 class MemoryModelEnum(Enum):
+
     PAGED = 0
     FLAT = 1
 
 
 class MemoryModel(Field):
+
     EnumClass = MemoryModelEnum
 
     PAGED = MemoryModelEnum.PAGED
@@ -2162,11 +2342,13 @@ class MemoryModel(Field):
 
 
 class SteppedConfigOnlyEnum(Enum):
+
     INTERVENTION_FREE = 0
     STEP_BY_STEP = 1
 
 
 class SteppedConfigOnly(Field):
+
     EnumClass = SteppedConfigOnlyEnum
 
     INTERVENTION_FREE = SteppedConfigOnlyEnum.INTERVENTION_FREE
@@ -2174,11 +2356,13 @@ class SteppedConfigOnly(Field):
 
 
 class MciMaxSpeedEnum(Enum):
+
     UP_TO_400_KHZ = 0
     UP_TO_1_MHZ = 1
 
 
 class MciMaxSpeed(Field):
+
     EnumClass = MciMaxSpeedEnum
 
     UP_TO_400_KHZ = MciMaxSpeedEnum.UP_TO_400_KHZ
@@ -2186,30 +2370,37 @@ class MciMaxSpeed(Field):
 
 
 class TempMonValue(Field):
+
     pass
 
 
 class VccMonVoltage(Field):
+
     pass
 
 
 class Aux1MonValue(Field):
+
     pass
 
 
 class Aux2MonValue(Field):
+
     pass
 
 
 class Aux3MonValue(Field):
+
     pass
 
 
 class CustomMonValue(Field):
+
     pass
 
 
 class MediaTypeEnum(Enum):
+
     UNDEFINED = 0
     OPTICAL_MMF = 1
     OPTICAL_SMF = 2
@@ -2219,6 +2410,7 @@ class MediaTypeEnum(Enum):
 
 
 class MediaType(Field):
+
     EnumClass = MediaTypeEnum
 
     UNDEFINED = MediaTypeEnum.UNDEFINED
@@ -2230,34 +2422,42 @@ class MediaType(Field):
 
 
 class SFF8024IdentifierCopy(Field):
+
     pass
 
 
 class VendorName(Field):
+
     pass
 
 
 class VendorOUI(Field):
+
     pass
 
 
 class VendorPN(Field):
+
     pass
 
 
 class VendorRev(Field):
+
     pass
 
 
 class VendorSN(Field):
+
     pass
 
 
 class CLEICode(Field):
+
     pass
 
 
 class ModulePowerClassEnum(Enum):
+
     CLASS_1 = 0
     CLASS_2 = 1
     CLASS_3 = 2
@@ -2269,6 +2469,7 @@ class ModulePowerClassEnum(Enum):
 
 
 class ModulePowerClass(Field):
+
     EnumClass = ModulePowerClassEnum
 
     CLASS_1 = ModulePowerClassEnum.CLASS_1
@@ -2282,10 +2483,12 @@ class ModulePowerClass(Field):
 
 
 class MaxPower(Field):
+
     pass
 
 
 class LengthMultiplierEnum(Enum):
+
     MULTIPLIER_0_1 = 0
     MULTIPLIER_1 = 1
     MULTIPLIER_10 = 2
@@ -2293,6 +2496,7 @@ class LengthMultiplierEnum(Enum):
 
 
 class LengthMultiplier(Field):
+
     EnumClass = LengthMultiplierEnum
 
     MULTIPLIER_0_1 = LengthMultiplierEnum.MULTIPLIER_0_1
@@ -2302,14 +2506,17 @@ class LengthMultiplier(Field):
 
 
 class BaseLength(Field):
+
     pass
 
 
 class ConnectorType(Field):
+
     pass
 
 
 class MediaInterfaceTechnologyEnum(Enum):
+
     VCSEL_850NM = 0
     VCSEL_1310NM = 1
     VCSEL_1550NM = 2
@@ -2331,6 +2538,7 @@ class MediaInterfaceTechnologyEnum(Enum):
 
 
 class MediaInterfaceTechnology(Field):
+
     EnumClass = MediaInterfaceTechnologyEnum
 
     VCSEL_850NM = MediaInterfaceTechnologyEnum.VCSEL_850NM
@@ -2354,134 +2562,167 @@ class MediaInterfaceTechnology(Field):
 
 
 class PageChecksum(Field):
+
     pass
 
 
 class PasswordChangeEntryArea(Field):
+
     pass
 
 
 class PasswordEntryArea(Field):
+
     pass
 
 
 class CdbCmdCompleteFlag2(Field):
+
     pass
 
 
 class CdbCmdCompleteFlag1(Field):
+
     pass
 
 
 class DataPathFirmwareErrorFlag(Field):
+
     pass
 
 
 class ModuleFirmwareErrorFlag(Field):
+
     pass
 
 
 class ModuleStateChangedFlag(Field):
+
     pass
 
 
 class VccMonLowWarningFlag(Field):
+
     pass
 
 
 class VccMonHighWarningFlag(Field):
+
     pass
 
 
 class VccMonLowAlarmFlag(Field):
+
     pass
 
 
 class VccMonHighAlarmFlag(Field):
+
     pass
 
 
 class TempMonLowWarningFlag(Field):
+
     pass
 
 
 class TempMonHighWarningFlag(Field):
+
     pass
 
 
 class TempMonLowAlarmFlag(Field):
+
     pass
 
 
 class TempMonHighAlarmFlag(Field):
+
     pass
 
 
 class Aux2MonLowWarningFlag(Field):
+
     pass
 
 
 class Aux2MonHighWarningFlag(Field):
+
     pass
 
 
 class Aux2MonLowAlarmFlag(Field):
+
     pass
 
 
 class Aux2MonHighAlarmFlag(Field):
+
     pass
 
 
 class Aux1MonLowWarningFlag(Field):
+
     pass
 
 
 class Aux1MonHighWarningFlag(Field):
+
     pass
 
 
 class Aux1MonLowAlarmFlag(Field):
+
     pass
 
 
 class Aux1MonHighAlarmFlag(Field):
+
     pass
 
 
 class CustomMonLowWarningFlag(Field):
+
     pass
 
 
 class CustomMonHighWarningFlag(Field):
+
     pass
 
 
 class CustomMonLowAlarmFlag(Field):
+
     pass
 
 
 class CustomMonHighAlarmFlag(Field):
+
     pass
 
 
 class Aux3MonLowWarningFlag(Field):
+
     pass
 
 
 class Aux3MonHighWarningFlag(Field):
+
     pass
 
 
 class Aux3MonLowAlarmFlag(Field):
+
     pass
 
 
 class Aux3MonHighAlarmFlag(Field):
+
     pass
 
 
 class ModuleFaultCauseEnum(Enum):
+
     NO_FAULT = 0
     TEC_RUNAWAY = 1
     DATA_MEMORY_CORRUPTED = 2
@@ -2489,6 +2730,7 @@ class ModuleFaultCauseEnum(Enum):
 
 
 class ModuleFaultCause(Field):
+
     EnumClass = ModuleFaultCauseEnum
 
     NO_FAULT = ModuleFaultCauseEnum.NO_FAULT
@@ -2498,11 +2740,13 @@ class ModuleFaultCause(Field):
 
 
 class WavelengthIsControllableEnum(Enum):
+
     NO_CONTROL = 0
     CONTROL_SUPPORTED = 1
 
 
 class WavelengthIsControllable(Field):
+
     EnumClass = WavelengthIsControllableEnum
 
     NO_CONTROL = WavelengthIsControllableEnum.NO_CONTROL
@@ -2510,11 +2754,13 @@ class WavelengthIsControllable(Field):
 
 
 class TransmitterIsTunableEnum(Enum):
+
     NOT_TUNABLE = 0
     TUNABLE = 1
 
 
 class TransmitterIsTunable(Field):
+
     EnumClass = TransmitterIsTunableEnum
 
     NOT_TUNABLE = TransmitterIsTunableEnum.NOT_TUNABLE
@@ -2522,6 +2768,7 @@ class TransmitterIsTunable(Field):
 
 
 class SquelchMethodTxEnum(Enum):
+
     NOT_SUPPORTED = 0
     REDUCES_OMA = 1
     REDUCES_PAV = 2
@@ -2529,6 +2776,7 @@ class SquelchMethodTxEnum(Enum):
 
 
 class SquelchMethodTx(Field):
+
     EnumClass = SquelchMethodTxEnum
 
     NOT_SUPPORTED = SquelchMethodTxEnum.NOT_SUPPORTED
@@ -2538,52 +2786,64 @@ class SquelchMethodTx(Field):
 
 
 class ForcedSquelchTxSupported(Field, SupportFlag):
+
     pass
 
 
 class AutoSquelchDisableTxSupported(Field, SupportFlag):
+
     pass
 
 
 class OutputDisableTxSupported(Field, SupportFlag):
+
     pass
 
 
 class InputPolarityFlipTxSupported(Field, SupportFlag):
+
     pass
 
 
 class BankBroadcastSupported(Field, SupportFlag):
+
     pass
 
 
 class AutoSquelchDisableRxSupported(Field, SupportFlag):
+
     pass
 
 
 class OutputDisableRxSupported(Field, SupportFlag):
+
     pass
 
 
 class OutputPolarityFlipRxSupported(Field, SupportFlag):
+
     pass
 
 
 class NominalWavelength(Field):
+
     pass
 
 
 class WavelengthTolerance(Field):
+
     pass
 
 
 class TxInputEqRecallBuffersSupportedEnum(Enum):
+
     NOT_SUPPORTED = 0
     BUFFER_COUNT_1 = 1
     BUFFER_COUNT_2 = 2
 
 
 class TxInputEqRecallBuffersSupported(Field):
+
     EnumClass = TxInputEqRecallBuffersSupportedEnum
 
     NOT_SUPPORTED = TxInputEqRecallBuffersSupportedEnum.NOT_SUPPORTED
@@ -2592,23 +2852,28 @@ class TxInputEqRecallBuffersSupported(Field):
 
 
 class TxInputEqFreezeSupported(Field, SupportFlag):
+
     pass
 
 
 class TxInputAdaptiveEqSupported(Field, SupportFlag):
+
     pass
 
 
 class TxInputEqFixedManualControlSupported(Field, SupportFlag):
+
     pass
 
 
 class TxCDRBypassControlSupportedEnum(Enum):
+
     NOT_BYPASSABLE = 0
     BYPASSABLE = 1
 
 
 class TxCDRBypassControlSupported(Field):
+
     EnumClass = TxCDRBypassControlSupportedEnum
 
     NOT_BYPASSABLE = TxCDRBypassControlSupportedEnum.NOT_BYPASSABLE
@@ -2616,18 +2881,22 @@ class TxCDRBypassControlSupported(Field):
 
 
 class TxCDRSupported(Field, SupportFlag):
+
     pass
 
 
 class UnidirReconfigSupported(Field, SupportFlag):
+
     pass
 
 
 class StagedSet1Supported(Field):
+
     pass
 
 
 class RxOutputEqControlSupportedEnum(Enum):
+
     NOT_SUPPORTED = 0
     PRE_CURSOR_SUPPORTED = 1
     POST_CURSOR_SUPPORTED = 2
@@ -2635,6 +2904,7 @@ class RxOutputEqControlSupportedEnum(Enum):
 
 
 class RxOutputEqControlSupported(Field):
+
     EnumClass = RxOutputEqControlSupportedEnum
 
     NOT_SUPPORTED = RxOutputEqControlSupportedEnum.NOT_SUPPORTED
@@ -2644,24 +2914,29 @@ class RxOutputEqControlSupported(Field):
 
 
 class RxOutputAmplitudeControlSupported(Field, SupportFlag):
+
     pass
 
 
 class RxCDRBypassControlSupported(Field, SupportFlag):
+
     pass
 
 
 class RxCDRSupported(Field, SupportFlag):
+
     pass
 
 
 class LengthMultiplierSMFEnum(Enum):
+
     MULTIPLIER_0_1 = 0
     MULTIPLIER_1 = 1
     MULTIPLIER_10 = 2
 
 
 class LengthMultiplierSMF(Field):
+
     EnumClass = LengthMultiplierSMFEnum
 
     MULTIPLIER_0_1 = LengthMultiplierSMFEnum.MULTIPLIER_0_1
@@ -2670,52 +2945,64 @@ class LengthMultiplierSMF(Field):
 
 
 class BaseLengthSMF(Field):
+
     pass
 
 
 class LengthOM5(Field):
+
     pass
 
 
 class LengthOM4(Field):
+
     pass
 
 
 class LengthOM3(Field):
+
     pass
 
 
 class LengthOM2(Field):
+
     pass
 
 
 class NetworkPathPagesSupported(Field):
+
     pass
 
 
 class VDMPagesSupported(Field):
+
     pass
 
 
 class DiagnosticPagesSupported(Field):
+
     pass
 
 
 class Page05hSupported(Field):
+
     pass
 
 
 class Page03hSupported(Field):
+
     pass
 
 
 class BanksSupportedEnum(Enum):
+
     BANK_0_SUPPORTED = 0
     BANKS_0_1_SUPPORTED = 1
     BANKS_0_3_SUPPORTED = 2
 
 
 class BanksSupported(Field):
+
     EnumClass = BanksSupportedEnum
 
     BANK_0_SUPPORTED = BanksSupportedEnum.BANK_0_SUPPORTED
@@ -2724,68 +3011,84 @@ class BanksSupported(Field):
 
 
 class MaxDurationModulePwrDn(Field, Duration):
+
     pass
 
 
 class MaxDurationModulePwrUp(Field, Duration):
+
     pass
 
 
 class MaxDurationDPTxTurnOff(Field, Duration):
+
     pass
 
 
 class MaxDurationDPTxTurnOn(Field, Duration):
+
     pass
 
 
 class ModSelWaitTimeExponent(Field):
+
     pass
 
 
 class ModSelWaitTimeMantissa(Field):
+
     pass
 
 
 class MaxDurationDPDeinit(Field, Duration):
+
     pass
 
 
 class MaxDurationDPInit(Field, Duration):
+
     pass
 
 
 class AdaptiveInputEqFailFlagTxSupported(Field, SupportFlag):
+
     pass
 
 
 class CDRLOLFlagTxSupported(Field, SupportFlag):
+
     pass
 
 
 class LOSFlagTxSupported(Field, SupportFlag):
+
     pass
 
 
 class FailureFlagTxSupported(Field, SupportFlag):
+
     pass
 
 
 class CDRLOLFlagRxSupported(Field, SupportFlag):
+
     pass
 
 
 class LOSFlagRxSupported(Field, SupportFlag):
+
     pass
 
 
 class CdbInstancesSupportedEnum(Enum):
+
     NOT_SUPPORTED = 0
     ONE_INSTANCE = 1
     TWO_INSTANCES = 2
 
 
 class CdbInstancesSupported(Field):
+
     EnumClass = CdbInstancesSupportedEnum
 
     NOT_SUPPORTED = CdbInstancesSupportedEnum.NOT_SUPPORTED
@@ -2794,14 +3097,17 @@ class CdbInstancesSupported(Field):
 
 
 class CdbBackgroundModeSupported(Field, SupportFlag):
+
     pass
 
 
 class CdbAutoPagingSupported(Field, SupportFlag):
+
     pass
 
 
 class CdbMaxPagesEPLEnum(Enum):
+
     NONE = 0
     A0H = 1
     A0H_A1H = 2
@@ -2813,6 +3119,7 @@ class CdbMaxPagesEPLEnum(Enum):
 
 
 class CdbMaxPagesEPL(Field):
+
     EnumClass = CdbMaxPagesEPLEnum
 
     NONE = CdbMaxPagesEPLEnum.NONE
@@ -2826,15 +3133,18 @@ class CdbMaxPagesEPL(Field):
 
 
 class CdbReadWriteLengthExtension(Field):
+
     pass
 
 
 class CdbCommandTriggerMethodEnum(Enum):
+
     SINGLE_BYTE_WRITE = 0
     MCI_TRANSACTION = 1
 
 
 class CdbCommandTriggerMethod(Field):
+
     EnumClass = CdbCommandTriggerMethodEnum
 
     SINGLE_BYTE_WRITE = CdbCommandTriggerMethodEnum.SINGLE_BYTE_WRITE
@@ -2842,15 +3152,18 @@ class CdbCommandTriggerMethod(Field):
 
 
 class CdbExtMaxBusyTime(Field):
+
     pass
 
 
 class CdbMaxBusySpecMethodEnum(Enum):
+
     CDB_MAX_BUSY_TIME = 0
     CDB_EXT_MAX_BUSY_TIME = 1
 
 
 class CdbMaxBusySpecMethod(Field):
+
     EnumClass = CdbMaxBusySpecMethodEnum
 
     CDB_MAX_BUSY_TIME = CdbMaxBusySpecMethodEnum.CDB_MAX_BUSY_TIME
@@ -2858,56 +3171,69 @@ class CdbMaxBusySpecMethod(Field):
 
 
 class CdbMaxBusyTime(Field):
+
     pass
 
 
 class ModuleInactiveFirmwareMajorRevision(Field):
+
     pass
 
 
 class ModuleInactiveFirmwareMinorRevision(Field):
+
     pass
 
 
 class ModuleHardwareMajorRevision(Field):
+
     pass
 
 
 class ModuleHardwareMinorRevision(Field):
+
     pass
 
 
 class CustomMonSupported(Field, SupportFlag):
+
     pass
 
 
 class Aux3MonSupported(Field, SupportFlag):
+
     pass
 
 
 class Aux2MonSupported(Field, SupportFlag):
+
     pass
 
 
 class Aux1MonSupported(Field, SupportFlag):
+
     pass
 
 
 class VccMonSupported(Field, SupportFlag):
+
     pass
 
 
 class TempMonSupported(Field, SupportFlag):
+
     pass
 
 
 class TxBiasCurrentScalingFactorEnum(Enum):
+
     MULTIPLY_X1 = 0
     MULTIPLY_X2 = 1
     MULTIPLY_X4 = 2
 
 
 class TxBiasCurrentScalingFactor(Field):
+
     EnumClass = TxBiasCurrentScalingFactorEnum
 
     MULTIPLY_X1 = TxBiasCurrentScalingFactorEnum.MULTIPLY_X1
@@ -2916,23 +3242,28 @@ class TxBiasCurrentScalingFactor(Field):
 
 
 class RxOpticalPowerMonSupported(Field, SupportFlag):
+
     pass
 
 
 class TxOpticalPowerMonSupported(Field, SupportFlag):
+
     pass
 
 
 class TxBiasMonSupported(Field, SupportFlag):
+
     pass
 
 
 class CoolingImplementedEnum(Enum):
+
     UNCOOLED = 0
     COOLED = 1
 
 
 class CoolingImplemented(Field):
+
     EnumClass = CoolingImplementedEnum
 
     UNCOOLED = CoolingImplementedEnum.UNCOOLED
@@ -2940,6 +3271,7 @@ class CoolingImplemented(Field):
 
 
 class TxInputClockingCapabilitiesEnum(Enum):
+
     LANES_1_8 = 0
     LANES_1_4_AND_5_8 = 1
     PAIRS = 2
@@ -2947,6 +3279,7 @@ class TxInputClockingCapabilitiesEnum(Enum):
 
 
 class TxInputClockingCapabilities(Field):
+
     EnumClass = TxInputClockingCapabilitiesEnum
 
     LANES_1_8 = TxInputClockingCapabilitiesEnum.LANES_1_8
@@ -2956,19 +3289,23 @@ class TxInputClockingCapabilities(Field):
 
 
 class ePPSSupported(Field, SupportFlag):
+
     pass
 
 
 class TimingPage15hSupported(Field, SupportFlag):
+
     pass
 
 
 class Aux3MonObservableEnum(Enum):
+
     LASER_TEMP = 0
     VCC2 = 1
 
 
 class Aux3MonObservable(Field):
+
     EnumClass = Aux3MonObservableEnum
 
     LASER_TEMP = Aux3MonObservableEnum.LASER_TEMP
@@ -2976,11 +3313,13 @@ class Aux3MonObservable(Field):
 
 
 class Aux2MonObservableEnum(Enum):
+
     LASER_TEMP = 0
     TEC_CURRENT = 1
 
 
 class Aux2MonObservable(Field):
+
     EnumClass = Aux2MonObservableEnum
 
     LASER_TEMP = Aux2MonObservableEnum.LASER_TEMP
@@ -2988,11 +3327,13 @@ class Aux2MonObservable(Field):
 
 
 class Aux1MonObservableEnum(Enum):
+
     CUSTOM = 0
     TEC_CURRENT = 1
 
 
 class Aux1MonObservable(Field):
+
     EnumClass = Aux1MonObservableEnum
 
     CUSTOM = Aux1MonObservableEnum.CUSTOM
@@ -3000,27 +3341,33 @@ class Aux1MonObservable(Field):
 
 
 class ModuleTempMax(Field):
+
     pass
 
 
 class ModuleTempMin(Field):
+
     pass
 
 
 class PropagationDelay(Field):
+
     pass
 
 
 class OperatingVoltageMin(Field):
+
     pass
 
 
 class OpticalDetectorTypeEnum(Enum):
+
     PIN = 0
     APD = 1
 
 
 class OpticalDetectorType(Field):
+
     EnumClass = OpticalDetectorTypeEnum
 
     PIN = OpticalDetectorTypeEnum.PIN
@@ -3028,12 +3375,14 @@ class OpticalDetectorType(Field):
 
 
 class RxOutputEqTypeEnum(Enum):
+
     PEAK_TO_PEAK = 0
     STEADY_STATE = 1
     AVERAGE_PP_STEADY = 2
 
 
 class RxOutputEqType(Field):
+
     EnumClass = RxOutputEqTypeEnum
 
     PEAK_TO_PEAK = RxOutputEqTypeEnum.PEAK_TO_PEAK
@@ -3042,11 +3391,13 @@ class RxOutputEqType(Field):
 
 
 class RxPowerMeasurementTypeEnum(Enum):
+
     OMA = 0
     AVG_POWER = 1
 
 
 class RxPowerMeasurementType(Field):
+
     EnumClass = RxPowerMeasurementTypeEnum
 
     OMA = RxPowerMeasurementTypeEnum.OMA
@@ -3054,11 +3405,13 @@ class RxPowerMeasurementType(Field):
 
 
 class RxLOSTypeEnum(Enum):
+
     OMA = 0
     PAVG = 1
 
 
 class RxLOSType(Field):
+
     EnumClass = RxLOSTypeEnum
 
     OMA = RxLOSTypeEnum.OMA
@@ -3066,11 +3419,13 @@ class RxLOSType(Field):
 
 
 class RxLOSIsFastEnum(Enum):
+
     REGULAR = 0
     FAST = 1
 
 
 class RxLOSIsFast(Field):
+
     EnumClass = RxLOSIsFastEnum
 
     REGULAR = RxLOSIsFastEnum.REGULAR
@@ -3078,38 +3433,47 @@ class RxLOSIsFast(Field):
 
 
 class CDRPowerSavedPerLane(Field):
+
     pass
 
 
 class RxOutputLevel3Supported(Field, SupportFlag):
+
     pass
 
 
 class RxOutputLevel2Supported(Field, SupportFlag):
+
     pass
 
 
 class RxOutputLevel1Supported(Field, SupportFlag):
+
     pass
 
 
 class RxOutputLevel0Supported(Field, SupportFlag):
+
     pass
 
 
 class TxInputEqMax(Field):
+
     pass
 
 
 class RxOutputEqPostCursorMax(Field):
+
     pass
 
 
 class RxOutputEqPreCursorMax(Field):
+
     pass
 
 
 class MemMap(BaseMemMap):
+
     # 00h:210
     @property
     def MediaLaneUnsupportedLane(self) -> MediaLaneUnsupportedLaneRange:
@@ -3139,437 +3503,437 @@ class MemMap(BaseMemMap):
     def CdbStatus(self) -> CdbStatusRange:
         return CdbStatusRange(self, self._search_group("CdbStatus"))
 
-    # 0Bh:240-247
+    # 11h:240-247
     @property
     def MediaLaneMappingTx(self) -> MediaLaneMappingTxRange:
         return MediaLaneMappingTxRange(self, self._search_group("MediaLaneMappingTx"))
 
-    # 0Bh:248-255
+    # 11h:248-255
     @property
     def MediaLaneMappingRx(self) -> MediaLaneMappingRxRange:
         return MediaLaneMappingRxRange(self, self._search_group("MediaLaneMappingRx"))
 
-    # 0Bh:132
+    # 11h:132
     @property
     def OutputStatusRx(self) -> OutputStatusRxRange:
         return OutputStatusRxRange(self, self._search_group("OutputStatusRx"))
 
-    # 0Bh:133
+    # 11h:133
     @property
     def OutputStatusTx(self) -> OutputStatusTxRange:
         return OutputStatusTxRange(self, self._search_group("OutputStatusTx"))
 
-    # 0Bh:134
+    # 11h:134
     @property
     def DPStateChangedFlag(self) -> DPStateChangedFlagRange:
         return DPStateChangedFlagRange(self, self._search_group("DPStateChangedFlag"))
 
-    # 0Bh:154-169
+    # 11h:154-169
     @property
     def OpticalPowerTx(self) -> OpticalPowerTxRange:
         return OpticalPowerTxRange(self, self._search_group("OpticalPowerTx"))
 
-    # 0Bh:170-185
+    # 11h:170-185
     @property
     def LaserBiasTx(self) -> LaserBiasTxRange:
         return LaserBiasTxRange(self, self._search_group("LaserBiasTx"))
 
-    # 0Bh:186-201
+    # 11h:186-201
     @property
     def OpticalPowerRx(self) -> OpticalPowerRxRange:
         return OpticalPowerRxRange(self, self._search_group("OpticalPowerRx"))
 
-    # 0Bh:235
+    # 11h:235
     @property
     def DPInitPendingLane(self) -> DPInitPendingLaneRange:
         return DPInitPendingLaneRange(self, self._search_group("DPInitPendingLane"))
 
-    # 0Bh:128-131
+    # 11h:128-131
     @property
     def DPStateHostLane(self) -> DPStateHostLaneRange:
         return DPStateHostLaneRange(self, self._search_group("DPStateHostLane"))
 
-    # 0Bh:202-205
+    # 11h:202-205
     @property
     def ConfigStatusLane(self) -> ConfigStatusLaneRange:
         return ConfigStatusLaneRange(self, self._search_group("ConfigStatusLane"))
 
-    # 0Bh:147
+    # 11h:147
     @property
     def LOSFlagRx(self) -> LOSFlagRxRange:
         return LOSFlagRxRange(self, self._search_group("LOSFlagRx"))
 
-    # 0Bh:148
+    # 11h:148
     @property
     def CDRLOLFlagRx(self) -> CDRLOLFlagRxRange:
         return CDRLOLFlagRxRange(self, self._search_group("CDRLOLFlagRx"))
 
-    # 0Bh:149
+    # 11h:149
     @property
     def OpticalPowerHighAlarmFlagRx(self) -> OpticalPowerHighAlarmFlagRxRange:
         return OpticalPowerHighAlarmFlagRxRange(
             self, self._search_group("OpticalPowerHighAlarmFlagRx")
         )
 
-    # 0Bh:150
+    # 11h:150
     @property
     def OpticalPowerLowAlarmFlagRx(self) -> OpticalPowerLowAlarmFlagRxRange:
         return OpticalPowerLowAlarmFlagRxRange(
             self, self._search_group("OpticalPowerLowAlarmFlagRx")
         )
 
-    # 0Bh:151
+    # 11h:151
     @property
     def OpticalPowerHighWarningFlagRx(self) -> OpticalPowerHighWarningFlagRxRange:
         return OpticalPowerHighWarningFlagRxRange(
             self, self._search_group("OpticalPowerHighWarningFlagRx")
         )
 
-    # 0Bh:152
+    # 11h:152
     @property
     def OpticalPowerLowWarningFlagRx(self) -> OpticalPowerLowWarningFlagRxRange:
         return OpticalPowerLowWarningFlagRxRange(
             self, self._search_group("OpticalPowerLowWarningFlagRx")
         )
 
-    # 0Bh:153
+    # 11h:153
     @property
     def OutputStatusChangedFlagRx(self) -> OutputStatusChangedFlagRxRange:
         return OutputStatusChangedFlagRxRange(
             self, self._search_group("OutputStatusChangedFlagRx")
         )
 
-    # 0Bh:214-221
+    # 11h:214-221
     @property
     def ACS_TxControls(self) -> TxControls:
         return TxControls(self, self._search_group("ACS_TxControls"))
 
-    # 0Bh:222-234
+    # 11h:222-234
     @property
     def ACS_RxControls(self) -> RxControls:
         return RxControls(self, self._search_group("ACS_RxControls"))
 
-    # 0Bh:135
+    # 11h:135
     @property
     def FailureFlagTx(self) -> FailureFlagTxRange:
         return FailureFlagTxRange(self, self._search_group("FailureFlagTx"))
 
-    # 0Bh:136
+    # 11h:136
     @property
     def LOSFlagTx(self) -> LOSFlagTxRange:
         return LOSFlagTxRange(self, self._search_group("LOSFlagTx"))
 
-    # 0Bh:137
+    # 11h:137
     @property
     def CDRLOLFlagTx(self) -> CDRLOLFlagTxRange:
         return CDRLOLFlagTxRange(self, self._search_group("CDRLOLFlagTx"))
 
-    # 0Bh:138
+    # 11h:138
     @property
     def AdaptiveInputEqFailFlagTx(self) -> AdaptiveInputEqFailFlagTxRange:
         return AdaptiveInputEqFailFlagTxRange(
             self, self._search_group("AdaptiveInputEqFailFlagTx")
         )
 
-    # 0Bh:139
+    # 11h:139
     @property
     def OpticalPowerHighAlarmFlagTx(self) -> OpticalPowerHighAlarmFlagTxRange:
         return OpticalPowerHighAlarmFlagTxRange(
             self, self._search_group("OpticalPowerHighAlarmFlagTx")
         )
 
-    # 0Bh:140
+    # 11h:140
     @property
     def OpticalPowerLowAlarmFlagTx(self) -> OpticalPowerLowAlarmFlagTxRange:
         return OpticalPowerLowAlarmFlagTxRange(
             self, self._search_group("OpticalPowerLowAlarmFlagTx")
         )
 
-    # 0Bh:141
+    # 11h:141
     @property
     def OpticalPowerHighWarningFlagTx(self) -> OpticalPowerHighWarningFlagTxRange:
         return OpticalPowerHighWarningFlagTxRange(
             self, self._search_group("OpticalPowerHighWarningFlagTx")
         )
 
-    # 0Bh:142
+    # 11h:142
     @property
     def OpticalPowerLowWarningFlagTx(self) -> OpticalPowerLowWarningFlagTxRange:
         return OpticalPowerLowWarningFlagTxRange(
             self, self._search_group("OpticalPowerLowWarningFlagTx")
         )
 
-    # 0Bh:143
+    # 11h:143
     @property
     def LaserBiasHighAlarmFlagTx(self) -> LaserBiasHighAlarmFlagTxRange:
         return LaserBiasHighAlarmFlagTxRange(
             self, self._search_group("LaserBiasHighAlarmFlagTx")
         )
 
-    # 0Bh:144
+    # 11h:144
     @property
     def LaserBiasLowAlarmFlagTx(self) -> LaserBiasLowAlarmFlagTxRange:
         return LaserBiasLowAlarmFlagTxRange(
             self, self._search_group("LaserBiasLowAlarmFlagTx")
         )
 
-    # 0Bh:145
+    # 11h:145
     @property
     def LaserBiasHighWarningFlagTx(self) -> LaserBiasHighWarningFlagTxRange:
         return LaserBiasHighWarningFlagTxRange(
             self, self._search_group("LaserBiasHighWarningFlagTx")
         )
 
-    # 0Bh:146
+    # 11h:146
     @property
     def LaserBiasLowWarningFlagTx(self) -> LaserBiasLowWarningFlagTxRange:
         return LaserBiasLowWarningFlagTxRange(
             self, self._search_group("LaserBiasLowWarningFlagTx")
         )
 
-    # 0Bh:206-213
+    # 11h:206-213
     @property
     def ACS_DPConfigLane(self) -> DPConfigLaneRange:
         return DPConfigLaneRange(self, self._search_group("ACS_DPConfigLane"))
 
-    # 0Ah:128
+    # 10h:128
     @property
     def DPDeinitLane(self) -> DPDeinitLaneRange:
         return DPDeinitLaneRange(self, self._search_group("DPDeinitLane"))
 
-    # 0Ah:153-160
+    # 10h:153-160
     @property
     def SCS0_TxControl(self) -> TxControl:
         return TxControl(self, self._search_group("SCS0_TxControl"))
 
-    # 0Ah:188-195
+    # 10h:188-195
     @property
     def SCS1_TxControl(self) -> TxControl:
         return TxControl(self, self._search_group("SCS1_TxControl"))
 
-    # 0Ah:145-151
+    # 10h:145-152
     @property
     def SCS0_DPConfigLane(self) -> DPConfigLaneRange:
         return DPConfigLaneRange(self, self._search_group("SCS0_DPConfigLane"))
 
-    # 0Ah:180-186
+    # 10h:180-187
     @property
     def SCS1_DPConfigLane(self) -> DPConfigLaneRange:
         return DPConfigLaneRange(self, self._search_group("SCS1_DPConfigLane"))
 
-    # 0Ah:143-144
+    # 10h:143-144
     @property
     def SCS0_ApplyTriggers(self) -> ApplyTriggers:
         return ApplyTriggers(self, self._search_group("SCS0_ApplyTriggers"))
 
-    # 0Ah:178-179
+    # 10h:178-179
     @property
     def SCS1_ApplyTriggers(self) -> ApplyTriggers:
         return ApplyTriggers(self, self._search_group("SCS1_ApplyTriggers"))
 
-    # 0Ah:129
+    # 10h:129
     @property
     def InputPolarityFlipTx(self) -> InputPolarityFlipTxRange:
         return InputPolarityFlipTxRange(self, self._search_group("InputPolarityFlipTx"))
 
-    # 0Ah:130
+    # 10h:130
     @property
     def OutputDisableTx(self) -> OutputDisableTxRange:
         return OutputDisableTxRange(self, self._search_group("OutputDisableTx"))
 
-    # 0Ah:131
+    # 10h:131
     @property
     def AutoSquelchDisableTx(self) -> AutoSquelchDisableTxRange:
         return AutoSquelchDisableTxRange(
             self, self._search_group("AutoSquelchDisableTx")
         )
 
-    # 0Ah:132
+    # 10h:132
     @property
     def OutputSquelchForceTx(self) -> OutputSquelchForceTxRange:
         return OutputSquelchForceTxRange(
             self, self._search_group("OutputSquelchForceTx")
         )
 
-    # 0Ah:134
+    # 10h:134
     @property
     def AdaptiveInputEqFreezeTx(self) -> AdaptiveInputEqFreezeTxRange:
         return AdaptiveInputEqFreezeTxRange(
             self, self._search_group("AdaptiveInputEqFreezeTx")
         )
 
-    # 0Ah:135-136
+    # 10h:135-136
     @property
     def AdaptiveInputEqStoreTx(self) -> AdaptiveInputEqStoreTxRange:
         return AdaptiveInputEqStoreTxRange(
             self, self._search_group("AdaptiveInputEqStoreTx")
         )
 
-    # 0Ah:137
+    # 10h:137
     @property
     def OutputPolarityFlipRx(self) -> OutputPolarityFlipRxRange:
         return OutputPolarityFlipRxRange(
             self, self._search_group("OutputPolarityFlipRx")
         )
 
-    # 0Ah:138
+    # 10h:138
     @property
     def OutputDisableRx(self) -> OutputDisableRxRange:
         return OutputDisableRxRange(self, self._search_group("OutputDisableRx"))
 
-    # 0Ah:139
+    # 10h:139
     @property
     def AutoSquelchDisableRx(self) -> AutoSquelchDisableRxRange:
         return AutoSquelchDisableRxRange(
             self, self._search_group("AutoSquelchDisableRx")
         )
 
-    # 0Ah:161-173
+    # 10h:161-173
     @property
     def SCS0_RxControls(self) -> RxControls:
         return RxControls(self, self._search_group("SCS0_RxControls"))
 
-    # 0Ah:196-208
+    # 10h:196-208
     @property
     def SCS1_RxControls(self) -> RxControls:
         return RxControls(self, self._search_group("SCS1_RxControls"))
 
-    # 0Ah:176-177
+    # 10h:176-177
     @property
     def SCS0_UnidirectionalApplyTriggers(self) -> UnidirectionalApplyTriggers:
         return UnidirectionalApplyTriggers(
             self, self._search_group("SCS0_UnidirectionalApplyTriggers")
         )
 
-    # 0Ah:211-212
+    # 10h:211-212
     @property
     def SCS1_UnidirectionalApplyTriggers(self) -> UnidirectionalApplyTriggers:
         return UnidirectionalApplyTriggers(
             self, self._search_group("SCS1_UnidirectionalApplyTriggers")
         )
 
-    # 0Ah:213
+    # 10h:213
     @property
     def DPStateChangedMask(self) -> DPStateChangedMaskRange:
         return DPStateChangedMaskRange(self, self._search_group("DPStateChangedMask"))
 
-    # 0Ah:214
+    # 10h:214
     @property
     def FailureMaskTx(self) -> FailureMaskTxRange:
         return FailureMaskTxRange(self, self._search_group("FailureMaskTx"))
 
-    # 0Ah:215
+    # 10h:215
     @property
     def LOSMaskTx(self) -> LOSMaskTxRange:
         return LOSMaskTxRange(self, self._search_group("LOSMaskTx"))
 
-    # 0Ah:216
+    # 10h:216
     @property
     def CDRLOLMaskTx(self) -> CDRLOLMaskTxRange:
         return CDRLOLMaskTxRange(self, self._search_group("CDRLOLMaskTx"))
 
-    # 0Ah:217
+    # 10h:217
     @property
     def AdaptiveInputEqFailMaskTx(self) -> AdaptiveInputEqFailMaskTxRange:
         return AdaptiveInputEqFailMaskTxRange(
             self, self._search_group("AdaptiveInputEqFailMaskTx")
         )
 
-    # 0Ah:218
+    # 10h:218
     @property
     def OpticalPowerHighAlarmMaskTx(self) -> OpticalPowerHighAlarmMaskTxRange:
         return OpticalPowerHighAlarmMaskTxRange(
             self, self._search_group("OpticalPowerHighAlarmMaskTx")
         )
 
-    # 0Ah:219
+    # 10h:219
     @property
     def OpticalPowerLowAlarmMaskTx(self) -> OpticalPowerLowAlarmMaskTxRange:
         return OpticalPowerLowAlarmMaskTxRange(
             self, self._search_group("OpticalPowerLowAlarmMaskTx")
         )
 
-    # 0Ah:220
+    # 10h:220
     @property
     def OpticalPowerHighWarningMaskTx(self) -> OpticalPowerHighWarningMaskTxRange:
         return OpticalPowerHighWarningMaskTxRange(
             self, self._search_group("OpticalPowerHighWarningMaskTx")
         )
 
-    # 0Ah:221
+    # 10h:221
     @property
     def OpticalPowerLowWarningMaskTx(self) -> OpticalPowerLowWarningMaskTxRange:
         return OpticalPowerLowWarningMaskTxRange(
             self, self._search_group("OpticalPowerLowWarningMaskTx")
         )
 
-    # 0Ah:222
+    # 10h:222
     @property
     def LaserBiasHighAlarmMaskTx(self) -> LaserBiasHighAlarmMaskTxRange:
         return LaserBiasHighAlarmMaskTxRange(
             self, self._search_group("LaserBiasHighAlarmMaskTx")
         )
 
-    # 0Ah:223
+    # 10h:223
     @property
     def LaserBiasLowAlarmMaskTx(self) -> LaserBiasLowAlarmMaskTxRange:
         return LaserBiasLowAlarmMaskTxRange(
             self, self._search_group("LaserBiasLowAlarmMaskTx")
         )
 
-    # 0Ah:224
+    # 10h:224
     @property
     def LaserBiasHighWarningMaskTx(self) -> LaserBiasHighWarningMaskTxRange:
         return LaserBiasHighWarningMaskTxRange(
             self, self._search_group("LaserBiasHighWarningMaskTx")
         )
 
-    # 0Ah:225
+    # 10h:225
     @property
     def LaserBiasLowWarningMaskTx(self) -> LaserBiasLowWarningMaskTxRange:
         return LaserBiasLowWarningMaskTxRange(
             self, self._search_group("LaserBiasLowWarningMaskTx")
         )
 
-    # 0Ah:226
+    # 10h:226
     @property
     def LOSMaskRx(self) -> LOSMaskRxRange:
         return LOSMaskRxRange(self, self._search_group("LOSMaskRx"))
 
-    # 0Ah:227
+    # 10h:227
     @property
     def CDRLOLMaskRx(self) -> CDRLOLMaskRxRange:
         return CDRLOLMaskRxRange(self, self._search_group("CDRLOLMaskRx"))
 
-    # 0Ah:228
+    # 10h:228
     @property
     def OpticalPowerHighAlarmMaskRx(self) -> OpticalPowerHighAlarmMaskRxRange:
         return OpticalPowerHighAlarmMaskRxRange(
             self, self._search_group("OpticalPowerHighAlarmMaskRx")
         )
 
-    # 0Ah:229
+    # 10h:229
     @property
     def OpticalPowerLowAlarmMaskRx(self) -> OpticalPowerLowAlarmMaskRxRange:
         return OpticalPowerLowAlarmMaskRxRange(
             self, self._search_group("OpticalPowerLowAlarmMaskRx")
         )
 
-    # 0Ah:230
+    # 10h:230
     @property
     def OpticalPowerHighWarningMaskRx(self) -> OpticalPowerHighWarningMaskRxRange:
         return OpticalPowerHighWarningMaskRxRange(
             self, self._search_group("OpticalPowerHighWarningMaskRx")
         )
 
-    # 0Ah:231
+    # 10h:231
     @property
     def OpticalPowerLowWarningMaskRx(self) -> OpticalPowerLowWarningMaskRxRange:
         return OpticalPowerLowWarningMaskRxRange(
             self, self._search_group("OpticalPowerLowWarningMaskRx")
         )
 
-    # 0Ah:232
+    # 10h:232
     @property
     def OutputStatusChangedMaskRx(self) -> OutputStatusChangedMaskRxRange:
         return OutputStatusChangedMaskRxRange(

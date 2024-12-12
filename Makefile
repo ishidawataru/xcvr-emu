@@ -10,6 +10,10 @@ VERSION ?= $(shell git describe --tags --always --dirty)
 generate-grpc:
 	$(PYTHON) -m grpc.tools.protoc -I$(PROTO_DIR) --python_out=$(OUT_DIR) --grpc_python_out=$(OUT_DIR) --mypy_out=$(OUT_DIR) $(PROT_FILE)
 
+.PHONY: generate-cmis
+generate-cmis:
+	cd src/cmis && $(PYTHON) -m base.gen > cmis.py && black cmis.py
+
 test: ruff mypy pytest
 
 pytest:
@@ -19,7 +23,7 @@ ruff:
 	$(PYTHON) -m ruff check .
 
 mypy:
-	$(PYTHON) -m mypy src/xcvr_emu tests
+	$(PYTHON) -m mypy src/xcvr_emu src/cmis tests
 
 docker:
 	docker build -t xcvr_emu:$(VERSION) .
