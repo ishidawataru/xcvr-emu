@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/ishidawataru/xcvr-emu/compare/v1.0.0...v1.0.1) (2024-12-12)
+
+
+### Bug Fixes
+
+* fix wrong cmis import ([b8dc3be](https://github.com/ishidawataru/xcvr-emu/commit/b8dc3bee9872b78908a775b2a10b4380c5535fc2))
+
 ## [1.0.0](https://github.com/ishidawataru/xcvr-emu/compare/v0.2.0...v1.0.0) (2024-12-12)
 
 
