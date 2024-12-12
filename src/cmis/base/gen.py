@@ -1,9 +1,9 @@
-from .base import MemMap, RangeGroup, Field
-
 import logging
+from typing import Collection
+
 import jinja2
 
-from typing import Collection
+from .base import Field, MemMap, RangeGroup
 
 logger = logging.getLogger(__name__)
 
