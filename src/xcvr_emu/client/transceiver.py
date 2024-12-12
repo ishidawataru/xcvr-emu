@@ -2,7 +2,7 @@ import logging
 from typing import Generator
 
 from xcvr_emu.cli import Command, Context
-from xcvr_emu.eeprom.cmis import Address, MemMap
+from cmis import Address, MemMap
 from xcvr_emu.proto import emulator_pb2 as pb2
 
 stdout = logging.getLogger("stdout")
@@ -13,10 +13,6 @@ class TransceiverCommand(Command):
     @property
     def conn(self):
         return self.context.root().conn
-
-    @property
-    def eeprom(self):
-        return self.context.eeprom
 
     @property
     def read(self):
