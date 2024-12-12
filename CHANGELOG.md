@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.0.0](https://github.com/ishidawataru/xcvr-emu/compare/v0.2.0...v1.0.0) (2024-12-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* migration to cmis library
+
+### Features
+
+* add main entry point to xcvr_emud and xcvr_emush scripts ([b101c21](https://github.com/ishidawataru/xcvr-emu/commit/b101c21210d1c8eb04d7b4bb75ac5619fbd62adc))
+* **client:** Create/Delete support ([10c4c1e](https://github.com/ishidawataru/xcvr-emu/commit/10c4c1ebea9bad504079ba6800bc149253c51e0c))
+* migration to cmis library ([601e211](https://github.com/ishidawataru/xcvr-emu/commit/601e2117e6ae40b617b8c586a4dd005451af0a7c))
+* **server:** add type hint for Monitor method ([7f04ad8](https://github.com/ishidawataru/xcvr-emu/commit/7f04ad84bcfc7830aa0176f83ca9b02d8f8f23d8))
+* **server:** refactor server management and improve shutdown handling ([a149972](https://github.com/ishidawataru/xcvr-emu/commit/a149972a30ce0725dbea0b531205d2dbe2a6a7fd))
+* **transceiver:** add ModuleGlobalControls and update low power handling ([27eaff9](https://github.com/ishidawataru/xcvr-emu/commit/27eaff935b09e80608e667e1bc47c71e83ebb1ee))
+
 ## [0.2.0](https://github.com/ishidawataru/xcvr-emu/compare/v0.1.0...v0.2.0) (2024-11-17)
 
 
