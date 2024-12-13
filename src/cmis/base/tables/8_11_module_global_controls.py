@@ -73,7 +73,7 @@ info = {
             (2, 0): {"Name": "Custom", "Description": "Custom"},
             (7, 0): {"Name": "ModuleGlobalControls"},  # alias
         },
-        (27, 28): {"Name": "Reserved[2]", "Description": "Reserved"},
-        (29, 30): {"Name": "Custom[2]", "Description": "Custom"},
+        (27, 28): {"Name": "Reserved", "Description": "Reserved"},
+        (29, 30): {"Name": "Custom", "Description": "Custom"},
     },
 }

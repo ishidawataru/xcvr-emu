@@ -164,7 +164,7 @@ info = {
                 "Type": ["Adv"],
             },
         },
-        12: {(7, 0): {"Name": "Reserved[1]", "Description": "Reserved for Flags"}},
-        13: {(7, 0): {"Name": "Custom[1]", "Description": "Custom Flags"}},
+        12: {(7, 0): {"Name": "Reserved", "Description": "Reserved for Flags"}},
+        13: {(7, 0): {"Name": "Custom", "Description": "Custom Flags"}},
     },
 }

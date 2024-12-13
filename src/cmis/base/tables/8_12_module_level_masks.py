@@ -157,7 +157,7 @@ info = {
                 "Type": ["RW", "Adv"],
             },
         },
-        35: {(7, 0): {"Name": "Reserved[1]", "Description": "Reserved for Masks"}},
-        36: {(7, 0): {"Name": "Custom[1]", "Description": "Module level Masks"}},
+        35: {(7, 0): {"Name": "Reserved", "Description": "Reserved for Masks"}},
+        36: {(7, 0): {"Name": "Custom", "Description": "Module level Masks"}},
     },
 }
