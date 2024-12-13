@@ -58,7 +58,7 @@ info = {
             },
         },
         133: {
-            "Name": "Reserved[1]",
+            "Name": "Reserved",
         },
         134: {
             range(0, 8): {
@@ -138,7 +138,7 @@ info = {
         },
         (140, 142): {
             "Name": "Reserved",
-            "Description": "Reserved[3]",
+            "Description": "Reserved",
             "Type": ["RO"],
         },
     },

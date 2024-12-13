@@ -158,7 +158,7 @@ info = {
             },
         },
         (213, 220): {"Name": "Reserved", "Description": "Reserved", "Type": ["RO"]},
-        221: {"Name": "Custom", "Description": "Custom[1]", "Type": ["RO"]},
+        221: {"Name": "Custom", "Description": "Custom", "Type": ["RO"]},
         222: {
             "Name": "PageChecksum",
             "Description": "Page Checksum over bytes 128-221",
@@ -166,7 +166,7 @@ info = {
         },
         (223, 255): {
             "Name": "Custom",
-            "Description": "Custom[33] Information (non-volatile)",
+            "Description": "Custom Information (non-volatile)",
             "Type": ["RO"],
         },
     },
