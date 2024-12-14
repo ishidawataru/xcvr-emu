@@ -42,6 +42,8 @@ def get_value_enum_name(f, values):
         return "SuccessOrFailed"
     elif any(v[0] == "APPLICATION_DEPENDENT" for v in values):
         return "ExplicitControlFlag"
+    elif any(v[0] == "GBIC" for v in values):
+        return "Identifier"
 
     return f"ValueEnum_{id(f)}"
 
