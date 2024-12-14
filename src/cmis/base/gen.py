@@ -405,14 +405,14 @@ class MemMap(BaseMemMap):
                     fields.append((f, values, None))
                     exports.append(f.name)
 
-            fields = [
-                (
-                    (f, [], value_set[frozenset(values)]["name"])
-                    if values and len(value_set[frozenset(values)]["fields"]) > 1
-                    else (f, sorted(values, key=lambda x: x[1]), None)
-                )
-                for f, values, _ in fields
-            ]
+        fields = [
+            (
+                (f, [], value_set[frozenset(values)]["name"])
+                if values and len(value_set[frozenset(values)]["fields"]) > 1
+                else (f, sorted(values, key=lambda x: x[1]), None)
+            )
+            for f, values, _ in fields
+        ]
 
         print()
 

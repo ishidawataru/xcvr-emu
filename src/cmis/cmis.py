@@ -2410,7 +2410,7 @@ class ModuleGlobalControls(Field):
     pass
 
 
-class SFF8024Identifier(Field):
+class SFF8024Identifier(Field, Identifier):
 
     pass
 
@@ -2509,7 +2509,7 @@ class MediaType(Field):
     BASE_T = MediaTypeEnum.BASE_T
 
 
-class SFF8024IdentifierCopy(Field):
+class SFF8024IdentifierCopy(Field, Identifier):
 
     pass
 
