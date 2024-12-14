@@ -139,18 +139,18 @@ class CMISTransceiver:
     def present(self) -> bool:
         return self._present
 
-    async def read(self, req: ReadRequest) -> bytearray:
+    def read(self, req: ReadRequest) -> bytes:
         if not req.force and not self.present:
-            return bytearray(b"\x00" * req.length)
+            return b"\x00" * req.length
         return self.mem_map.read(req.index, req.page, req.offset, req.length)
 
-    async def write(self, req: WriteRequest) -> None:
+    def write(self, req: WriteRequest) -> None:
         self.mem_map.write(req.index, req.page, req.offset, req.length, req.data)
         if req.length == 1:
             address = Address(req.page, req.offset)
         else:
             address = Address(req.page, (req.offset, req.offset + req.length - 1))
-        await self._queue.put((req, address))
+        self._queue.put_nowait((req, address))
 
     async def plugout(self) -> None:
         self._present = False
@@ -167,7 +167,7 @@ class CMISTransceiver:
         self._present = True
         self._task = asyncio.create_task(self._run())
         control = self.mem_map.ModuleGlobalControls
-        await self.write(
+        self.write(
             WriteRequest(
                 page=control.address.page,
                 offset=control.address.offset,

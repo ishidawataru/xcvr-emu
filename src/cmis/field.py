@@ -42,7 +42,7 @@ class EEPROM:
             self.prefix
             + f"Reading from {bank=}, {page=}, {offset=}, {length=} -> data={int.from_bytes(data, 'big'):0b}"
         )
-        return data
+        return bytes(data)
 
     def write(
         self, bank: int, page: int, offset: int, length: int, data: bytes
