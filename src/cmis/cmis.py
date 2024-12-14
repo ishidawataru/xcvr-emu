@@ -231,6 +231,94 @@ class CdbStatusRange(RangeGroup, CdbStatus):
         )
 
 
+class IdentifierEnum(Enum):
+
+    UNKNOWN = 0
+    GBIC = 1
+    MODULE_SOLDERED = 2
+    SFP = 3
+    XBI = 4
+    XENPAK = 5
+    XFP = 6
+    XFF = 7
+    XFP_E = 8
+    XPAK = 9
+    X2 = 10
+    DWDM_SFP = 11
+    QSFP = 12
+    QSFP_PLUS = 13
+    CXP = 14
+    SHIELDED_MINI_MULTILANE_HD_4X = 15
+    SHIELDED_MINI_MULTILANE_HD_8X = 16
+    QSFP28 = 17
+    CXP2 = 18
+    CDFP_STYLE1_STYLE2 = 19
+    SHIELDED_MINI_MULTILANE_HD_4X_FANOUT = 20
+    SHIELDED_MINI_MULTILANE_HD_8X_FANOUT = 21
+    CDFP_STYLE3 = 22
+    MICRO_QSFP = 23
+    QSFP_DD = 24
+    OSFP = 25
+    SFP_DD = 26
+    DSFP = 27
+    X4_MINILINK = 28
+    X8_MINILINK = 29
+    QSFP_PLUS_CMIS = 30
+    SFP_DD_CMIS = 31
+    SFP_PLUS_CMIS = 32
+    OSFP_XD = 33
+    OIF_ELSFP = 34
+    CDFP_X4 = 35
+    CDFP_X8 = 36
+    CDFP_X16 = 37
+
+
+class Identifier:
+
+    UNKNOWN = IdentifierEnum.UNKNOWN
+    GBIC = IdentifierEnum.GBIC
+    MODULE_SOLDERED = IdentifierEnum.MODULE_SOLDERED
+    SFP = IdentifierEnum.SFP
+    XBI = IdentifierEnum.XBI
+    XENPAK = IdentifierEnum.XENPAK
+    XFP = IdentifierEnum.XFP
+    XFF = IdentifierEnum.XFF
+    XFP_E = IdentifierEnum.XFP_E
+    XPAK = IdentifierEnum.XPAK
+    X2 = IdentifierEnum.X2
+    DWDM_SFP = IdentifierEnum.DWDM_SFP
+    QSFP = IdentifierEnum.QSFP
+    QSFP_PLUS = IdentifierEnum.QSFP_PLUS
+    CXP = IdentifierEnum.CXP
+    SHIELDED_MINI_MULTILANE_HD_4X = IdentifierEnum.SHIELDED_MINI_MULTILANE_HD_4X
+    SHIELDED_MINI_MULTILANE_HD_8X = IdentifierEnum.SHIELDED_MINI_MULTILANE_HD_8X
+    QSFP28 = IdentifierEnum.QSFP28
+    CXP2 = IdentifierEnum.CXP2
+    CDFP_STYLE1_STYLE2 = IdentifierEnum.CDFP_STYLE1_STYLE2
+    SHIELDED_MINI_MULTILANE_HD_4X_FANOUT = (
+        IdentifierEnum.SHIELDED_MINI_MULTILANE_HD_4X_FANOUT
+    )
+    SHIELDED_MINI_MULTILANE_HD_8X_FANOUT = (
+        IdentifierEnum.SHIELDED_MINI_MULTILANE_HD_8X_FANOUT
+    )
+    CDFP_STYLE3 = IdentifierEnum.CDFP_STYLE3
+    MICRO_QSFP = IdentifierEnum.MICRO_QSFP
+    QSFP_DD = IdentifierEnum.QSFP_DD
+    OSFP = IdentifierEnum.OSFP
+    SFP_DD = IdentifierEnum.SFP_DD
+    DSFP = IdentifierEnum.DSFP
+    X4_MINILINK = IdentifierEnum.X4_MINILINK
+    X8_MINILINK = IdentifierEnum.X8_MINILINK
+    QSFP_PLUS_CMIS = IdentifierEnum.QSFP_PLUS_CMIS
+    SFP_DD_CMIS = IdentifierEnum.SFP_DD_CMIS
+    SFP_PLUS_CMIS = IdentifierEnum.SFP_PLUS_CMIS
+    OSFP_XD = IdentifierEnum.OSFP_XD
+    OIF_ELSFP = IdentifierEnum.OIF_ELSFP
+    CDFP_X4 = IdentifierEnum.CDFP_X4
+    CDFP_X8 = IdentifierEnum.CDFP_X8
+    CDFP_X16 = IdentifierEnum.CDFP_X16
+
+
 class MediaLaneMappingTx(Field):
 
     pass
@@ -2510,9 +2598,60 @@ class BaseLength(Field):
     pass
 
 
+class ConnectorTypeEnum(Enum):
+
+    UNKNOWN = 0
+    SC = 1
+    FC_STYLE_1_COPPER = 2
+    FC_STYLE_2_COPPER = 3
+    BNC_TNC = 4
+    FC = 5
+    FIBERJACK = 6
+    LC = 7
+    MT_RJ = 8
+    MU = 9
+    SG = 10
+    OPTICAL_PIGTAIL = 11
+    MPO_1X12 = 12
+    MPO_2X16 = 13
+    HSSDC_II = 32
+    COPPER_PIGTAIL = 33
+    RJ45 = 34
+    NO_SEPARABLE = 35
+    MXC_2X16 = 36
+    CS = 37
+    SN = 38
+    MPO_2X12 = 39
+    MPO_1X16 = 40
+
+
 class ConnectorType(Field):
 
-    pass
+    EnumClass = ConnectorTypeEnum
+
+    UNKNOWN = ConnectorTypeEnum.UNKNOWN
+    SC = ConnectorTypeEnum.SC
+    FC_STYLE_1_COPPER = ConnectorTypeEnum.FC_STYLE_1_COPPER
+    FC_STYLE_2_COPPER = ConnectorTypeEnum.FC_STYLE_2_COPPER
+    BNC_TNC = ConnectorTypeEnum.BNC_TNC
+    FC = ConnectorTypeEnum.FC
+    FIBERJACK = ConnectorTypeEnum.FIBERJACK
+    LC = ConnectorTypeEnum.LC
+    MT_RJ = ConnectorTypeEnum.MT_RJ
+    MU = ConnectorTypeEnum.MU
+    SG = ConnectorTypeEnum.SG
+    OPTICAL_PIGTAIL = ConnectorTypeEnum.OPTICAL_PIGTAIL
+    MPO_1X12 = ConnectorTypeEnum.MPO_1X12
+    MPO_2X16 = ConnectorTypeEnum.MPO_2X16
+    HSSDC_II = ConnectorTypeEnum.HSSDC_II
+    COPPER_PIGTAIL = ConnectorTypeEnum.COPPER_PIGTAIL
+    RJ45 = ConnectorTypeEnum.RJ45
+    NO_SEPARABLE = ConnectorTypeEnum.NO_SEPARABLE
+    MXC_2X16 = ConnectorTypeEnum.MXC_2X16
+    CS = ConnectorTypeEnum.CS
+    SN = ConnectorTypeEnum.SN
+    MPO_2X12 = ConnectorTypeEnum.MPO_2X12
+    MPO_1X16 = ConnectorTypeEnum.MPO_1X16
 
 
 class MediaInterfaceTechnologyEnum(Enum):
@@ -5299,6 +5438,8 @@ CMIS_EXPORTS = [
     "Aux3MonValue",
     "CustomMonValue",
     "MediaType",
+    "Identifier",
+    "IdentifierEnum",
     "SFF8024IdentifierCopy",
     "VendorName",
     "VendorOUI",
