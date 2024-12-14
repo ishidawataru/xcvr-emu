@@ -4,7 +4,7 @@ import logging
 import pytest
 import pytest_asyncio
 
-from cmis import ModuleState
+from cmis import MemMap
 from xcvr_emu.proto.emulator_pb2 import ReadRequest, WriteRequest
 from xcvr_emu.transceiver import CMISTransceiver
 
@@ -23,45 +23,50 @@ async def xcvr(caplog):
 @pytest.mark.asyncio
 async def test_read(xcvr):
     req = ReadRequest(index=0, bank=0, offset=0, page=0, length=1)
-    assert await xcvr.read(req) == bytearray([0x18])  # QSFP-DD
+    assert xcvr.read(req) == bytes([0x18])  # QSFP-DD
 
 
 @pytest.mark.asyncio
 async def test_write(xcvr):
     req = WriteRequest(index=0, bank=0, offset=0, page=0, length=1, data=bytes([0xAA]))
-    await xcvr.write(req)
+    xcvr.write(req)
     req = ReadRequest(index=0, bank=0, offset=0, page=0, length=1)
-    assert await xcvr.read(req) == bytearray([0xAA])
+    assert xcvr.read(req) == bytes([0xAA])
+
+class MemoryAccessor:
+    def __init__(self, xcvr: CMISTransceiver):
+        self.xcvr = xcvr
+
+    def read(self, bank: int, page: int, offset: int, length: int) -> bytes:
+        req = ReadRequest(index=0, bank=bank, offset=offset, page=page, length=length)
+        return self.xcvr.read(req)
+
+    def write(
+        self, bank: int, page: int, offset: int, length: int, data: bytes
+    ) -> None:
+        req = WriteRequest(index=0, bank=bank, offset=offset, page=page, length=length, data=data)
+        self.xcvr.write(req)
+
 
 
 @pytest.mark.asyncio
 async def test_lowpwr_handling(caplog, xcvr: CMISTransceiver):
-    assert xcvr._state == ModuleState.MODULE_LOW_PWR
 
-    low_pwr_req = xcvr.mem_map.LowPwrRequestSW
-    res = await xcvr.read(ReadRequest(offset=low_pwr_req.address.offset, length=1))
-    assert ((res[0] >> low_pwr_req.address.bit) & 1) == low_pwr_req.LOW_POWER_MODE.value
+    m = MemMap(remote=MemoryAccessor(xcvr))
 
-    await xcvr.write(
-        WriteRequest(offset=low_pwr_req.address.offset, length=1, data=bytes([0]))
-    )
+    assert m.ModuleState.value == m.ModuleState.MODULE_LOW_PWR
+    assert m.LowPwrRequestSW.value == m.LowPwrRequestSW.LOW_POWER_MODE
+
+    m.LowPwrRequestSW.value = m.LowPwrRequestSW.NO_REQUEST
 
     await asyncio.sleep(0.1)
 
-    low_pwr_req = xcvr.mem_map.LowPwrRequestSW
-    res = await xcvr.read(ReadRequest(offset=low_pwr_req.address.offset, length=1))
-    assert ((res[0] >> low_pwr_req.address.bit) & 1) == low_pwr_req.NO_REQUEST.value
+    assert m.LowPwrRequestSW.value == m.LowPwrRequestSW.NO_REQUEST
+    assert m.ModuleState.value == m.ModuleState.MODULE_READY
 
-    assert xcvr._state == ModuleState.MODULE_READY
-
-    data: int = res[0] | (low_pwr_req.LOW_POWER_MODE.value << low_pwr_req.address.bit)
-
-    await xcvr.write(
-        WriteRequest(
-            offset=low_pwr_req.address.offset, length=1, data=data.to_bytes(1, "big")
-        )
-    )
+    m.LowPwrRequestSW.value = m.LowPwrRequestSW.LOW_POWER_MODE
 
     await asyncio.sleep(0.1)
 
-    assert xcvr._state == ModuleState.MODULE_LOW_PWR
+    assert m.ModuleState.value == m.ModuleState.MODULE_LOW_PWR
+    assert m.LowPwrRequestSW.value == m.LowPwrRequestSW.LOW_POWER_MODE

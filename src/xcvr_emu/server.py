@@ -66,7 +66,9 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorServiceServicer):
             )
 
         xcvr = self.xcvrs[req.index]
-        data = bytes(await xcvr.read(req))
+        data = xcvr.read(req)
+
+        logger.debug(f"Read: bank: {req.bank}, page: {req.page:02X}h, offset: {req.offset}, length: {req.length}, data: {data if len(data) > 1 else bin(data[0])!r}")
 
         await self.notify_monitors(
             {
@@ -96,7 +98,7 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorServiceServicer):
         )
 
         try:
-            await xcvr.write(req)
+            xcvr.write(req)
         except Exception as e:
             logger.error(f"Error writing to EEPROM: {e}")
             traceback.print_exc()
