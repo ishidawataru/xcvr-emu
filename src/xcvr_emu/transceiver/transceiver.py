@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from cmis import Address, LowPwrRequestSW, MemMap, ModuleState
+from cmis import Address, LowPwrRequestSW, MemMap, ModuleState, DPStateHostLane, SteppedConfigOnly
 
 from ..dpsm import DataPathStateMachine
 from ..proto.emulator_pb2 import ReadRequest, WriteRequest
@@ -49,14 +49,14 @@ class CMISTransceiver:
 
         for dpsm in dpsms.values():
             if not dpsm.update_state():
-                logger.warn(f"DPSM invalid config: {dpsm}")
+                logger.warning(f"DPSM invalid config: {dpsm}")
 
         self._dpsms = dpsms
 
     def _apply_dpinit(self):
         for i, scs in enumerate(self.mem_map.SCS0_DPConfigLane):
             value = scs.value
-            logger.info(f"Applying DPInit({i}): {value:b}")
+            logger.info(f"Applying DPInit({i}): {value:b} AppSelCode: {scs.AppSelCode.value}")
             self.mem_map.ACS_DPConfigLane[i].value = value
             if scs.AppSelCode.value == 0:
                 continue
@@ -135,6 +135,11 @@ class CMISTransceiver:
         self.mem_map.ModuleState.value = ModuleState.MODULE_LOW_PWR
         self.mem_map.LowPwrRequestSW.value = LowPwrRequestSW.LOW_POWER_MODE
 
+        self.mem_map.SteppedConfigOnly.value = SteppedConfigOnly.STEP_BY_STEP # no support for intervention-free reconfiguration
+
+        for v in self.mem_map.DPStateHostLane:
+            v.value = DPStateHostLane.DPDEACTIVATED
+
     @property
     def present(self) -> bool:
         return self._present
@@ -186,7 +191,7 @@ class CMISTransceiver:
 
             logger.debug(f"Handling address: {address}")
 
-            if address == self.mem_map.ModuleGlobalControls.address:
+            if address.includes(self.mem_map.ModuleGlobalControls.address):
                 prev_state = self._state
                 software_reset = self.mem_map.SoftwareReset
                 if software_reset.value == software_reset.RESET:
@@ -211,13 +216,13 @@ class CMISTransceiver:
                 case ModuleState.MODULE_READY:
                     logger.info(f"ready: {address}")
                     dp_state_fields = [
-                        self.mem_map.DPInitPendingLane,
+                        self.mem_map.DPDeinitLane,
                         self.mem_map.OutputDisableTx,
                     ]
                     if any(address == f.address for f in dp_state_fields):
                         for dpsm in self._dpsms.values():
                             if not dpsm.update_state():
-                                logger.warn(f"DPSM invalid config: {dpsm}")
-                    elif self.mem_map.SCS0_ApplyTriggers.address.overraps(address):
+                                logger.warning(f"DPSM invalid config: {dpsm}")
+                    elif address.includes(self.mem_map.SCS0_ApplyTriggers.ApplyDPInitLane.address):
                         if self._apply_dpinit():
                             self._init_dpsms()

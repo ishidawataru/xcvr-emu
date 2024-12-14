@@ -4,7 +4,7 @@ import logging
 import pytest
 import pytest_asyncio
 
-from cmis import MemMap
+from cmis import MemMap, LanesEnum
 from xcvr_emu.proto.emulator_pb2 import ReadRequest, WriteRequest
 from xcvr_emu.transceiver import CMISTransceiver
 
@@ -33,6 +33,7 @@ async def test_write(xcvr):
     req = ReadRequest(index=0, bank=0, offset=0, page=0, length=1)
     assert xcvr.read(req) == bytes([0xAA])
 
+
 class MemoryAccessor:
     def __init__(self, xcvr: CMISTransceiver):
         self.xcvr = xcvr
@@ -44,9 +45,10 @@ class MemoryAccessor:
     def write(
         self, bank: int, page: int, offset: int, length: int, data: bytes
     ) -> None:
-        req = WriteRequest(index=0, bank=bank, offset=offset, page=page, length=length, data=data)
+        req = WriteRequest(
+            index=0, bank=bank, offset=offset, page=page, length=length, data=data
+        )
         self.xcvr.write(req)
-
 
 
 @pytest.mark.asyncio
@@ -70,3 +72,70 @@ async def test_lowpwr_handling(caplog, xcvr: CMISTransceiver):
 
     assert m.ModuleState.value == m.ModuleState.MODULE_LOW_PWR
     assert m.LowPwrRequestSW.value == m.LowPwrRequestSW.LOW_POWER_MODE
+
+
+@pytest.mark.asyncio
+async def test_dpsm_activation(caplog, xcvr: CMISTransceiver):
+
+    m = MemMap(remote=MemoryAccessor(xcvr))
+
+    m.LowPwrRequestSW.value = m.LowPwrRequestSW.NO_REQUEST
+
+    await asyncio.sleep(0.1)
+
+    assert m.ModuleState.value == m.ModuleState.MODULE_READY
+    assert m.ApplicationDescriptor[0].HostLaneCount.value == LanesEnum.FOUR_LANES
+
+    for i in range(4):
+        assert m.DPStateHostLane[i].value == m.DPStateHostLane.DPACTIVATED
+        assert m.DPStateHostLane[i + 4].value == m.DPStateHostLane.DPDEACTIVATED
+
+    for deinit in m.DPDeinitLane:
+        assert deinit.value == deinit.INITIALIZE
+
+    for i in range(4):
+        m.DPDeinitLane[i].lvalue = m.DPDeinitLane.DEINITIALIZE
+    m.DPDeinitLane.store()
+
+    await asyncio.sleep(0.1)
+
+    for i in range(4):
+        assert m.DPStateHostLane[i].value == m.DPStateHostLane.DPDEACTIVATED
+
+    for i in range(4):
+        m.DPDeinitLane[i].lvalue = m.DPDeinitLane.INITIALIZE
+    m.DPDeinitLane.store()
+
+    await asyncio.sleep(0.1)
+
+    for i in range(4):
+        assert m.DPStateHostLane[i].value == m.DPStateHostLane.DPACTIVATED
+
+
+@pytest.mark.asyncio
+async def test_dpsm_output_disable_handling(caplog, xcvr: CMISTransceiver):
+
+    m = MemMap(remote=MemoryAccessor(xcvr))
+
+    for output in m.OutputDisableTx:
+        output.value = output.DISABLED
+
+    m.LowPwrRequestSW.value = m.LowPwrRequestSW.NO_REQUEST
+
+    await asyncio.sleep(0.1)
+
+    assert m.ModuleState.value == m.ModuleState.MODULE_READY
+    assert m.ApplicationDescriptor[0].HostLaneCount.value == LanesEnum.FOUR_LANES
+
+    for i in range(4):
+        assert m.DPStateHostLane[i].value == m.DPStateHostLane.DPINITIALIZED
+        assert m.DPStateHostLane[i + 4].value == m.DPStateHostLane.DPDEACTIVATED
+
+    for output in m.OutputDisableTx:
+        output.lvalue = output.ENABLED
+    m.OutputDisableTx.store()
+
+    await asyncio.sleep(0.1)
+
+    for i in range(4):
+        assert m.DPStateHostLane[i].value == m.DPStateHostLane.DPACTIVATED
