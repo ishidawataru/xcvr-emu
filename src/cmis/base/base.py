@@ -450,6 +450,8 @@ class Field:
         lines.append(f"Name: {self.name}, Address: {str(self.address)}")
         lines.append(f"Type: {self.fields.get('Type')}")
         lines.append(f"Table: {self.parent_info['TableName']}")
+        if self.parent_info.get("FileName"):
+            lines.append(f"File: {self.parent_info['FileName']}")
         if self.fields.get("Description"):
             lines.append(f"Description: {self.fields.get('Description')}")
 
@@ -716,7 +718,7 @@ class Page:
 
 
 class MemMap:
-    def register(self, info):
+    def register(self, info, filename=""):
         page_num, name, field_dict, description = (
             info["Page"],
             info["Name"],
@@ -724,7 +726,7 @@ class MemMap:
             info["Description"],
         )
         page = self.pages.get(page_num, Page(page_num))
-        page.update({"TableName": name, "TableDescription": description}, field_dict)
+        page.update({"FileName": filename, "TableName": name, "TableDescription": description}, field_dict)
         self.pages[page_num] = page
         self.field_map.update(page.field_map)
         self.group_map.update(page.group_map)
@@ -759,7 +761,7 @@ class MemMap:
             info = table.get("info")
             if info:
                 logger.info(f"registering {f}, table={info['Name']}")
-                self.register(info)
+                self.register(info, f)
 
     def search(
         self,
