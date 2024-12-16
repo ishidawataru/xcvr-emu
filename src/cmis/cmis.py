@@ -8,32 +8,6 @@ from enum import Enum
 from .field import BaseMemMap, Field, Group, RangeGroup
 
 
-class MediaLaneUnsupportedLaneEnum(Enum):
-    SUPPORTED = 0
-    NOT_SUPPORTED = 1
-
-
-class MediaLaneUnsupportedLane(Field):
-
-    EnumClass = MediaLaneUnsupportedLaneEnum
-
-    SUPPORTED = MediaLaneUnsupportedLaneEnum.SUPPORTED
-    NOT_SUPPORTED = MediaLaneUnsupportedLaneEnum.NOT_SUPPORTED
-
-
-class MediaLaneUnsupportedLaneRange(RangeGroup, MediaLaneUnsupportedLane):
-    def __getitem__(self, index: int) -> MediaLaneUnsupportedLane:
-        return MediaLaneUnsupportedLane(
-            self.mem_map, self.field.subfields[index], index
-        )
-
-    def __iter__(self) -> Iterator[MediaLaneUnsupportedLane]:
-        return iter(
-            MediaLaneUnsupportedLane(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
 class CmisRevision(Group):
     class MajorCls(Field):
 
@@ -52,6 +26,63 @@ class CmisRevision(Group):
     def Minor(self) -> "CmisRevision.MinorCls":
         field = self.subfields["Minor"]
         return CmisRevision.MinorCls(self.mem_map, field, self.index)
+
+
+class IdleOrBusyEnum(Enum):
+
+    IDLE = 0
+    BUSY = 1
+
+
+class SuccessOrFailedEnum(Enum):
+
+    SUCCESS = 0
+    FAILED = 1
+
+
+class CdbStatus(Group):
+    class CdbIsBusyCls(Field):
+
+        EnumClass = IdleOrBusyEnum
+
+        IDLE = IdleOrBusyEnum.IDLE
+        BUSY = IdleOrBusyEnum.BUSY
+
+    @property
+    def CdbIsBusy(self) -> "CdbStatus.CdbIsBusyCls":
+        field = self.subfields["CdbIsBusy"]
+        return CdbStatus.CdbIsBusyCls(self.mem_map, field, self.index)
+
+    class CdbHasFailedCls(Field):
+
+        EnumClass = SuccessOrFailedEnum
+
+        SUCCESS = SuccessOrFailedEnum.SUCCESS
+        FAILED = SuccessOrFailedEnum.FAILED
+
+    @property
+    def CdbHasFailed(self) -> "CdbStatus.CdbHasFailedCls":
+        field = self.subfields["CdbHasFailed"]
+        return CdbStatus.CdbHasFailedCls(self.mem_map, field, self.index)
+
+    class CdbCommandResultCls(Field):
+
+        pass
+
+    @property
+    def CdbCommandResult(self) -> "CdbStatus.CdbCommandResultCls":
+        field = self.subfields["CdbCommandResult"]
+        return CdbStatus.CdbCommandResultCls(self.mem_map, field, self.index)
+
+
+class CdbStatusRange(RangeGroup, CdbStatus):
+    def __getitem__(self, index: int) -> CdbStatus:
+        return CdbStatus(self.mem_map, self.field.subfields[index], index)
+
+    def __iter__(self) -> Iterator[CdbStatus]:
+        return iter(
+            CdbStatus(self.mem_map, f, i) for i, f in enumerate(self.field.subfields)
+        )
 
 
 class LanesEnum(Enum):
@@ -174,60 +205,29 @@ class DateCode(Group):
         return DateCode.LotCodeCls(self.mem_map, field, self.index)
 
 
-class IdleOrBusyEnum(Enum):
-
-    IDLE = 0
-    BUSY = 1
-
-
-class SuccessOrFailedEnum(Enum):
-
-    SUCCESS = 0
-    FAILED = 1
+class MediaLaneUnsupportedLaneEnum(Enum):
+    SUPPORTED = 0
+    NOT_SUPPORTED = 1
 
 
-class CdbStatus(Group):
-    class CdbIsBusyCls(Field):
+class MediaLaneUnsupportedLane(Field):
 
-        EnumClass = IdleOrBusyEnum
+    EnumClass = MediaLaneUnsupportedLaneEnum
 
-        IDLE = IdleOrBusyEnum.IDLE
-        BUSY = IdleOrBusyEnum.BUSY
-
-    @property
-    def CdbIsBusy(self) -> "CdbStatus.CdbIsBusyCls":
-        field = self.subfields["CdbIsBusy"]
-        return CdbStatus.CdbIsBusyCls(self.mem_map, field, self.index)
-
-    class CdbHasFailedCls(Field):
-
-        EnumClass = SuccessOrFailedEnum
-
-        SUCCESS = SuccessOrFailedEnum.SUCCESS
-        FAILED = SuccessOrFailedEnum.FAILED
-
-    @property
-    def CdbHasFailed(self) -> "CdbStatus.CdbHasFailedCls":
-        field = self.subfields["CdbHasFailed"]
-        return CdbStatus.CdbHasFailedCls(self.mem_map, field, self.index)
-
-    class CdbCommandResultCls(Field):
-
-        pass
-
-    @property
-    def CdbCommandResult(self) -> "CdbStatus.CdbCommandResultCls":
-        field = self.subfields["CdbCommandResult"]
-        return CdbStatus.CdbCommandResultCls(self.mem_map, field, self.index)
+    SUPPORTED = MediaLaneUnsupportedLaneEnum.SUPPORTED
+    NOT_SUPPORTED = MediaLaneUnsupportedLaneEnum.NOT_SUPPORTED
 
 
-class CdbStatusRange(RangeGroup, CdbStatus):
-    def __getitem__(self, index: int) -> CdbStatus:
-        return CdbStatus(self.mem_map, self.field.subfields[index], index)
+class MediaLaneUnsupportedLaneRange(RangeGroup, MediaLaneUnsupportedLane):
+    def __getitem__(self, index: int) -> MediaLaneUnsupportedLane:
+        return MediaLaneUnsupportedLane(
+            self.mem_map, self.field.subfields[index], index
+        )
 
-    def __iter__(self) -> Iterator[CdbStatus]:
+    def __iter__(self) -> Iterator[MediaLaneUnsupportedLane]:
         return iter(
-            CdbStatus(self.mem_map, f, i) for i, f in enumerate(self.field.subfields)
+            MediaLaneUnsupportedLane(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
         )
 
 
@@ -319,835 +319,70 @@ class Identifier:
     CDFP_X16 = IdentifierEnum.CDFP_X16
 
 
-class MediaLaneMappingTx(Field):
+class MediaLaneAssignmentOptions(Field):
 
     pass
 
 
-class MediaLaneMappingTxRange(RangeGroup, MediaLaneMappingTx):
-    def __getitem__(self, index: int) -> MediaLaneMappingTx:
-        return MediaLaneMappingTx(self.mem_map, self.field.subfields[index], index)
-
-    def __iter__(self) -> Iterator[MediaLaneMappingTx]:
-        return iter(
-            MediaLaneMappingTx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class MediaLaneMappingRx(Field):
-
-    pass
-
-
-class MediaLaneMappingRxRange(RangeGroup, MediaLaneMappingRx):
-    def __getitem__(self, index: int) -> MediaLaneMappingRx:
-        return MediaLaneMappingRx(self.mem_map, self.field.subfields[index], index)
-
-    def __iter__(self) -> Iterator[MediaLaneMappingRx]:
-        return iter(
-            MediaLaneMappingRx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class OutputStatusRxEnum(Enum):
-    INVALID_OR_MUTED = 0
-    VALID = 1
-
-
-class OutputStatusRx(Field):
-
-    EnumClass = OutputStatusRxEnum
-
-    INVALID_OR_MUTED = OutputStatusRxEnum.INVALID_OR_MUTED
-    VALID = OutputStatusRxEnum.VALID
-
-
-class OutputStatusRxRange(RangeGroup, OutputStatusRx):
-    def __getitem__(self, index: int) -> OutputStatusRx:
-        return OutputStatusRx(self.mem_map, self.field.subfields[index], index)
-
-    def __iter__(self) -> Iterator[OutputStatusRx]:
-        return iter(
-            OutputStatusRx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class OutputStatusTxEnum(Enum):
-    INVALID_OR_MUTED = 0
-    VALID = 1
-
-
-class OutputStatusTx(Field):
-
-    EnumClass = OutputStatusTxEnum
-
-    INVALID_OR_MUTED = OutputStatusTxEnum.INVALID_OR_MUTED
-    VALID = OutputStatusTxEnum.VALID
-
-
-class OutputStatusTxRange(RangeGroup, OutputStatusTx):
-    def __getitem__(self, index: int) -> OutputStatusTx:
-        return OutputStatusTx(self.mem_map, self.field.subfields[index], index)
-
-    def __iter__(self) -> Iterator[OutputStatusTx]:
-        return iter(
-            OutputStatusTx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class DPStateChangedFlag(Field):
-
-    pass
-
-
-class DPStateChangedFlagRange(RangeGroup, DPStateChangedFlag):
-    def __getitem__(self, index: int) -> DPStateChangedFlag:
-        return DPStateChangedFlag(self.mem_map, self.field.subfields[index], index)
-
-    def __iter__(self) -> Iterator[DPStateChangedFlag]:
-        return iter(
-            DPStateChangedFlag(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class OpticalPowerTx(Field):
-
-    pass
-
-
-class OpticalPowerTxRange(RangeGroup, OpticalPowerTx):
-    def __getitem__(self, index: int) -> OpticalPowerTx:
-        return OpticalPowerTx(self.mem_map, self.field.subfields[index], index)
-
-    def __iter__(self) -> Iterator[OpticalPowerTx]:
-        return iter(
-            OpticalPowerTx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class LaserBiasTx(Field):
-
-    pass
-
-
-class LaserBiasTxRange(RangeGroup, LaserBiasTx):
-    def __getitem__(self, index: int) -> LaserBiasTx:
-        return LaserBiasTx(self.mem_map, self.field.subfields[index], index)
-
-    def __iter__(self) -> Iterator[LaserBiasTx]:
-        return iter(
-            LaserBiasTx(self.mem_map, f, i) for i, f in enumerate(self.field.subfields)
-        )
-
-
-class OpticalPowerRx(Field):
-
-    pass
-
-
-class OpticalPowerRxRange(RangeGroup, OpticalPowerRx):
-    def __getitem__(self, index: int) -> OpticalPowerRx:
-        return OpticalPowerRx(self.mem_map, self.field.subfields[index], index)
-
-    def __iter__(self) -> Iterator[OpticalPowerRx]:
-        return iter(
-            OpticalPowerRx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class DPInitPendingLaneEnum(Enum):
-    NOT_PENDING = 0
-    PENDING = 1
-
-
-class DPInitPendingLane(Field):
-
-    EnumClass = DPInitPendingLaneEnum
-
-    NOT_PENDING = DPInitPendingLaneEnum.NOT_PENDING
-    PENDING = DPInitPendingLaneEnum.PENDING
-
-
-class DPInitPendingLaneRange(RangeGroup, DPInitPendingLane):
-    def __getitem__(self, index: int) -> DPInitPendingLane:
-        return DPInitPendingLane(self.mem_map, self.field.subfields[index], index)
-
-    def __iter__(self) -> Iterator[DPInitPendingLane]:
-        return iter(
-            DPInitPendingLane(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class DPStateHostLaneEnum(Enum):
-    DPDEACTIVATED = 1
-    DPINIT = 2
-    DPDEINIT = 3
-    DPACTIVATED = 4
-    DPTXTURNON = 5
-    DPTXTRUNOFF = 6
-    DPINITIALIZED = 7
-
-
-class DPStateHostLane(Field):
-
-    EnumClass = DPStateHostLaneEnum
-
-    DPDEACTIVATED = DPStateHostLaneEnum.DPDEACTIVATED
-    DPINIT = DPStateHostLaneEnum.DPINIT
-    DPDEINIT = DPStateHostLaneEnum.DPDEINIT
-    DPACTIVATED = DPStateHostLaneEnum.DPACTIVATED
-    DPTXTURNON = DPStateHostLaneEnum.DPTXTURNON
-    DPTXTRUNOFF = DPStateHostLaneEnum.DPTXTRUNOFF
-    DPINITIALIZED = DPStateHostLaneEnum.DPINITIALIZED
-
-
-class DPStateHostLaneRange(RangeGroup, DPStateHostLane):
-    def __getitem__(self, index: int) -> DPStateHostLane:
-        return DPStateHostLane(self.mem_map, self.field.subfields[index], index)
-
-    def __iter__(self) -> Iterator[DPStateHostLane]:
-        return iter(
-            DPStateHostLane(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class ConfigStatusLaneEnum(Enum):
-    UNDEFINED = 0
-    SUCCESS = 1
-    REJECTED = 2
-    REJECTED_INVALID_APP_SEL = 3
-    REJECTED_INVALID_DATA_PATH = 4
-    REJECTED_INVALID_SI = 5
-    REJECTED_LANES_IN_USE = 6
-    REJECTED_PARTIAL_DATA_PATH = 7
-    IN_PROGRESS = 12
-
-
-class ConfigStatusLane(Field):
-
-    EnumClass = ConfigStatusLaneEnum
-
-    UNDEFINED = ConfigStatusLaneEnum.UNDEFINED
-    SUCCESS = ConfigStatusLaneEnum.SUCCESS
-    REJECTED = ConfigStatusLaneEnum.REJECTED
-    REJECTED_INVALID_APP_SEL = ConfigStatusLaneEnum.REJECTED_INVALID_APP_SEL
-    REJECTED_INVALID_DATA_PATH = ConfigStatusLaneEnum.REJECTED_INVALID_DATA_PATH
-    REJECTED_INVALID_SI = ConfigStatusLaneEnum.REJECTED_INVALID_SI
-    REJECTED_LANES_IN_USE = ConfigStatusLaneEnum.REJECTED_LANES_IN_USE
-    REJECTED_PARTIAL_DATA_PATH = ConfigStatusLaneEnum.REJECTED_PARTIAL_DATA_PATH
-    IN_PROGRESS = ConfigStatusLaneEnum.IN_PROGRESS
-
-
-class ConfigStatusLaneRange(RangeGroup, ConfigStatusLane):
-    def __getitem__(self, index: int) -> ConfigStatusLane:
-        return ConfigStatusLane(self.mem_map, self.field.subfields[index], index)
-
-    def __iter__(self) -> Iterator[ConfigStatusLane]:
-        return iter(
-            ConfigStatusLane(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class LOSFlagRx(Field):
-
-    pass
-
-
-class LOSFlagRxRange(RangeGroup, LOSFlagRx):
-    def __getitem__(self, index: int) -> LOSFlagRx:
-        return LOSFlagRx(self.mem_map, self.field.subfields[index], index)
-
-    def __iter__(self) -> Iterator[LOSFlagRx]:
-        return iter(
-            LOSFlagRx(self.mem_map, f, i) for i, f in enumerate(self.field.subfields)
-        )
-
-
-class CDRLOLFlagRx(Field):
-
-    pass
-
-
-class CDRLOLFlagRxRange(RangeGroup, CDRLOLFlagRx):
-    def __getitem__(self, index: int) -> CDRLOLFlagRx:
-        return CDRLOLFlagRx(self.mem_map, self.field.subfields[index], index)
-
-    def __iter__(self) -> Iterator[CDRLOLFlagRx]:
-        return iter(
-            CDRLOLFlagRx(self.mem_map, f, i) for i, f in enumerate(self.field.subfields)
-        )
-
-
-class OpticalPowerHighAlarmFlagRx(Field):
-
-    pass
-
-
-class OpticalPowerHighAlarmFlagRxRange(RangeGroup, OpticalPowerHighAlarmFlagRx):
-    def __getitem__(self, index: int) -> OpticalPowerHighAlarmFlagRx:
-        return OpticalPowerHighAlarmFlagRx(
+class MediaLaneAssignmentOptionsRange(RangeGroup, MediaLaneAssignmentOptions):
+    def __getitem__(self, index: int) -> MediaLaneAssignmentOptions:
+        return MediaLaneAssignmentOptions(
             self.mem_map, self.field.subfields[index], index
         )
 
-    def __iter__(self) -> Iterator[OpticalPowerHighAlarmFlagRx]:
+    def __iter__(self) -> Iterator[MediaLaneAssignmentOptions]:
         return iter(
-            OpticalPowerHighAlarmFlagRx(self.mem_map, f, i)
+            MediaLaneAssignmentOptions(self.mem_map, f, i)
             for i, f in enumerate(self.field.subfields)
         )
 
 
-class OpticalPowerLowAlarmFlagRx(Field):
-
-    pass
-
-
-class OpticalPowerLowAlarmFlagRxRange(RangeGroup, OpticalPowerLowAlarmFlagRx):
-    def __getitem__(self, index: int) -> OpticalPowerLowAlarmFlagRx:
-        return OpticalPowerLowAlarmFlagRx(
-            self.mem_map, self.field.subfields[index], index
-        )
-
-    def __iter__(self) -> Iterator[OpticalPowerLowAlarmFlagRx]:
-        return iter(
-            OpticalPowerLowAlarmFlagRx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class OpticalPowerHighWarningFlagRx(Field):
-
-    pass
-
-
-class OpticalPowerHighWarningFlagRxRange(RangeGroup, OpticalPowerHighWarningFlagRx):
-    def __getitem__(self, index: int) -> OpticalPowerHighWarningFlagRx:
-        return OpticalPowerHighWarningFlagRx(
-            self.mem_map, self.field.subfields[index], index
-        )
-
-    def __iter__(self) -> Iterator[OpticalPowerHighWarningFlagRx]:
-        return iter(
-            OpticalPowerHighWarningFlagRx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class OpticalPowerLowWarningFlagRx(Field):
-
-    pass
-
-
-class OpticalPowerLowWarningFlagRxRange(RangeGroup, OpticalPowerLowWarningFlagRx):
-    def __getitem__(self, index: int) -> OpticalPowerLowWarningFlagRx:
-        return OpticalPowerLowWarningFlagRx(
-            self.mem_map, self.field.subfields[index], index
-        )
-
-    def __iter__(self) -> Iterator[OpticalPowerLowWarningFlagRx]:
-        return iter(
-            OpticalPowerLowWarningFlagRx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class OutputStatusChangedFlagRx(Field):
-
-    pass
-
-
-class OutputStatusChangedFlagRxRange(RangeGroup, OutputStatusChangedFlagRx):
-    def __getitem__(self, index: int) -> OutputStatusChangedFlagRx:
-        return OutputStatusChangedFlagRx(
-            self.mem_map, self.field.subfields[index], index
-        )
-
-    def __iter__(self) -> Iterator[OutputStatusChangedFlagRx]:
-        return iter(
-            OutputStatusChangedFlagRx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class FixedOrAdaptiveEnum(Enum):
-
-    FIXED = 0
-    ADAPTIVE = 1
-
-
-class RecallBufferEnum(Enum):
-
-    DO_NOT_RECALL = 0
-    RECALL_BUFFER_1 = 1
-    RECALL_BUFFER_2 = 2
-
-
-class BypassedOrEnabledEnum(Enum):
-
-    BYPASSED = 0
-    ENABLED = 1
-
-
-class TxControls(Group):
-    class AdaptiveInputEqEnableTxCls(Field):
-
-        EnumClass = FixedOrAdaptiveEnum
-
-        FIXED = FixedOrAdaptiveEnum.FIXED
-        ADAPTIVE = FixedOrAdaptiveEnum.ADAPTIVE
-
-    class AdaptiveInputEqEnableTxRangeCls(RangeGroup):
-        def __getitem__(self, index: int) -> "TxControls.AdaptiveInputEqEnableTxCls":
-            return TxControls.AdaptiveInputEqEnableTxCls(
-                self.mem_map, self.field.subfields[index], index
-            )
-
-        def __iter__(self) -> Iterator["TxControls.AdaptiveInputEqEnableTxCls"]:
-            return iter(
-                TxControls.AdaptiveInputEqEnableTxCls(self.mem_map, f, i)
-                for i, f in enumerate(self.field.subfields)
-            )
-
-    @property
-    def AdaptiveInputEqEnableTx(self) -> "TxControls.AdaptiveInputEqEnableTxRangeCls":
-        field = self.subfields["AdaptiveInputEqEnableTx"]
-        return TxControls.AdaptiveInputEqEnableTxRangeCls(
-            self.mem_map, field, self.index
-        )
-
-    class AdaptiveInputEqRecallTxCls(Field):
-
-        EnumClass = RecallBufferEnum
-
-        DO_NOT_RECALL = RecallBufferEnum.DO_NOT_RECALL
-        RECALL_BUFFER_1 = RecallBufferEnum.RECALL_BUFFER_1
-        RECALL_BUFFER_2 = RecallBufferEnum.RECALL_BUFFER_2
-
-    class AdaptiveInputEqRecallTxRangeCls(RangeGroup):
-        def __getitem__(self, index: int) -> "TxControls.AdaptiveInputEqRecallTxCls":
-            return TxControls.AdaptiveInputEqRecallTxCls(
-                self.mem_map, self.field.subfields[index], index
-            )
-
-        def __iter__(self) -> Iterator["TxControls.AdaptiveInputEqRecallTxCls"]:
-            return iter(
-                TxControls.AdaptiveInputEqRecallTxCls(self.mem_map, f, i)
-                for i, f in enumerate(self.field.subfields)
-            )
-
-    @property
-    def AdaptiveInputEqRecallTx(self) -> "TxControls.AdaptiveInputEqRecallTxRangeCls":
-        field = self.subfields["AdaptiveInputEqRecallTx"]
-        return TxControls.AdaptiveInputEqRecallTxRangeCls(
-            self.mem_map, field, self.index
-        )
-
-    class FixedInputEqTargetTxCls(Field):
-
-        pass
-
-    class FixedInputEqTargetTxRangeCls(RangeGroup):
-        def __getitem__(self, index: int) -> "TxControls.FixedInputEqTargetTxCls":
-            return TxControls.FixedInputEqTargetTxCls(
-                self.mem_map, self.field.subfields[index], index
-            )
-
-        def __iter__(self) -> Iterator["TxControls.FixedInputEqTargetTxCls"]:
-            return iter(
-                TxControls.FixedInputEqTargetTxCls(self.mem_map, f, i)
-                for i, f in enumerate(self.field.subfields)
-            )
-
-    @property
-    def FixedInputEqTargetTx(self) -> "TxControls.FixedInputEqTargetTxRangeCls":
-        field = self.subfields["FixedInputEqTargetTx"]
-        return TxControls.FixedInputEqTargetTxRangeCls(self.mem_map, field, self.index)
-
-    class CDREnableTxCls(Field):
-
-        EnumClass = BypassedOrEnabledEnum
-
-        BYPASSED = BypassedOrEnabledEnum.BYPASSED
-        ENABLED = BypassedOrEnabledEnum.ENABLED
-
-    class CDREnableTxRangeCls(RangeGroup):
-        def __getitem__(self, index: int) -> "TxControls.CDREnableTxCls":
-            return TxControls.CDREnableTxCls(
-                self.mem_map, self.field.subfields[index], index
-            )
-
-        def __iter__(self) -> Iterator["TxControls.CDREnableTxCls"]:
-            return iter(
-                TxControls.CDREnableTxCls(self.mem_map, f, i)
-                for i, f in enumerate(self.field.subfields)
-            )
-
-    @property
-    def CDREnableTx(self) -> "TxControls.CDREnableTxRangeCls":
-        field = self.subfields["CDREnableTx"]
-        return TxControls.CDREnableTxRangeCls(self.mem_map, field, self.index)
-
-
-class RxControls(Group):
-    class CDREnableRxCls(Field):
-
-        EnumClass = BypassedOrEnabledEnum
-
-        BYPASSED = BypassedOrEnabledEnum.BYPASSED
-        ENABLED = BypassedOrEnabledEnum.ENABLED
-
-    class CDREnableRxRangeCls(RangeGroup):
-        def __getitem__(self, index: int) -> "RxControls.CDREnableRxCls":
-            return RxControls.CDREnableRxCls(
-                self.mem_map, self.field.subfields[index], index
-            )
-
-        def __iter__(self) -> Iterator["RxControls.CDREnableRxCls"]:
-            return iter(
-                RxControls.CDREnableRxCls(self.mem_map, f, i)
-                for i, f in enumerate(self.field.subfields)
-            )
-
-    @property
-    def CDREnableRx(self) -> "RxControls.CDREnableRxRangeCls":
-        field = self.subfields["CDREnableRx"]
-        return RxControls.CDREnableRxRangeCls(self.mem_map, field, self.index)
-
-    class OutputEqPreCursorTargetRxCls(Field):
-
-        pass
-
-    class OutputEqPreCursorTargetRxRangeCls(RangeGroup):
-        def __getitem__(self, index: int) -> "RxControls.OutputEqPreCursorTargetRxCls":
-            return RxControls.OutputEqPreCursorTargetRxCls(
-                self.mem_map, self.field.subfields[index], index
-            )
-
-        def __iter__(self) -> Iterator["RxControls.OutputEqPreCursorTargetRxCls"]:
-            return iter(
-                RxControls.OutputEqPreCursorTargetRxCls(self.mem_map, f, i)
-                for i, f in enumerate(self.field.subfields)
-            )
-
-    @property
-    def OutputEqPreCursorTargetRx(
-        self,
-    ) -> "RxControls.OutputEqPreCursorTargetRxRangeCls":
-        field = self.subfields["OutputEqPreCursorTargetRx"]
-        return RxControls.OutputEqPreCursorTargetRxRangeCls(
-            self.mem_map, field, self.index
-        )
-
-    class OutputEqPostCursorTargetRxCls(Field):
-
-        pass
-
-    class OutputEqPostCursorTargetRxRangeCls(RangeGroup):
-        def __getitem__(self, index: int) -> "RxControls.OutputEqPostCursorTargetRxCls":
-            return RxControls.OutputEqPostCursorTargetRxCls(
-                self.mem_map, self.field.subfields[index], index
-            )
-
-        def __iter__(self) -> Iterator["RxControls.OutputEqPostCursorTargetRxCls"]:
-            return iter(
-                RxControls.OutputEqPostCursorTargetRxCls(self.mem_map, f, i)
-                for i, f in enumerate(self.field.subfields)
-            )
-
-    @property
-    def OutputEqPostCursorTargetRx(
-        self,
-    ) -> "RxControls.OutputEqPostCursorTargetRxRangeCls":
-        field = self.subfields["OutputEqPostCursorTargetRx"]
-        return RxControls.OutputEqPostCursorTargetRxRangeCls(
-            self.mem_map, field, self.index
-        )
-
-    class OutputAmplitudeTargetRxCls(Field):
-
-        pass
-
-    class OutputAmplitudeTargetRxRangeCls(RangeGroup):
-        def __getitem__(self, index: int) -> "RxControls.OutputAmplitudeTargetRxCls":
-            return RxControls.OutputAmplitudeTargetRxCls(
-                self.mem_map, self.field.subfields[index], index
-            )
-
-        def __iter__(self) -> Iterator["RxControls.OutputAmplitudeTargetRxCls"]:
-            return iter(
-                RxControls.OutputAmplitudeTargetRxCls(self.mem_map, f, i)
-                for i, f in enumerate(self.field.subfields)
-            )
-
-    @property
-    def OutputAmplitudeTargetRx(self) -> "RxControls.OutputAmplitudeTargetRxRangeCls":
-        field = self.subfields["OutputAmplitudeTargetRx"]
-        return RxControls.OutputAmplitudeTargetRxRangeCls(
-            self.mem_map, field, self.index
-        )
-
-
-class FailureFlagTx(Field):
-
-    pass
-
-
-class FailureFlagTxRange(RangeGroup, FailureFlagTx):
-    def __getitem__(self, index: int) -> FailureFlagTx:
-        return FailureFlagTx(self.mem_map, self.field.subfields[index], index)
-
-    def __iter__(self) -> Iterator[FailureFlagTx]:
-        return iter(
-            FailureFlagTx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class LOSFlagTx(Field):
-
-    pass
-
-
-class LOSFlagTxRange(RangeGroup, LOSFlagTx):
-    def __getitem__(self, index: int) -> LOSFlagTx:
-        return LOSFlagTx(self.mem_map, self.field.subfields[index], index)
-
-    def __iter__(self) -> Iterator[LOSFlagTx]:
-        return iter(
-            LOSFlagTx(self.mem_map, f, i) for i, f in enumerate(self.field.subfields)
-        )
-
-
-class CDRLOLFlagTx(Field):
-
-    pass
-
-
-class CDRLOLFlagTxRange(RangeGroup, CDRLOLFlagTx):
-    def __getitem__(self, index: int) -> CDRLOLFlagTx:
-        return CDRLOLFlagTx(self.mem_map, self.field.subfields[index], index)
-
-    def __iter__(self) -> Iterator[CDRLOLFlagTx]:
-        return iter(
-            CDRLOLFlagTx(self.mem_map, f, i) for i, f in enumerate(self.field.subfields)
-        )
-
-
-class AdaptiveInputEqFailFlagTx(Field):
-
-    pass
-
-
-class AdaptiveInputEqFailFlagTxRange(RangeGroup, AdaptiveInputEqFailFlagTx):
-    def __getitem__(self, index: int) -> AdaptiveInputEqFailFlagTx:
-        return AdaptiveInputEqFailFlagTx(
-            self.mem_map, self.field.subfields[index], index
-        )
-
-    def __iter__(self) -> Iterator[AdaptiveInputEqFailFlagTx]:
-        return iter(
-            AdaptiveInputEqFailFlagTx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class OpticalPowerHighAlarmFlagTx(Field):
-
-    pass
-
-
-class OpticalPowerHighAlarmFlagTxRange(RangeGroup, OpticalPowerHighAlarmFlagTx):
-    def __getitem__(self, index: int) -> OpticalPowerHighAlarmFlagTx:
-        return OpticalPowerHighAlarmFlagTx(
-            self.mem_map, self.field.subfields[index], index
-        )
-
-    def __iter__(self) -> Iterator[OpticalPowerHighAlarmFlagTx]:
-        return iter(
-            OpticalPowerHighAlarmFlagTx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class OpticalPowerLowAlarmFlagTx(Field):
-
-    pass
-
-
-class OpticalPowerLowAlarmFlagTxRange(RangeGroup, OpticalPowerLowAlarmFlagTx):
-    def __getitem__(self, index: int) -> OpticalPowerLowAlarmFlagTx:
-        return OpticalPowerLowAlarmFlagTx(
-            self.mem_map, self.field.subfields[index], index
-        )
-
-    def __iter__(self) -> Iterator[OpticalPowerLowAlarmFlagTx]:
-        return iter(
-            OpticalPowerLowAlarmFlagTx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class OpticalPowerHighWarningFlagTx(Field):
-
-    pass
-
-
-class OpticalPowerHighWarningFlagTxRange(RangeGroup, OpticalPowerHighWarningFlagTx):
-    def __getitem__(self, index: int) -> OpticalPowerHighWarningFlagTx:
-        return OpticalPowerHighWarningFlagTx(
-            self.mem_map, self.field.subfields[index], index
-        )
-
-    def __iter__(self) -> Iterator[OpticalPowerHighWarningFlagTx]:
-        return iter(
-            OpticalPowerHighWarningFlagTx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class OpticalPowerLowWarningFlagTx(Field):
-
-    pass
-
-
-class OpticalPowerLowWarningFlagTxRange(RangeGroup, OpticalPowerLowWarningFlagTx):
-    def __getitem__(self, index: int) -> OpticalPowerLowWarningFlagTx:
-        return OpticalPowerLowWarningFlagTx(
-            self.mem_map, self.field.subfields[index], index
-        )
-
-    def __iter__(self) -> Iterator[OpticalPowerLowWarningFlagTx]:
-        return iter(
-            OpticalPowerLowWarningFlagTx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class LaserBiasHighAlarmFlagTx(Field):
-
-    pass
-
-
-class LaserBiasHighAlarmFlagTxRange(RangeGroup, LaserBiasHighAlarmFlagTx):
-    def __getitem__(self, index: int) -> LaserBiasHighAlarmFlagTx:
-        return LaserBiasHighAlarmFlagTx(
-            self.mem_map, self.field.subfields[index], index
-        )
-
-    def __iter__(self) -> Iterator[LaserBiasHighAlarmFlagTx]:
-        return iter(
-            LaserBiasHighAlarmFlagTx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class LaserBiasLowAlarmFlagTx(Field):
-
-    pass
-
-
-class LaserBiasLowAlarmFlagTxRange(RangeGroup, LaserBiasLowAlarmFlagTx):
-    def __getitem__(self, index: int) -> LaserBiasLowAlarmFlagTx:
-        return LaserBiasLowAlarmFlagTx(self.mem_map, self.field.subfields[index], index)
-
-    def __iter__(self) -> Iterator[LaserBiasLowAlarmFlagTx]:
-        return iter(
-            LaserBiasLowAlarmFlagTx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class LaserBiasHighWarningFlagTx(Field):
-
-    pass
-
-
-class LaserBiasHighWarningFlagTxRange(RangeGroup, LaserBiasHighWarningFlagTx):
-    def __getitem__(self, index: int) -> LaserBiasHighWarningFlagTx:
-        return LaserBiasHighWarningFlagTx(
-            self.mem_map, self.field.subfields[index], index
-        )
-
-    def __iter__(self) -> Iterator[LaserBiasHighWarningFlagTx]:
-        return iter(
-            LaserBiasHighWarningFlagTx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class LaserBiasLowWarningFlagTx(Field):
-
-    pass
-
-
-class LaserBiasLowWarningFlagTxRange(RangeGroup, LaserBiasLowWarningFlagTx):
-    def __getitem__(self, index: int) -> LaserBiasLowWarningFlagTx:
-        return LaserBiasLowWarningFlagTx(
-            self.mem_map, self.field.subfields[index], index
-        )
-
-    def __iter__(self) -> Iterator[LaserBiasLowWarningFlagTx]:
-        return iter(
-            LaserBiasLowWarningFlagTx(self.mem_map, f, i)
-            for i, f in enumerate(self.field.subfields)
-        )
-
-
-class ExplicitControlFlagEnum(Enum):
-
-    APPLICATION_DEPENDENT = 0
-    HOST_DEFINED = 1
-
-
-class DPConfigLane(Group):
-    class AppSelCodeCls(Field):
-
-        pass
-
-    @property
-    def AppSelCode(self) -> "DPConfigLane.AppSelCodeCls":
-        field = self.subfields["AppSelCode"]
-        return DPConfigLane.AppSelCodeCls(self.mem_map, field, self.index)
-
-    class DataPathIDCls(Field):
-
-        pass
-
-    @property
-    def DataPathID(self) -> "DPConfigLane.DataPathIDCls":
-        field = self.subfields["DataPathID"]
-        return DPConfigLane.DataPathIDCls(self.mem_map, field, self.index)
-
-    class ExplicitControlCls(Field):
-
-        EnumClass = ExplicitControlFlagEnum
-
-        APPLICATION_DEPENDENT = ExplicitControlFlagEnum.APPLICATION_DEPENDENT
-        HOST_DEFINED = ExplicitControlFlagEnum.HOST_DEFINED
-
-    @property
-    def ExplicitControl(self) -> "DPConfigLane.ExplicitControlCls":
-        field = self.subfields["ExplicitControl"]
-        return DPConfigLane.ExplicitControlCls(self.mem_map, field, self.index)
-
-
-class DPConfigLaneRange(RangeGroup, DPConfigLane):
-    def __getitem__(self, index: int) -> DPConfigLane:
-        return DPConfigLane(self.mem_map, self.field.subfields[index], index)
-
-    def __iter__(self) -> Iterator[DPConfigLane]:
-        return iter(
-            DPConfigLane(self.mem_map, f, i) for i, f in enumerate(self.field.subfields)
-        )
+class DurationEnum(Enum):
+
+    LESS_THAN_1_MS = 0
+    BETWEEN_1_AND_5_MS = 1
+    BETWEEN_5_AND_10_MS = 2
+    BETWEEN_10_AND_50_MS = 3
+    BETWEEN_50_AND_100_MS = 4
+    BETWEEN_100_AND_500_MS = 5
+    BETWEEN_500_MS_AND_1_S = 6
+    BETWEEN_1_AND_5_S = 7
+    BETWEEN_5_AND_10_S = 8
+    BETWEEN_10_S_AND_1_MIN = 9
+    BETWEEN_1_AND_5_MIN = 10
+    BETWEEN_5_AND_10_MIN = 11
+    BETWEEN_10_AND_50_MIN = 12
+    GREATER_THAN_50_MIN = 13
+
+
+class Duration:
+
+    LESS_THAN_1_MS = DurationEnum.LESS_THAN_1_MS
+    BETWEEN_1_AND_5_MS = DurationEnum.BETWEEN_1_AND_5_MS
+    BETWEEN_5_AND_10_MS = DurationEnum.BETWEEN_5_AND_10_MS
+    BETWEEN_10_AND_50_MS = DurationEnum.BETWEEN_10_AND_50_MS
+    BETWEEN_50_AND_100_MS = DurationEnum.BETWEEN_50_AND_100_MS
+    BETWEEN_100_AND_500_MS = DurationEnum.BETWEEN_100_AND_500_MS
+    BETWEEN_500_MS_AND_1_S = DurationEnum.BETWEEN_500_MS_AND_1_S
+    BETWEEN_1_AND_5_S = DurationEnum.BETWEEN_1_AND_5_S
+    BETWEEN_5_AND_10_S = DurationEnum.BETWEEN_5_AND_10_S
+    BETWEEN_10_S_AND_1_MIN = DurationEnum.BETWEEN_10_S_AND_1_MIN
+    BETWEEN_1_AND_5_MIN = DurationEnum.BETWEEN_1_AND_5_MIN
+    BETWEEN_5_AND_10_MIN = DurationEnum.BETWEEN_5_AND_10_MIN
+    BETWEEN_10_AND_50_MIN = DurationEnum.BETWEEN_10_AND_50_MIN
+    GREATER_THAN_50_MIN = DurationEnum.GREATER_THAN_50_MIN
+
+
+class SupportFlagEnum(Enum):
+
+    NOT_SUPPORTED = 0
+    SUPPORTED = 1
+
+
+class SupportFlag:
+
+    NOT_SUPPORTED = SupportFlagEnum.NOT_SUPPORTED
+    SUPPORTED = SupportFlagEnum.SUPPORTED
 
 
 class DPDeinitLaneEnum(Enum):
@@ -1171,170 +406,6 @@ class DPDeinitLaneRange(RangeGroup, DPDeinitLane):
         return iter(
             DPDeinitLane(self.mem_map, f, i) for i, f in enumerate(self.field.subfields)
         )
-
-
-class TxControl(Group):
-    class AdaptiveInputEqEnableTxCls(Field):
-
-        EnumClass = FixedOrAdaptiveEnum
-
-        FIXED = FixedOrAdaptiveEnum.FIXED
-        ADAPTIVE = FixedOrAdaptiveEnum.ADAPTIVE
-
-    class AdaptiveInputEqEnableTxRangeCls(RangeGroup):
-        def __getitem__(self, index: int) -> "TxControl.AdaptiveInputEqEnableTxCls":
-            return TxControl.AdaptiveInputEqEnableTxCls(
-                self.mem_map, self.field.subfields[index], index
-            )
-
-        def __iter__(self) -> Iterator["TxControl.AdaptiveInputEqEnableTxCls"]:
-            return iter(
-                TxControl.AdaptiveInputEqEnableTxCls(self.mem_map, f, i)
-                for i, f in enumerate(self.field.subfields)
-            )
-
-    @property
-    def AdaptiveInputEqEnableTx(self) -> "TxControl.AdaptiveInputEqEnableTxRangeCls":
-        field = self.subfields["AdaptiveInputEqEnableTx"]
-        return TxControl.AdaptiveInputEqEnableTxRangeCls(
-            self.mem_map, field, self.index
-        )
-
-    class AdaptiveInputEqRecallTxCls(Field):
-
-        EnumClass = RecallBufferEnum
-
-        DO_NOT_RECALL = RecallBufferEnum.DO_NOT_RECALL
-        RECALL_BUFFER_1 = RecallBufferEnum.RECALL_BUFFER_1
-        RECALL_BUFFER_2 = RecallBufferEnum.RECALL_BUFFER_2
-
-    class AdaptiveInputEqRecallTxRangeCls(RangeGroup):
-        def __getitem__(self, index: int) -> "TxControl.AdaptiveInputEqRecallTxCls":
-            return TxControl.AdaptiveInputEqRecallTxCls(
-                self.mem_map, self.field.subfields[index], index
-            )
-
-        def __iter__(self) -> Iterator["TxControl.AdaptiveInputEqRecallTxCls"]:
-            return iter(
-                TxControl.AdaptiveInputEqRecallTxCls(self.mem_map, f, i)
-                for i, f in enumerate(self.field.subfields)
-            )
-
-    @property
-    def AdaptiveInputEqRecallTx(self) -> "TxControl.AdaptiveInputEqRecallTxRangeCls":
-        field = self.subfields["AdaptiveInputEqRecallTx"]
-        return TxControl.AdaptiveInputEqRecallTxRangeCls(
-            self.mem_map, field, self.index
-        )
-
-    class FixedInputEqTargetTxCls(Field):
-
-        pass
-
-    class FixedInputEqTargetTxRangeCls(RangeGroup):
-        def __getitem__(self, index: int) -> "TxControl.FixedInputEqTargetTxCls":
-            return TxControl.FixedInputEqTargetTxCls(
-                self.mem_map, self.field.subfields[index], index
-            )
-
-        def __iter__(self) -> Iterator["TxControl.FixedInputEqTargetTxCls"]:
-            return iter(
-                TxControl.FixedInputEqTargetTxCls(self.mem_map, f, i)
-                for i, f in enumerate(self.field.subfields)
-            )
-
-    @property
-    def FixedInputEqTargetTx(self) -> "TxControl.FixedInputEqTargetTxRangeCls":
-        field = self.subfields["FixedInputEqTargetTx"]
-        return TxControl.FixedInputEqTargetTxRangeCls(self.mem_map, field, self.index)
-
-    class CDREnableTxCls(Field):
-
-        EnumClass = BypassedOrEnabledEnum
-
-        BYPASSED = BypassedOrEnabledEnum.BYPASSED
-        ENABLED = BypassedOrEnabledEnum.ENABLED
-
-    class CDREnableTxRangeCls(RangeGroup):
-        def __getitem__(self, index: int) -> "TxControl.CDREnableTxCls":
-            return TxControl.CDREnableTxCls(
-                self.mem_map, self.field.subfields[index], index
-            )
-
-        def __iter__(self) -> Iterator["TxControl.CDREnableTxCls"]:
-            return iter(
-                TxControl.CDREnableTxCls(self.mem_map, f, i)
-                for i, f in enumerate(self.field.subfields)
-            )
-
-    @property
-    def CDREnableTx(self) -> "TxControl.CDREnableTxRangeCls":
-        field = self.subfields["CDREnableTx"]
-        return TxControl.CDREnableTxRangeCls(self.mem_map, field, self.index)
-
-
-class ApplyDPInitLaneFlagEnum(Enum):
-
-    NO_ACTION = 0
-    PROVISION = 1
-
-
-class ApplyImmediateDPInitLaneFlagEnum(Enum):
-
-    NO_ACTION = 0
-    PROVISION_AND_COMMISSION = 1
-
-
-class ApplyTriggers(Group):
-    class ApplyDPInitLaneCls(Field):
-
-        EnumClass = ApplyDPInitLaneFlagEnum
-
-        NO_ACTION = ApplyDPInitLaneFlagEnum.NO_ACTION
-        PROVISION = ApplyDPInitLaneFlagEnum.PROVISION
-
-    class ApplyDPInitLaneRangeCls(RangeGroup):
-        def __getitem__(self, index: int) -> "ApplyTriggers.ApplyDPInitLaneCls":
-            return ApplyTriggers.ApplyDPInitLaneCls(
-                self.mem_map, self.field.subfields[index], index
-            )
-
-        def __iter__(self) -> Iterator["ApplyTriggers.ApplyDPInitLaneCls"]:
-            return iter(
-                ApplyTriggers.ApplyDPInitLaneCls(self.mem_map, f, i)
-                for i, f in enumerate(self.field.subfields)
-            )
-
-    @property
-    def ApplyDPInitLane(self) -> "ApplyTriggers.ApplyDPInitLaneRangeCls":
-        field = self.subfields["ApplyDPInitLane"]
-        return ApplyTriggers.ApplyDPInitLaneRangeCls(self.mem_map, field, self.index)
-
-    class ApplyImmediateLaneCls(Field):
-
-        EnumClass = ApplyImmediateDPInitLaneFlagEnum
-
-        NO_ACTION = ApplyImmediateDPInitLaneFlagEnum.NO_ACTION
-        PROVISION_AND_COMMISSION = (
-            ApplyImmediateDPInitLaneFlagEnum.PROVISION_AND_COMMISSION
-        )
-
-    class ApplyImmediateLaneRangeCls(RangeGroup):
-        def __getitem__(self, index: int) -> "ApplyTriggers.ApplyImmediateLaneCls":
-            return ApplyTriggers.ApplyImmediateLaneCls(
-                self.mem_map, self.field.subfields[index], index
-            )
-
-        def __iter__(self) -> Iterator["ApplyTriggers.ApplyImmediateLaneCls"]:
-            return iter(
-                ApplyTriggers.ApplyImmediateLaneCls(self.mem_map, f, i)
-                for i, f in enumerate(self.field.subfields)
-            )
-
-    @property
-    def ApplyImmediateLane(self) -> "ApplyTriggers.ApplyImmediateLaneRangeCls":
-        field = self.subfields["ApplyImmediateLane"]
-        return ApplyTriggers.ApplyImmediateLaneRangeCls(self.mem_map, field, self.index)
 
 
 class InputPolarityFlipTxEnum(Enum):
@@ -1550,6 +621,336 @@ class AutoSquelchDisableRxRange(RangeGroup, AutoSquelchDisableRx):
         return iter(
             AutoSquelchDisableRx(self.mem_map, f, i)
             for i, f in enumerate(self.field.subfields)
+        )
+
+
+class ApplyDPInitLaneFlagEnum(Enum):
+
+    NO_ACTION = 0
+    PROVISION = 1
+
+
+class ApplyImmediateDPInitLaneFlagEnum(Enum):
+
+    NO_ACTION = 0
+    PROVISION_AND_COMMISSION = 1
+
+
+class ApplyTriggers(Group):
+    class ApplyDPInitLaneCls(Field):
+
+        EnumClass = ApplyDPInitLaneFlagEnum
+
+        NO_ACTION = ApplyDPInitLaneFlagEnum.NO_ACTION
+        PROVISION = ApplyDPInitLaneFlagEnum.PROVISION
+
+    class ApplyDPInitLaneRangeCls(RangeGroup):
+        def __getitem__(self, index: int) -> "ApplyTriggers.ApplyDPInitLaneCls":
+            return ApplyTriggers.ApplyDPInitLaneCls(
+                self.mem_map, self.field.subfields[index], index
+            )
+
+        def __iter__(self) -> Iterator["ApplyTriggers.ApplyDPInitLaneCls"]:
+            return iter(
+                ApplyTriggers.ApplyDPInitLaneCls(self.mem_map, f, i)
+                for i, f in enumerate(self.field.subfields)
+            )
+
+    @property
+    def ApplyDPInitLane(self) -> "ApplyTriggers.ApplyDPInitLaneRangeCls":
+        field = self.subfields["ApplyDPInitLane"]
+        return ApplyTriggers.ApplyDPInitLaneRangeCls(self.mem_map, field, self.index)
+
+    class ApplyImmediateLaneCls(Field):
+
+        EnumClass = ApplyImmediateDPInitLaneFlagEnum
+
+        NO_ACTION = ApplyImmediateDPInitLaneFlagEnum.NO_ACTION
+        PROVISION_AND_COMMISSION = (
+            ApplyImmediateDPInitLaneFlagEnum.PROVISION_AND_COMMISSION
+        )
+
+    class ApplyImmediateLaneRangeCls(RangeGroup):
+        def __getitem__(self, index: int) -> "ApplyTriggers.ApplyImmediateLaneCls":
+            return ApplyTriggers.ApplyImmediateLaneCls(
+                self.mem_map, self.field.subfields[index], index
+            )
+
+        def __iter__(self) -> Iterator["ApplyTriggers.ApplyImmediateLaneCls"]:
+            return iter(
+                ApplyTriggers.ApplyImmediateLaneCls(self.mem_map, f, i)
+                for i, f in enumerate(self.field.subfields)
+            )
+
+    @property
+    def ApplyImmediateLane(self) -> "ApplyTriggers.ApplyImmediateLaneRangeCls":
+        field = self.subfields["ApplyImmediateLane"]
+        return ApplyTriggers.ApplyImmediateLaneRangeCls(self.mem_map, field, self.index)
+
+
+class ExplicitControlFlagEnum(Enum):
+
+    APPLICATION_DEPENDENT = 0
+    STAGED_CONTROL_SET = 1
+
+
+class DPConfigLane(Group):
+    class AppSelCodeCls(Field):
+
+        pass
+
+    @property
+    def AppSelCode(self) -> "DPConfigLane.AppSelCodeCls":
+        field = self.subfields["AppSelCode"]
+        return DPConfigLane.AppSelCodeCls(self.mem_map, field, self.index)
+
+    class DataPathIDCls(Field):
+
+        pass
+
+    @property
+    def DataPathID(self) -> "DPConfigLane.DataPathIDCls":
+        field = self.subfields["DataPathID"]
+        return DPConfigLane.DataPathIDCls(self.mem_map, field, self.index)
+
+    class ExplicitControlCls(Field):
+
+        EnumClass = ExplicitControlFlagEnum
+
+        APPLICATION_DEPENDENT = ExplicitControlFlagEnum.APPLICATION_DEPENDENT
+        STAGED_CONTROL_SET = ExplicitControlFlagEnum.STAGED_CONTROL_SET
+
+    @property
+    def ExplicitControl(self) -> "DPConfigLane.ExplicitControlCls":
+        field = self.subfields["ExplicitControl"]
+        return DPConfigLane.ExplicitControlCls(self.mem_map, field, self.index)
+
+
+class DPConfigLaneRange(RangeGroup, DPConfigLane):
+    def __getitem__(self, index: int) -> DPConfigLane:
+        return DPConfigLane(self.mem_map, self.field.subfields[index], index)
+
+    def __iter__(self) -> Iterator[DPConfigLane]:
+        return iter(
+            DPConfigLane(self.mem_map, f, i) for i, f in enumerate(self.field.subfields)
+        )
+
+
+class FixedOrAdaptiveEnum(Enum):
+
+    FIXED = 0
+    ADAPTIVE = 1
+
+
+class RecallBufferEnum(Enum):
+
+    DO_NOT_RECALL = 0
+    RECALL_BUFFER_1 = 1
+    RECALL_BUFFER_2 = 2
+
+
+class BypassedOrEnabledEnum(Enum):
+
+    BYPASSED = 0
+    ENABLED = 1
+
+
+class TxControl(Group):
+    class AdaptiveInputEqEnableTxCls(Field):
+
+        EnumClass = FixedOrAdaptiveEnum
+
+        FIXED = FixedOrAdaptiveEnum.FIXED
+        ADAPTIVE = FixedOrAdaptiveEnum.ADAPTIVE
+
+    class AdaptiveInputEqEnableTxRangeCls(RangeGroup):
+        def __getitem__(self, index: int) -> "TxControl.AdaptiveInputEqEnableTxCls":
+            return TxControl.AdaptiveInputEqEnableTxCls(
+                self.mem_map, self.field.subfields[index], index
+            )
+
+        def __iter__(self) -> Iterator["TxControl.AdaptiveInputEqEnableTxCls"]:
+            return iter(
+                TxControl.AdaptiveInputEqEnableTxCls(self.mem_map, f, i)
+                for i, f in enumerate(self.field.subfields)
+            )
+
+    @property
+    def AdaptiveInputEqEnableTx(self) -> "TxControl.AdaptiveInputEqEnableTxRangeCls":
+        field = self.subfields["AdaptiveInputEqEnableTx"]
+        return TxControl.AdaptiveInputEqEnableTxRangeCls(
+            self.mem_map, field, self.index
+        )
+
+    class AdaptiveInputEqRecallTxCls(Field):
+
+        EnumClass = RecallBufferEnum
+
+        DO_NOT_RECALL = RecallBufferEnum.DO_NOT_RECALL
+        RECALL_BUFFER_1 = RecallBufferEnum.RECALL_BUFFER_1
+        RECALL_BUFFER_2 = RecallBufferEnum.RECALL_BUFFER_2
+
+    class AdaptiveInputEqRecallTxRangeCls(RangeGroup):
+        def __getitem__(self, index: int) -> "TxControl.AdaptiveInputEqRecallTxCls":
+            return TxControl.AdaptiveInputEqRecallTxCls(
+                self.mem_map, self.field.subfields[index], index
+            )
+
+        def __iter__(self) -> Iterator["TxControl.AdaptiveInputEqRecallTxCls"]:
+            return iter(
+                TxControl.AdaptiveInputEqRecallTxCls(self.mem_map, f, i)
+                for i, f in enumerate(self.field.subfields)
+            )
+
+    @property
+    def AdaptiveInputEqRecallTx(self) -> "TxControl.AdaptiveInputEqRecallTxRangeCls":
+        field = self.subfields["AdaptiveInputEqRecallTx"]
+        return TxControl.AdaptiveInputEqRecallTxRangeCls(
+            self.mem_map, field, self.index
+        )
+
+    class FixedInputEqTargetTxCls(Field):
+
+        pass
+
+    class FixedInputEqTargetTxRangeCls(RangeGroup):
+        def __getitem__(self, index: int) -> "TxControl.FixedInputEqTargetTxCls":
+            return TxControl.FixedInputEqTargetTxCls(
+                self.mem_map, self.field.subfields[index], index
+            )
+
+        def __iter__(self) -> Iterator["TxControl.FixedInputEqTargetTxCls"]:
+            return iter(
+                TxControl.FixedInputEqTargetTxCls(self.mem_map, f, i)
+                for i, f in enumerate(self.field.subfields)
+            )
+
+    @property
+    def FixedInputEqTargetTx(self) -> "TxControl.FixedInputEqTargetTxRangeCls":
+        field = self.subfields["FixedInputEqTargetTx"]
+        return TxControl.FixedInputEqTargetTxRangeCls(self.mem_map, field, self.index)
+
+    class CDREnableTxCls(Field):
+
+        EnumClass = BypassedOrEnabledEnum
+
+        BYPASSED = BypassedOrEnabledEnum.BYPASSED
+        ENABLED = BypassedOrEnabledEnum.ENABLED
+
+    class CDREnableTxRangeCls(RangeGroup):
+        def __getitem__(self, index: int) -> "TxControl.CDREnableTxCls":
+            return TxControl.CDREnableTxCls(
+                self.mem_map, self.field.subfields[index], index
+            )
+
+        def __iter__(self) -> Iterator["TxControl.CDREnableTxCls"]:
+            return iter(
+                TxControl.CDREnableTxCls(self.mem_map, f, i)
+                for i, f in enumerate(self.field.subfields)
+            )
+
+    @property
+    def CDREnableTx(self) -> "TxControl.CDREnableTxRangeCls":
+        field = self.subfields["CDREnableTx"]
+        return TxControl.CDREnableTxRangeCls(self.mem_map, field, self.index)
+
+
+class RxControls(Group):
+    class CDREnableRxCls(Field):
+
+        EnumClass = BypassedOrEnabledEnum
+
+        BYPASSED = BypassedOrEnabledEnum.BYPASSED
+        ENABLED = BypassedOrEnabledEnum.ENABLED
+
+    class CDREnableRxRangeCls(RangeGroup):
+        def __getitem__(self, index: int) -> "RxControls.CDREnableRxCls":
+            return RxControls.CDREnableRxCls(
+                self.mem_map, self.field.subfields[index], index
+            )
+
+        def __iter__(self) -> Iterator["RxControls.CDREnableRxCls"]:
+            return iter(
+                RxControls.CDREnableRxCls(self.mem_map, f, i)
+                for i, f in enumerate(self.field.subfields)
+            )
+
+    @property
+    def CDREnableRx(self) -> "RxControls.CDREnableRxRangeCls":
+        field = self.subfields["CDREnableRx"]
+        return RxControls.CDREnableRxRangeCls(self.mem_map, field, self.index)
+
+    class OutputEqPreCursorTargetRxCls(Field):
+
+        pass
+
+    class OutputEqPreCursorTargetRxRangeCls(RangeGroup):
+        def __getitem__(self, index: int) -> "RxControls.OutputEqPreCursorTargetRxCls":
+            return RxControls.OutputEqPreCursorTargetRxCls(
+                self.mem_map, self.field.subfields[index], index
+            )
+
+        def __iter__(self) -> Iterator["RxControls.OutputEqPreCursorTargetRxCls"]:
+            return iter(
+                RxControls.OutputEqPreCursorTargetRxCls(self.mem_map, f, i)
+                for i, f in enumerate(self.field.subfields)
+            )
+
+    @property
+    def OutputEqPreCursorTargetRx(
+        self,
+    ) -> "RxControls.OutputEqPreCursorTargetRxRangeCls":
+        field = self.subfields["OutputEqPreCursorTargetRx"]
+        return RxControls.OutputEqPreCursorTargetRxRangeCls(
+            self.mem_map, field, self.index
+        )
+
+    class OutputEqPostCursorTargetRxCls(Field):
+
+        pass
+
+    class OutputEqPostCursorTargetRxRangeCls(RangeGroup):
+        def __getitem__(self, index: int) -> "RxControls.OutputEqPostCursorTargetRxCls":
+            return RxControls.OutputEqPostCursorTargetRxCls(
+                self.mem_map, self.field.subfields[index], index
+            )
+
+        def __iter__(self) -> Iterator["RxControls.OutputEqPostCursorTargetRxCls"]:
+            return iter(
+                RxControls.OutputEqPostCursorTargetRxCls(self.mem_map, f, i)
+                for i, f in enumerate(self.field.subfields)
+            )
+
+    @property
+    def OutputEqPostCursorTargetRx(
+        self,
+    ) -> "RxControls.OutputEqPostCursorTargetRxRangeCls":
+        field = self.subfields["OutputEqPostCursorTargetRx"]
+        return RxControls.OutputEqPostCursorTargetRxRangeCls(
+            self.mem_map, field, self.index
+        )
+
+    class OutputAmplitudeTargetRxCls(Field):
+
+        pass
+
+    class OutputAmplitudeTargetRxRangeCls(RangeGroup):
+        def __getitem__(self, index: int) -> "RxControls.OutputAmplitudeTargetRxCls":
+            return RxControls.OutputAmplitudeTargetRxCls(
+                self.mem_map, self.field.subfields[index], index
+            )
+
+        def __iter__(self) -> Iterator["RxControls.OutputAmplitudeTargetRxCls"]:
+            return iter(
+                RxControls.OutputAmplitudeTargetRxCls(self.mem_map, f, i)
+                for i, f in enumerate(self.field.subfields)
+            )
+
+    @property
+    def OutputAmplitudeTargetRx(self) -> "RxControls.OutputAmplitudeTargetRxRangeCls":
+        field = self.subfields["OutputAmplitudeTargetRx"]
+        return RxControls.OutputAmplitudeTargetRxRangeCls(
+            self.mem_map, field, self.index
         )
 
 
@@ -1965,295 +1366,729 @@ class OutputStatusChangedMaskRxRange(RangeGroup, OutputStatusChangedMaskRx):
         )
 
 
-class MediaLaneAssignmentOptions(Field):
+class DPStateHostLaneEnum(Enum):
+    DPDEACTIVATED = 1
+    DPINIT = 2
+    DPDEINIT = 3
+    DPACTIVATED = 4
+    DPTXTURNON = 5
+    DPTXTRUNOFF = 6
+    DPINITIALIZED = 7
 
-    pass
+
+class DPStateHostLane(Field):
+
+    EnumClass = DPStateHostLaneEnum
+
+    DPDEACTIVATED = DPStateHostLaneEnum.DPDEACTIVATED
+    DPINIT = DPStateHostLaneEnum.DPINIT
+    DPDEINIT = DPStateHostLaneEnum.DPDEINIT
+    DPACTIVATED = DPStateHostLaneEnum.DPACTIVATED
+    DPTXTURNON = DPStateHostLaneEnum.DPTXTURNON
+    DPTXTRUNOFF = DPStateHostLaneEnum.DPTXTRUNOFF
+    DPINITIALIZED = DPStateHostLaneEnum.DPINITIALIZED
 
 
-class MediaLaneAssignmentOptionsRange(RangeGroup, MediaLaneAssignmentOptions):
-    def __getitem__(self, index: int) -> MediaLaneAssignmentOptions:
-        return MediaLaneAssignmentOptions(
-            self.mem_map, self.field.subfields[index], index
-        )
+class DPStateHostLaneRange(RangeGroup, DPStateHostLane):
+    def __getitem__(self, index: int) -> DPStateHostLane:
+        return DPStateHostLane(self.mem_map, self.field.subfields[index], index)
 
-    def __iter__(self) -> Iterator[MediaLaneAssignmentOptions]:
+    def __iter__(self) -> Iterator[DPStateHostLane]:
         return iter(
-            MediaLaneAssignmentOptions(self.mem_map, f, i)
+            DPStateHostLane(self.mem_map, f, i)
             for i, f in enumerate(self.field.subfields)
         )
 
 
-class SupportFlagEnum(Enum):
-
-    NOT_SUPPORTED = 0
-    SUPPORTED = 1
-
-
-class SupportFlag:
-
-    NOT_SUPPORTED = SupportFlagEnum.NOT_SUPPORTED
-    SUPPORTED = SupportFlagEnum.SUPPORTED
+class OutputStatusRxEnum(Enum):
+    INVALID_OR_MUTED = 0
+    VALID = 1
 
 
-class DurationEnum(Enum):
+class OutputStatusRx(Field):
 
-    LESS_THAN_1_MS = 0
-    BETWEEN_1_AND_5_MS = 1
-    BETWEEN_5_AND_10_MS = 2
-    BETWEEN_10_AND_50_MS = 3
-    BETWEEN_50_AND_100_MS = 4
-    BETWEEN_100_AND_500_MS = 5
-    BETWEEN_500_MS_AND_1_S = 6
-    BETWEEN_1_AND_5_S = 7
-    BETWEEN_5_AND_10_S = 8
-    BETWEEN_10_S_AND_1_MIN = 9
-    BETWEEN_1_AND_5_MIN = 10
-    BETWEEN_5_AND_10_MIN = 11
-    BETWEEN_10_AND_50_MIN = 12
-    GREATER_THAN_50_MIN = 13
+    EnumClass = OutputStatusRxEnum
+
+    INVALID_OR_MUTED = OutputStatusRxEnum.INVALID_OR_MUTED
+    VALID = OutputStatusRxEnum.VALID
 
 
-class Duration:
+class OutputStatusRxRange(RangeGroup, OutputStatusRx):
+    def __getitem__(self, index: int) -> OutputStatusRx:
+        return OutputStatusRx(self.mem_map, self.field.subfields[index], index)
 
-    LESS_THAN_1_MS = DurationEnum.LESS_THAN_1_MS
-    BETWEEN_1_AND_5_MS = DurationEnum.BETWEEN_1_AND_5_MS
-    BETWEEN_5_AND_10_MS = DurationEnum.BETWEEN_5_AND_10_MS
-    BETWEEN_10_AND_50_MS = DurationEnum.BETWEEN_10_AND_50_MS
-    BETWEEN_50_AND_100_MS = DurationEnum.BETWEEN_50_AND_100_MS
-    BETWEEN_100_AND_500_MS = DurationEnum.BETWEEN_100_AND_500_MS
-    BETWEEN_500_MS_AND_1_S = DurationEnum.BETWEEN_500_MS_AND_1_S
-    BETWEEN_1_AND_5_S = DurationEnum.BETWEEN_1_AND_5_S
-    BETWEEN_5_AND_10_S = DurationEnum.BETWEEN_5_AND_10_S
-    BETWEEN_10_S_AND_1_MIN = DurationEnum.BETWEEN_10_S_AND_1_MIN
-    BETWEEN_1_AND_5_MIN = DurationEnum.BETWEEN_1_AND_5_MIN
-    BETWEEN_5_AND_10_MIN = DurationEnum.BETWEEN_5_AND_10_MIN
-    BETWEEN_10_AND_50_MIN = DurationEnum.BETWEEN_10_AND_50_MIN
-    GREATER_THAN_50_MIN = DurationEnum.GREATER_THAN_50_MIN
+    def __iter__(self) -> Iterator[OutputStatusRx]:
+        return iter(
+            OutputStatusRx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
 
 
-class CdbCmdCompleteMask2(Field):
+class OutputStatusTxEnum(Enum):
+    INVALID_OR_MUTED = 0
+    VALID = 1
 
-    pass
+
+class OutputStatusTx(Field):
+
+    EnumClass = OutputStatusTxEnum
+
+    INVALID_OR_MUTED = OutputStatusTxEnum.INVALID_OR_MUTED
+    VALID = OutputStatusTxEnum.VALID
 
 
-class CdbCmdCompleteMask1(Field):
+class OutputStatusTxRange(RangeGroup, OutputStatusTx):
+    def __getitem__(self, index: int) -> OutputStatusTx:
+        return OutputStatusTx(self.mem_map, self.field.subfields[index], index)
+
+    def __iter__(self) -> Iterator[OutputStatusTx]:
+        return iter(
+            OutputStatusTx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class DPStateChangedFlag(Field):
 
     pass
 
 
-class DataPathFirmwareErrorMask(Field):
+class DPStateChangedFlagRange(RangeGroup, DPStateChangedFlag):
+    def __getitem__(self, index: int) -> DPStateChangedFlag:
+        return DPStateChangedFlag(self.mem_map, self.field.subfields[index], index)
+
+    def __iter__(self) -> Iterator[DPStateChangedFlag]:
+        return iter(
+            DPStateChangedFlag(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class FailureFlagTx(Field):
 
     pass
 
 
-class ModuleFirmwareErrorMask(Field):
+class FailureFlagTxRange(RangeGroup, FailureFlagTx):
+    def __getitem__(self, index: int) -> FailureFlagTx:
+        return FailureFlagTx(self.mem_map, self.field.subfields[index], index)
+
+    def __iter__(self) -> Iterator[FailureFlagTx]:
+        return iter(
+            FailureFlagTx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class LOSFlagTx(Field):
 
     pass
 
 
-class ModuleStateChangedMask(Field):
+class LOSFlagTxRange(RangeGroup, LOSFlagTx):
+    def __getitem__(self, index: int) -> LOSFlagTx:
+        return LOSFlagTx(self.mem_map, self.field.subfields[index], index)
+
+    def __iter__(self) -> Iterator[LOSFlagTx]:
+        return iter(
+            LOSFlagTx(self.mem_map, f, i) for i, f in enumerate(self.field.subfields)
+        )
+
+
+class CDRLOLFlagTx(Field):
 
     pass
 
 
-class VccMonLowWarningMask(Field):
+class CDRLOLFlagTxRange(RangeGroup, CDRLOLFlagTx):
+    def __getitem__(self, index: int) -> CDRLOLFlagTx:
+        return CDRLOLFlagTx(self.mem_map, self.field.subfields[index], index)
+
+    def __iter__(self) -> Iterator[CDRLOLFlagTx]:
+        return iter(
+            CDRLOLFlagTx(self.mem_map, f, i) for i, f in enumerate(self.field.subfields)
+        )
+
+
+class AdaptiveInputEqFailFlagTx(Field):
 
     pass
 
 
-class VccMonHighWarningMask(Field):
+class AdaptiveInputEqFailFlagTxRange(RangeGroup, AdaptiveInputEqFailFlagTx):
+    def __getitem__(self, index: int) -> AdaptiveInputEqFailFlagTx:
+        return AdaptiveInputEqFailFlagTx(
+            self.mem_map, self.field.subfields[index], index
+        )
+
+    def __iter__(self) -> Iterator[AdaptiveInputEqFailFlagTx]:
+        return iter(
+            AdaptiveInputEqFailFlagTx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class OpticalPowerHighAlarmFlagTx(Field):
 
     pass
 
 
-class VccMonLowAlarmMask(Field):
+class OpticalPowerHighAlarmFlagTxRange(RangeGroup, OpticalPowerHighAlarmFlagTx):
+    def __getitem__(self, index: int) -> OpticalPowerHighAlarmFlagTx:
+        return OpticalPowerHighAlarmFlagTx(
+            self.mem_map, self.field.subfields[index], index
+        )
+
+    def __iter__(self) -> Iterator[OpticalPowerHighAlarmFlagTx]:
+        return iter(
+            OpticalPowerHighAlarmFlagTx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class OpticalPowerLowAlarmFlagTx(Field):
 
     pass
 
 
-class VccMonHighAlarmMask(Field):
+class OpticalPowerLowAlarmFlagTxRange(RangeGroup, OpticalPowerLowAlarmFlagTx):
+    def __getitem__(self, index: int) -> OpticalPowerLowAlarmFlagTx:
+        return OpticalPowerLowAlarmFlagTx(
+            self.mem_map, self.field.subfields[index], index
+        )
+
+    def __iter__(self) -> Iterator[OpticalPowerLowAlarmFlagTx]:
+        return iter(
+            OpticalPowerLowAlarmFlagTx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class OpticalPowerHighWarningFlagTx(Field):
 
     pass
 
 
-class TempMonLowWarningMask(Field):
+class OpticalPowerHighWarningFlagTxRange(RangeGroup, OpticalPowerHighWarningFlagTx):
+    def __getitem__(self, index: int) -> OpticalPowerHighWarningFlagTx:
+        return OpticalPowerHighWarningFlagTx(
+            self.mem_map, self.field.subfields[index], index
+        )
+
+    def __iter__(self) -> Iterator[OpticalPowerHighWarningFlagTx]:
+        return iter(
+            OpticalPowerHighWarningFlagTx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class OpticalPowerLowWarningFlagTx(Field):
 
     pass
 
 
-class TempMonHighWarningMask(Field):
+class OpticalPowerLowWarningFlagTxRange(RangeGroup, OpticalPowerLowWarningFlagTx):
+    def __getitem__(self, index: int) -> OpticalPowerLowWarningFlagTx:
+        return OpticalPowerLowWarningFlagTx(
+            self.mem_map, self.field.subfields[index], index
+        )
+
+    def __iter__(self) -> Iterator[OpticalPowerLowWarningFlagTx]:
+        return iter(
+            OpticalPowerLowWarningFlagTx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class LaserBiasHighAlarmFlagTx(Field):
 
     pass
 
 
-class TempMonLowAlarmMask(Field):
+class LaserBiasHighAlarmFlagTxRange(RangeGroup, LaserBiasHighAlarmFlagTx):
+    def __getitem__(self, index: int) -> LaserBiasHighAlarmFlagTx:
+        return LaserBiasHighAlarmFlagTx(
+            self.mem_map, self.field.subfields[index], index
+        )
+
+    def __iter__(self) -> Iterator[LaserBiasHighAlarmFlagTx]:
+        return iter(
+            LaserBiasHighAlarmFlagTx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class LaserBiasLowAlarmFlagTx(Field):
 
     pass
 
 
-class TempMonHighAlarmMask(Field):
+class LaserBiasLowAlarmFlagTxRange(RangeGroup, LaserBiasLowAlarmFlagTx):
+    def __getitem__(self, index: int) -> LaserBiasLowAlarmFlagTx:
+        return LaserBiasLowAlarmFlagTx(self.mem_map, self.field.subfields[index], index)
+
+    def __iter__(self) -> Iterator[LaserBiasLowAlarmFlagTx]:
+        return iter(
+            LaserBiasLowAlarmFlagTx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class LaserBiasHighWarningFlagTx(Field):
 
     pass
 
 
-class Aux2MonLowWarningMask(Field):
+class LaserBiasHighWarningFlagTxRange(RangeGroup, LaserBiasHighWarningFlagTx):
+    def __getitem__(self, index: int) -> LaserBiasHighWarningFlagTx:
+        return LaserBiasHighWarningFlagTx(
+            self.mem_map, self.field.subfields[index], index
+        )
+
+    def __iter__(self) -> Iterator[LaserBiasHighWarningFlagTx]:
+        return iter(
+            LaserBiasHighWarningFlagTx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class LaserBiasLowWarningFlagTx(Field):
 
     pass
 
 
-class Aux2MonHighWarningMask(Field):
+class LaserBiasLowWarningFlagTxRange(RangeGroup, LaserBiasLowWarningFlagTx):
+    def __getitem__(self, index: int) -> LaserBiasLowWarningFlagTx:
+        return LaserBiasLowWarningFlagTx(
+            self.mem_map, self.field.subfields[index], index
+        )
+
+    def __iter__(self) -> Iterator[LaserBiasLowWarningFlagTx]:
+        return iter(
+            LaserBiasLowWarningFlagTx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class LOSFlagRx(Field):
 
     pass
 
 
-class Aux2MonLowAlarmMask(Field):
+class LOSFlagRxRange(RangeGroup, LOSFlagRx):
+    def __getitem__(self, index: int) -> LOSFlagRx:
+        return LOSFlagRx(self.mem_map, self.field.subfields[index], index)
+
+    def __iter__(self) -> Iterator[LOSFlagRx]:
+        return iter(
+            LOSFlagRx(self.mem_map, f, i) for i, f in enumerate(self.field.subfields)
+        )
+
+
+class CDRLOLFlagRx(Field):
 
     pass
 
 
-class Aux2MonHighAlarmMask(Field):
+class CDRLOLFlagRxRange(RangeGroup, CDRLOLFlagRx):
+    def __getitem__(self, index: int) -> CDRLOLFlagRx:
+        return CDRLOLFlagRx(self.mem_map, self.field.subfields[index], index)
+
+    def __iter__(self) -> Iterator[CDRLOLFlagRx]:
+        return iter(
+            CDRLOLFlagRx(self.mem_map, f, i) for i, f in enumerate(self.field.subfields)
+        )
+
+
+class OpticalPowerHighAlarmFlagRx(Field):
 
     pass
 
 
-class Aux1MonLowWarningMask(Field):
+class OpticalPowerHighAlarmFlagRxRange(RangeGroup, OpticalPowerHighAlarmFlagRx):
+    def __getitem__(self, index: int) -> OpticalPowerHighAlarmFlagRx:
+        return OpticalPowerHighAlarmFlagRx(
+            self.mem_map, self.field.subfields[index], index
+        )
+
+    def __iter__(self) -> Iterator[OpticalPowerHighAlarmFlagRx]:
+        return iter(
+            OpticalPowerHighAlarmFlagRx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class OpticalPowerLowAlarmFlagRx(Field):
 
     pass
 
 
-class Aux1MonHighWarningMask(Field):
+class OpticalPowerLowAlarmFlagRxRange(RangeGroup, OpticalPowerLowAlarmFlagRx):
+    def __getitem__(self, index: int) -> OpticalPowerLowAlarmFlagRx:
+        return OpticalPowerLowAlarmFlagRx(
+            self.mem_map, self.field.subfields[index], index
+        )
+
+    def __iter__(self) -> Iterator[OpticalPowerLowAlarmFlagRx]:
+        return iter(
+            OpticalPowerLowAlarmFlagRx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class OpticalPowerHighWarningFlagRx(Field):
 
     pass
 
 
-class Aux1MonLowAlarmMask(Field):
+class OpticalPowerHighWarningFlagRxRange(RangeGroup, OpticalPowerHighWarningFlagRx):
+    def __getitem__(self, index: int) -> OpticalPowerHighWarningFlagRx:
+        return OpticalPowerHighWarningFlagRx(
+            self.mem_map, self.field.subfields[index], index
+        )
+
+    def __iter__(self) -> Iterator[OpticalPowerHighWarningFlagRx]:
+        return iter(
+            OpticalPowerHighWarningFlagRx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class OpticalPowerLowWarningFlagRx(Field):
 
     pass
 
 
-class Aux1MonHighAlarmMask(Field):
+class OpticalPowerLowWarningFlagRxRange(RangeGroup, OpticalPowerLowWarningFlagRx):
+    def __getitem__(self, index: int) -> OpticalPowerLowWarningFlagRx:
+        return OpticalPowerLowWarningFlagRx(
+            self.mem_map, self.field.subfields[index], index
+        )
+
+    def __iter__(self) -> Iterator[OpticalPowerLowWarningFlagRx]:
+        return iter(
+            OpticalPowerLowWarningFlagRx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class OutputStatusChangedFlagRx(Field):
 
     pass
 
 
-class CustomMonLowWarningMask(Field):
+class OutputStatusChangedFlagRxRange(RangeGroup, OutputStatusChangedFlagRx):
+    def __getitem__(self, index: int) -> OutputStatusChangedFlagRx:
+        return OutputStatusChangedFlagRx(
+            self.mem_map, self.field.subfields[index], index
+        )
+
+    def __iter__(self) -> Iterator[OutputStatusChangedFlagRx]:
+        return iter(
+            OutputStatusChangedFlagRx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class OpticalPowerTx(Field):
 
     pass
 
 
-class CustomMonHighWarningMask(Field):
+class OpticalPowerTxRange(RangeGroup, OpticalPowerTx):
+    def __getitem__(self, index: int) -> OpticalPowerTx:
+        return OpticalPowerTx(self.mem_map, self.field.subfields[index], index)
+
+    def __iter__(self) -> Iterator[OpticalPowerTx]:
+        return iter(
+            OpticalPowerTx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class LaserBiasTx(Field):
 
     pass
 
 
-class CustomMonLowAlarmMask(Field):
+class LaserBiasTxRange(RangeGroup, LaserBiasTx):
+    def __getitem__(self, index: int) -> LaserBiasTx:
+        return LaserBiasTx(self.mem_map, self.field.subfields[index], index)
+
+    def __iter__(self) -> Iterator[LaserBiasTx]:
+        return iter(
+            LaserBiasTx(self.mem_map, f, i) for i, f in enumerate(self.field.subfields)
+        )
+
+
+class OpticalPowerRx(Field):
 
     pass
 
 
-class CustomMonHighAlarmMask(Field):
+class OpticalPowerRxRange(RangeGroup, OpticalPowerRx):
+    def __getitem__(self, index: int) -> OpticalPowerRx:
+        return OpticalPowerRx(self.mem_map, self.field.subfields[index], index)
+
+    def __iter__(self) -> Iterator[OpticalPowerRx]:
+        return iter(
+            OpticalPowerRx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class ConfigStatusLaneEnum(Enum):
+    UNDEFINED = 0
+    SUCCESS = 1
+    REJECTED = 2
+    REJECTED_INVALID_APP_SEL = 3
+    REJECTED_INVALID_DATA_PATH = 4
+    REJECTED_INVALID_SI = 5
+    REJECTED_LANES_IN_USE = 6
+    REJECTED_PARTIAL_DATA_PATH = 7
+    IN_PROGRESS = 12
+
+
+class ConfigStatusLane(Field):
+
+    EnumClass = ConfigStatusLaneEnum
+
+    UNDEFINED = ConfigStatusLaneEnum.UNDEFINED
+    SUCCESS = ConfigStatusLaneEnum.SUCCESS
+    REJECTED = ConfigStatusLaneEnum.REJECTED
+    REJECTED_INVALID_APP_SEL = ConfigStatusLaneEnum.REJECTED_INVALID_APP_SEL
+    REJECTED_INVALID_DATA_PATH = ConfigStatusLaneEnum.REJECTED_INVALID_DATA_PATH
+    REJECTED_INVALID_SI = ConfigStatusLaneEnum.REJECTED_INVALID_SI
+    REJECTED_LANES_IN_USE = ConfigStatusLaneEnum.REJECTED_LANES_IN_USE
+    REJECTED_PARTIAL_DATA_PATH = ConfigStatusLaneEnum.REJECTED_PARTIAL_DATA_PATH
+    IN_PROGRESS = ConfigStatusLaneEnum.IN_PROGRESS
+
+
+class ConfigStatusLaneRange(RangeGroup, ConfigStatusLane):
+    def __getitem__(self, index: int) -> ConfigStatusLane:
+        return ConfigStatusLane(self.mem_map, self.field.subfields[index], index)
+
+    def __iter__(self) -> Iterator[ConfigStatusLane]:
+        return iter(
+            ConfigStatusLane(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class TxControls(Group):
+    class AdaptiveInputEqEnableTxCls(Field):
+
+        EnumClass = FixedOrAdaptiveEnum
+
+        FIXED = FixedOrAdaptiveEnum.FIXED
+        ADAPTIVE = FixedOrAdaptiveEnum.ADAPTIVE
+
+    class AdaptiveInputEqEnableTxRangeCls(RangeGroup):
+        def __getitem__(self, index: int) -> "TxControls.AdaptiveInputEqEnableTxCls":
+            return TxControls.AdaptiveInputEqEnableTxCls(
+                self.mem_map, self.field.subfields[index], index
+            )
+
+        def __iter__(self) -> Iterator["TxControls.AdaptiveInputEqEnableTxCls"]:
+            return iter(
+                TxControls.AdaptiveInputEqEnableTxCls(self.mem_map, f, i)
+                for i, f in enumerate(self.field.subfields)
+            )
+
+    @property
+    def AdaptiveInputEqEnableTx(self) -> "TxControls.AdaptiveInputEqEnableTxRangeCls":
+        field = self.subfields["AdaptiveInputEqEnableTx"]
+        return TxControls.AdaptiveInputEqEnableTxRangeCls(
+            self.mem_map, field, self.index
+        )
+
+    class AdaptiveInputEqRecallTxCls(Field):
+
+        EnumClass = RecallBufferEnum
+
+        DO_NOT_RECALL = RecallBufferEnum.DO_NOT_RECALL
+        RECALL_BUFFER_1 = RecallBufferEnum.RECALL_BUFFER_1
+        RECALL_BUFFER_2 = RecallBufferEnum.RECALL_BUFFER_2
+
+    class AdaptiveInputEqRecallTxRangeCls(RangeGroup):
+        def __getitem__(self, index: int) -> "TxControls.AdaptiveInputEqRecallTxCls":
+            return TxControls.AdaptiveInputEqRecallTxCls(
+                self.mem_map, self.field.subfields[index], index
+            )
+
+        def __iter__(self) -> Iterator["TxControls.AdaptiveInputEqRecallTxCls"]:
+            return iter(
+                TxControls.AdaptiveInputEqRecallTxCls(self.mem_map, f, i)
+                for i, f in enumerate(self.field.subfields)
+            )
+
+    @property
+    def AdaptiveInputEqRecallTx(self) -> "TxControls.AdaptiveInputEqRecallTxRangeCls":
+        field = self.subfields["AdaptiveInputEqRecallTx"]
+        return TxControls.AdaptiveInputEqRecallTxRangeCls(
+            self.mem_map, field, self.index
+        )
+
+    class FixedInputEqTargetTxCls(Field):
+
+        pass
+
+    class FixedInputEqTargetTxRangeCls(RangeGroup):
+        def __getitem__(self, index: int) -> "TxControls.FixedInputEqTargetTxCls":
+            return TxControls.FixedInputEqTargetTxCls(
+                self.mem_map, self.field.subfields[index], index
+            )
+
+        def __iter__(self) -> Iterator["TxControls.FixedInputEqTargetTxCls"]:
+            return iter(
+                TxControls.FixedInputEqTargetTxCls(self.mem_map, f, i)
+                for i, f in enumerate(self.field.subfields)
+            )
+
+    @property
+    def FixedInputEqTargetTx(self) -> "TxControls.FixedInputEqTargetTxRangeCls":
+        field = self.subfields["FixedInputEqTargetTx"]
+        return TxControls.FixedInputEqTargetTxRangeCls(self.mem_map, field, self.index)
+
+    class CDREnableTxCls(Field):
+
+        EnumClass = BypassedOrEnabledEnum
+
+        BYPASSED = BypassedOrEnabledEnum.BYPASSED
+        ENABLED = BypassedOrEnabledEnum.ENABLED
+
+    class CDREnableTxRangeCls(RangeGroup):
+        def __getitem__(self, index: int) -> "TxControls.CDREnableTxCls":
+            return TxControls.CDREnableTxCls(
+                self.mem_map, self.field.subfields[index], index
+            )
+
+        def __iter__(self) -> Iterator["TxControls.CDREnableTxCls"]:
+            return iter(
+                TxControls.CDREnableTxCls(self.mem_map, f, i)
+                for i, f in enumerate(self.field.subfields)
+            )
+
+    @property
+    def CDREnableTx(self) -> "TxControls.CDREnableTxRangeCls":
+        field = self.subfields["CDREnableTx"]
+        return TxControls.CDREnableTxRangeCls(self.mem_map, field, self.index)
+
+
+class DPInitPendingLaneEnum(Enum):
+    NOT_PENDING = 0
+    PENDING = 1
+
+
+class DPInitPendingLane(Field):
+
+    EnumClass = DPInitPendingLaneEnum
+
+    NOT_PENDING = DPInitPendingLaneEnum.NOT_PENDING
+    PENDING = DPInitPendingLaneEnum.PENDING
+
+
+class DPInitPendingLaneRange(RangeGroup, DPInitPendingLane):
+    def __getitem__(self, index: int) -> DPInitPendingLane:
+        return DPInitPendingLane(self.mem_map, self.field.subfields[index], index)
+
+    def __iter__(self) -> Iterator[DPInitPendingLane]:
+        return iter(
+            DPInitPendingLane(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class MediaLaneMappingTx(Field):
 
     pass
 
 
-class Aux3MonLowWarningMask(Field):
+class MediaLaneMappingTxRange(RangeGroup, MediaLaneMappingTx):
+    def __getitem__(self, index: int) -> MediaLaneMappingTx:
+        return MediaLaneMappingTx(self.mem_map, self.field.subfields[index], index)
+
+    def __iter__(self) -> Iterator[MediaLaneMappingTx]:
+        return iter(
+            MediaLaneMappingTx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
+
+
+class MediaLaneMappingRx(Field):
 
     pass
 
 
-class Aux3MonHighWarningMask(Field):
+class MediaLaneMappingRxRange(RangeGroup, MediaLaneMappingRx):
+    def __getitem__(self, index: int) -> MediaLaneMappingRx:
+        return MediaLaneMappingRx(self.mem_map, self.field.subfields[index], index)
 
-    pass
-
-
-class Aux3MonLowAlarmMask(Field):
-
-    pass
-
-
-class Aux3MonHighAlarmMask(Field):
-
-    pass
+    def __iter__(self) -> Iterator[MediaLaneMappingRx]:
+        return iter(
+            MediaLaneMappingRx(self.mem_map, f, i)
+            for i, f in enumerate(self.field.subfields)
+        )
 
 
-class FlagsSummaryBank0Page2Ch(Field):
-
-    pass
-
-
-class FlagsSummaryBank0Page14h(Field):
-
-    pass
+class SFF8024Identifier(Field, Identifier):
+    EnumClass = IdentifierEnum
 
 
-class FlagsSummaryBank0Page12h(Field):
+class MciMaxSpeedEnum(Enum):
 
-    pass
-
-
-class FlagsSummaryBank0Page11h(Field):
-
-    pass
+    UP_TO_400_KHZ = 0
+    UP_TO_1_MHZ = 1
 
 
-class FlagsSummaryBank1Page2Ch(Field):
+class MciMaxSpeed(Field):
 
-    pass
+    EnumClass = MciMaxSpeedEnum
 
-
-class FlagsSummaryBank1Page14h(Field):
-
-    pass
+    UP_TO_400_KHZ = MciMaxSpeedEnum.UP_TO_400_KHZ
+    UP_TO_1_MHZ = MciMaxSpeedEnum.UP_TO_1_MHZ
 
 
-class FlagsSummaryBank1Page12h(Field):
+class SteppedConfigOnlyEnum(Enum):
 
-    pass
-
-
-class FlagsSummaryBank1Page11h(Field):
-
-    pass
+    INTERVENTION_FREE = 0
+    STEP_BY_STEP = 1
 
 
-class FlagsSummaryBank2Page2Ch(Field):
+class SteppedConfigOnly(Field):
 
-    pass
+    EnumClass = SteppedConfigOnlyEnum
 
-
-class FlagsSummaryBank2Page14h(Field):
-
-    pass
+    INTERVENTION_FREE = SteppedConfigOnlyEnum.INTERVENTION_FREE
+    STEP_BY_STEP = SteppedConfigOnlyEnum.STEP_BY_STEP
 
 
-class FlagsSummaryBank2Page12h(Field):
+class MemoryModelEnum(Enum):
 
-    pass
-
-
-class FlagsSummaryBank2Page11h(Field):
-
-    pass
+    PAGED = 0
+    FLAT = 1
 
 
-class FlagsSummaryBank3Page2Ch(Field):
+class MemoryModel(Field):
 
-    pass
+    EnumClass = MemoryModelEnum
 
-
-class FlagsSummaryBank3Page14h(Field):
-
-    pass
+    PAGED = MemoryModelEnum.PAGED
+    FLAT = MemoryModelEnum.FLAT
 
 
-class FlagsSummaryBank3Page12h(Field):
+class InterruptDeassertedEnum(Enum):
 
-    pass
+    ASSERTED = 0
+    NOT_ASSERTED = 1
 
 
-class FlagsSummaryBank3Page11h(Field):
+class InterruptDeasserted(Field):
 
-    pass
+    EnumClass = InterruptDeassertedEnum
+
+    ASSERTED = InterruptDeassertedEnum.ASSERTED
+    NOT_ASSERTED = InterruptDeassertedEnum.NOT_ASSERTED
 
 
 class ModuleStateEnum(Enum):
@@ -2276,184 +2111,229 @@ class ModuleState(Field):
     MODULE_FAULT = ModuleStateEnum.MODULE_FAULT
 
 
-class InterruptDeassertedEnum(Enum):
-
-    ASSERTED = 0
-    NOT_ASSERTED = 1
-
-
-class InterruptDeasserted(Field):
-
-    EnumClass = InterruptDeassertedEnum
-
-    ASSERTED = InterruptDeassertedEnum.ASSERTED
-    NOT_ASSERTED = InterruptDeassertedEnum.NOT_ASSERTED
-
-
-class AttenuationAt5GHz(Field):
+class FlagsSummaryBank0Page11h(Field):
 
     pass
 
 
-class AttenuationAt7GHz(Field):
+class FlagsSummaryBank0Page12h(Field):
 
     pass
 
 
-class AttenuationAt12p9GHz(Field):
+class FlagsSummaryBank0Page14h(Field):
 
     pass
 
 
-class AttenuationAt25p8GHz(Field):
+class FlagsSummaryBank0Page2Ch(Field):
 
     pass
 
 
-class ModuleActiveFirmwareMajorRevision(Field):
+class FlagsSummaryBank1Page11h(Field):
 
     pass
 
 
-class ModuleActiveFirmwareMinorRevision(Field):
+class FlagsSummaryBank1Page12h(Field):
 
     pass
 
 
-class FarEndConfiguration(Field):
+class FlagsSummaryBank1Page14h(Field):
 
     pass
 
 
-class BankSelect(Field):
+class FlagsSummaryBank1Page2Ch(Field):
 
     pass
 
 
-class PageSelect(Field):
+class FlagsSummaryBank2Page11h(Field):
 
     pass
 
 
-class BankBroadcastEnableEnum(Enum):
-
-    DISABLED = 0
-    ENABLED = 1
-
-
-class BankBroadcastEnable(Field):
-
-    EnumClass = BankBroadcastEnableEnum
-
-    DISABLED = BankBroadcastEnableEnum.DISABLED
-    ENABLED = BankBroadcastEnableEnum.ENABLED
-
-
-class LowPwrAllowRequestHWEnum(Enum):
-
-    IGNORE = 0
-    EVALUATE = 1
-
-
-class LowPwrAllowRequestHW(Field):
-
-    EnumClass = LowPwrAllowRequestHWEnum
-
-    IGNORE = LowPwrAllowRequestHWEnum.IGNORE
-    EVALUATE = LowPwrAllowRequestHWEnum.EVALUATE
-
-
-class SquelchMethodSelectEnum(Enum):
-
-    REDUCES_OMA = 0
-    REDUCES_PAV = 1
-
-
-class SquelchMethodSelect(Field):
-
-    EnumClass = SquelchMethodSelectEnum
-
-    REDUCES_OMA = SquelchMethodSelectEnum.REDUCES_OMA
-    REDUCES_PAV = SquelchMethodSelectEnum.REDUCES_PAV
-
-
-class LowPwrRequestSWEnum(Enum):
-
-    NO_REQUEST = 0
-    LOW_POWER_MODE = 1
-
-
-class LowPwrRequestSW(Field):
-
-    EnumClass = LowPwrRequestSWEnum
-
-    NO_REQUEST = LowPwrRequestSWEnum.NO_REQUEST
-    LOW_POWER_MODE = LowPwrRequestSWEnum.LOW_POWER_MODE
-
-
-class SoftwareResetEnum(Enum):
-
-    NO_ACTION = 0
-    RESET = 1
-
-
-class SoftwareReset(Field):
-
-    EnumClass = SoftwareResetEnum
-
-    NO_ACTION = SoftwareResetEnum.NO_ACTION
-    RESET = SoftwareResetEnum.RESET
-
-
-class ModuleGlobalControls(Field):
+class FlagsSummaryBank2Page12h(Field):
 
     pass
 
 
-class SFF8024Identifier(Field, Identifier):
-    EnumClass = IdentifierEnum
+class FlagsSummaryBank2Page14h(Field):
+
+    pass
 
 
-class MemoryModelEnum(Enum):
+class FlagsSummaryBank2Page2Ch(Field):
 
-    PAGED = 0
-    FLAT = 1
-
-
-class MemoryModel(Field):
-
-    EnumClass = MemoryModelEnum
-
-    PAGED = MemoryModelEnum.PAGED
-    FLAT = MemoryModelEnum.FLAT
+    pass
 
 
-class SteppedConfigOnlyEnum(Enum):
+class FlagsSummaryBank3Page11h(Field):
 
-    INTERVENTION_FREE = 0
-    STEP_BY_STEP = 1
-
-
-class SteppedConfigOnly(Field):
-
-    EnumClass = SteppedConfigOnlyEnum
-
-    INTERVENTION_FREE = SteppedConfigOnlyEnum.INTERVENTION_FREE
-    STEP_BY_STEP = SteppedConfigOnlyEnum.STEP_BY_STEP
+    pass
 
 
-class MciMaxSpeedEnum(Enum):
+class FlagsSummaryBank3Page12h(Field):
 
-    UP_TO_400_KHZ = 0
-    UP_TO_1_MHZ = 1
+    pass
 
 
-class MciMaxSpeed(Field):
+class FlagsSummaryBank3Page14h(Field):
 
-    EnumClass = MciMaxSpeedEnum
+    pass
 
-    UP_TO_400_KHZ = MciMaxSpeedEnum.UP_TO_400_KHZ
-    UP_TO_1_MHZ = MciMaxSpeedEnum.UP_TO_1_MHZ
+
+class FlagsSummaryBank3Page2Ch(Field):
+
+    pass
+
+
+class ModuleStateChangedFlag(Field):
+
+    pass
+
+
+class ModuleFirmwareErrorFlag(Field):
+
+    pass
+
+
+class DataPathFirmwareErrorFlag(Field):
+
+    pass
+
+
+class CdbCmdCompleteFlag1(Field):
+
+    pass
+
+
+class CdbCmdCompleteFlag2(Field):
+
+    pass
+
+
+class TempMonHighAlarmFlag(Field):
+
+    pass
+
+
+class TempMonLowAlarmFlag(Field):
+
+    pass
+
+
+class TempMonHighWarningFlag(Field):
+
+    pass
+
+
+class TempMonLowWarningFlag(Field):
+
+    pass
+
+
+class VccMonHighAlarmFlag(Field):
+
+    pass
+
+
+class VccMonLowAlarmFlag(Field):
+
+    pass
+
+
+class VccMonHighWarningFlag(Field):
+
+    pass
+
+
+class VccMonLowWarningFlag(Field):
+
+    pass
+
+
+class Aux1MonHighAlarmFlag(Field):
+
+    pass
+
+
+class Aux1MonLowAlarmFlag(Field):
+
+    pass
+
+
+class Aux1MonHighWarningFlag(Field):
+
+    pass
+
+
+class Aux1MonLowWarningFlag(Field):
+
+    pass
+
+
+class Aux2MonHighAlarmFlag(Field):
+
+    pass
+
+
+class Aux2MonLowAlarmFlag(Field):
+
+    pass
+
+
+class Aux2MonHighWarningFlag(Field):
+
+    pass
+
+
+class Aux2MonLowWarningFlag(Field):
+
+    pass
+
+
+class Aux3MonHighAlarmFlag(Field):
+
+    pass
+
+
+class Aux3MonLowAlarmFlag(Field):
+
+    pass
+
+
+class Aux3MonHighWarningFlag(Field):
+
+    pass
+
+
+class Aux3MonLowWarningFlag(Field):
+
+    pass
+
+
+class CustomMonHighAlarmFlag(Field):
+
+    pass
+
+
+class CustomMonLowAlarmFlag(Field):
+
+    pass
+
+
+class CustomMonHighWarningFlag(Field):
+
+    pass
+
+
+class CustomMonLowWarningFlag(Field):
+
+    pass
 
 
 class TempMonValue(Field):
@@ -2486,6 +2366,254 @@ class CustomMonValue(Field):
     pass
 
 
+class ModuleGlobalControls(Field):
+
+    pass
+
+
+class SoftwareResetEnum(Enum):
+
+    NO_ACTION = 0
+    RESET = 1
+
+
+class SoftwareReset(Field):
+
+    EnumClass = SoftwareResetEnum
+
+    NO_ACTION = SoftwareResetEnum.NO_ACTION
+    RESET = SoftwareResetEnum.RESET
+
+
+class LowPwrRequestSWEnum(Enum):
+
+    NO_REQUEST = 0
+    LOW_POWER_MODE = 1
+
+
+class LowPwrRequestSW(Field):
+
+    EnumClass = LowPwrRequestSWEnum
+
+    NO_REQUEST = LowPwrRequestSWEnum.NO_REQUEST
+    LOW_POWER_MODE = LowPwrRequestSWEnum.LOW_POWER_MODE
+
+
+class SquelchMethodSelectEnum(Enum):
+
+    REDUCES_OMA = 0
+    REDUCES_PAV = 1
+
+
+class SquelchMethodSelect(Field):
+
+    EnumClass = SquelchMethodSelectEnum
+
+    REDUCES_OMA = SquelchMethodSelectEnum.REDUCES_OMA
+    REDUCES_PAV = SquelchMethodSelectEnum.REDUCES_PAV
+
+
+class LowPwrAllowRequestHWEnum(Enum):
+
+    IGNORE = 0
+    EVALUATE = 1
+
+
+class LowPwrAllowRequestHW(Field):
+
+    EnumClass = LowPwrAllowRequestHWEnum
+
+    IGNORE = LowPwrAllowRequestHWEnum.IGNORE
+    EVALUATE = LowPwrAllowRequestHWEnum.EVALUATE
+
+
+class BankBroadcastEnableEnum(Enum):
+
+    DISABLED = 0
+    ENABLED = 1
+
+
+class BankBroadcastEnable(Field):
+
+    EnumClass = BankBroadcastEnableEnum
+
+    DISABLED = BankBroadcastEnableEnum.DISABLED
+    ENABLED = BankBroadcastEnableEnum.ENABLED
+
+
+class ModuleStateChangedMask(Field):
+
+    pass
+
+
+class ModuleFirmwareErrorMask(Field):
+
+    pass
+
+
+class DataPathFirmwareErrorMask(Field):
+
+    pass
+
+
+class CdbCmdCompleteMask1(Field):
+
+    pass
+
+
+class CdbCmdCompleteMask2(Field):
+
+    pass
+
+
+class TempMonHighAlarmMask(Field):
+
+    pass
+
+
+class TempMonLowAlarmMask(Field):
+
+    pass
+
+
+class TempMonHighWarningMask(Field):
+
+    pass
+
+
+class TempMonLowWarningMask(Field):
+
+    pass
+
+
+class VccMonHighAlarmMask(Field):
+
+    pass
+
+
+class VccMonLowAlarmMask(Field):
+
+    pass
+
+
+class VccMonHighWarningMask(Field):
+
+    pass
+
+
+class VccMonLowWarningMask(Field):
+
+    pass
+
+
+class Aux1MonHighAlarmMask(Field):
+
+    pass
+
+
+class Aux1MonLowAlarmMask(Field):
+
+    pass
+
+
+class Aux1MonHighWarningMask(Field):
+
+    pass
+
+
+class Aux1MonLowWarningMask(Field):
+
+    pass
+
+
+class Aux2MonHighAlarmMask(Field):
+
+    pass
+
+
+class Aux2MonLowAlarmMask(Field):
+
+    pass
+
+
+class Aux2MonHighWarningMask(Field):
+
+    pass
+
+
+class Aux2MonLowWarningMask(Field):
+
+    pass
+
+
+class Aux3MonHighAlarmMask(Field):
+
+    pass
+
+
+class Aux3MonLowAlarmMask(Field):
+
+    pass
+
+
+class Aux3MonHighWarningMask(Field):
+
+    pass
+
+
+class Aux3MonLowWarningMask(Field):
+
+    pass
+
+
+class CustomMonHighAlarmMask(Field):
+
+    pass
+
+
+class CustomMonLowAlarmMask(Field):
+
+    pass
+
+
+class CustomMonHighWarningMask(Field):
+
+    pass
+
+
+class CustomMonLowWarningMask(Field):
+
+    pass
+
+
+class ModuleActiveFirmwareMajorRevision(Field):
+
+    pass
+
+
+class ModuleActiveFirmwareMinorRevision(Field):
+
+    pass
+
+
+class ModuleFaultCauseEnum(Enum):
+
+    NO_FAULT = 0
+    TEC_RUNAWAY = 1
+    DATA_MEMORY_CORRUPTED = 2
+    PROGRAM_MEMORY_CORRUPTED = 3
+
+
+class ModuleFaultCause(Field):
+
+    EnumClass = ModuleFaultCauseEnum
+
+    NO_FAULT = ModuleFaultCauseEnum.NO_FAULT
+    TEC_RUNAWAY = ModuleFaultCauseEnum.TEC_RUNAWAY
+    DATA_MEMORY_CORRUPTED = ModuleFaultCauseEnum.DATA_MEMORY_CORRUPTED
+    PROGRAM_MEMORY_CORRUPTED = ModuleFaultCauseEnum.PROGRAM_MEMORY_CORRUPTED
+
+
 class MediaTypeEnum(Enum):
 
     UNDEFINED = 0
@@ -2506,6 +2634,26 @@ class MediaType(Field):
     PASSIVE_COPPER = MediaTypeEnum.PASSIVE_COPPER
     ACTIVE_CABLES = MediaTypeEnum.ACTIVE_CABLES
     BASE_T = MediaTypeEnum.BASE_T
+
+
+class PasswordChangeEntryArea(Field):
+
+    pass
+
+
+class PasswordEntryArea(Field):
+
+    pass
+
+
+class BankSelect(Field):
+
+    pass
+
+
+class PageSelect(Field):
+
+    pass
 
 
 class SFF8024IdentifierCopy(Field, Identifier):
@@ -2573,6 +2721,11 @@ class MaxPower(Field):
     pass
 
 
+class BaseLength(Field):
+
+    pass
+
+
 class LengthMultiplierEnum(Enum):
 
     MULTIPLIER_0_1 = 0
@@ -2589,11 +2742,6 @@ class LengthMultiplier(Field):
     MULTIPLIER_1 = LengthMultiplierEnum.MULTIPLIER_1
     MULTIPLIER_10 = LengthMultiplierEnum.MULTIPLIER_10
     MULTIPLIER_100 = LengthMultiplierEnum.MULTIPLIER_100
-
-
-class BaseLength(Field):
-
-    pass
 
 
 class ConnectorTypeEnum(Enum):
@@ -2652,6 +2800,31 @@ class ConnectorType(Field):
     MPO_1X16 = ConnectorTypeEnum.MPO_1X16
 
 
+class AttenuationAt5GHz(Field):
+
+    pass
+
+
+class AttenuationAt7GHz(Field):
+
+    pass
+
+
+class AttenuationAt12p9GHz(Field):
+
+    pass
+
+
+class AttenuationAt25p8GHz(Field):
+
+    pass
+
+
+class FarEndConfiguration(Field):
+
+    pass
+
+
 class MediaInterfaceTechnologyEnum(Enum):
 
     VCSEL_850NM = 0
@@ -2703,350 +2876,29 @@ class PageChecksum(Field):
     pass
 
 
-class PasswordChangeEntryArea(Field):
+class ModuleInactiveFirmwareMajorRevision(Field):
 
     pass
 
 
-class PasswordEntryArea(Field):
+class ModuleInactiveFirmwareMinorRevision(Field):
 
     pass
 
 
-class CdbCmdCompleteFlag2(Field):
+class ModuleHardwareMajorRevision(Field):
 
     pass
 
 
-class CdbCmdCompleteFlag1(Field):
+class ModuleHardwareMinorRevision(Field):
 
     pass
 
 
-class DataPathFirmwareErrorFlag(Field):
+class BaseLengthSMF(Field):
 
     pass
-
-
-class ModuleFirmwareErrorFlag(Field):
-
-    pass
-
-
-class ModuleStateChangedFlag(Field):
-
-    pass
-
-
-class VccMonLowWarningFlag(Field):
-
-    pass
-
-
-class VccMonHighWarningFlag(Field):
-
-    pass
-
-
-class VccMonLowAlarmFlag(Field):
-
-    pass
-
-
-class VccMonHighAlarmFlag(Field):
-
-    pass
-
-
-class TempMonLowWarningFlag(Field):
-
-    pass
-
-
-class TempMonHighWarningFlag(Field):
-
-    pass
-
-
-class TempMonLowAlarmFlag(Field):
-
-    pass
-
-
-class TempMonHighAlarmFlag(Field):
-
-    pass
-
-
-class Aux2MonLowWarningFlag(Field):
-
-    pass
-
-
-class Aux2MonHighWarningFlag(Field):
-
-    pass
-
-
-class Aux2MonLowAlarmFlag(Field):
-
-    pass
-
-
-class Aux2MonHighAlarmFlag(Field):
-
-    pass
-
-
-class Aux1MonLowWarningFlag(Field):
-
-    pass
-
-
-class Aux1MonHighWarningFlag(Field):
-
-    pass
-
-
-class Aux1MonLowAlarmFlag(Field):
-
-    pass
-
-
-class Aux1MonHighAlarmFlag(Field):
-
-    pass
-
-
-class CustomMonLowWarningFlag(Field):
-
-    pass
-
-
-class CustomMonHighWarningFlag(Field):
-
-    pass
-
-
-class CustomMonLowAlarmFlag(Field):
-
-    pass
-
-
-class CustomMonHighAlarmFlag(Field):
-
-    pass
-
-
-class Aux3MonLowWarningFlag(Field):
-
-    pass
-
-
-class Aux3MonHighWarningFlag(Field):
-
-    pass
-
-
-class Aux3MonLowAlarmFlag(Field):
-
-    pass
-
-
-class Aux3MonHighAlarmFlag(Field):
-
-    pass
-
-
-class ModuleFaultCauseEnum(Enum):
-
-    NO_FAULT = 0
-    TEC_RUNAWAY = 1
-    DATA_MEMORY_CORRUPTED = 2
-    PROGRAM_MEMORY_CORRUPTED = 3
-
-
-class ModuleFaultCause(Field):
-
-    EnumClass = ModuleFaultCauseEnum
-
-    NO_FAULT = ModuleFaultCauseEnum.NO_FAULT
-    TEC_RUNAWAY = ModuleFaultCauseEnum.TEC_RUNAWAY
-    DATA_MEMORY_CORRUPTED = ModuleFaultCauseEnum.DATA_MEMORY_CORRUPTED
-    PROGRAM_MEMORY_CORRUPTED = ModuleFaultCauseEnum.PROGRAM_MEMORY_CORRUPTED
-
-
-class WavelengthIsControllableEnum(Enum):
-
-    NO_CONTROL = 0
-    CONTROL_SUPPORTED = 1
-
-
-class WavelengthIsControllable(Field):
-
-    EnumClass = WavelengthIsControllableEnum
-
-    NO_CONTROL = WavelengthIsControllableEnum.NO_CONTROL
-    CONTROL_SUPPORTED = WavelengthIsControllableEnum.CONTROL_SUPPORTED
-
-
-class TransmitterIsTunableEnum(Enum):
-
-    NOT_TUNABLE = 0
-    TUNABLE = 1
-
-
-class TransmitterIsTunable(Field):
-
-    EnumClass = TransmitterIsTunableEnum
-
-    NOT_TUNABLE = TransmitterIsTunableEnum.NOT_TUNABLE
-    TUNABLE = TransmitterIsTunableEnum.TUNABLE
-
-
-class SquelchMethodTxEnum(Enum):
-
-    NOT_SUPPORTED = 0
-    REDUCES_OMA = 1
-    REDUCES_PAV = 2
-    HOST_CONTROL = 3
-
-
-class SquelchMethodTx(Field):
-
-    EnumClass = SquelchMethodTxEnum
-
-    NOT_SUPPORTED = SquelchMethodTxEnum.NOT_SUPPORTED
-    REDUCES_OMA = SquelchMethodTxEnum.REDUCES_OMA
-    REDUCES_PAV = SquelchMethodTxEnum.REDUCES_PAV
-    HOST_CONTROL = SquelchMethodTxEnum.HOST_CONTROL
-
-
-class ForcedSquelchTxSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class AutoSquelchDisableTxSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class OutputDisableTxSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class InputPolarityFlipTxSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class BankBroadcastSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class AutoSquelchDisableRxSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class OutputDisableRxSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class OutputPolarityFlipRxSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class NominalWavelength(Field):
-
-    pass
-
-
-class WavelengthTolerance(Field):
-
-    pass
-
-
-class TxInputEqRecallBuffersSupportedEnum(Enum):
-
-    NOT_SUPPORTED = 0
-    BUFFER_COUNT_1 = 1
-    BUFFER_COUNT_2 = 2
-
-
-class TxInputEqRecallBuffersSupported(Field):
-
-    EnumClass = TxInputEqRecallBuffersSupportedEnum
-
-    NOT_SUPPORTED = TxInputEqRecallBuffersSupportedEnum.NOT_SUPPORTED
-    BUFFER_COUNT_1 = TxInputEqRecallBuffersSupportedEnum.BUFFER_COUNT_1
-    BUFFER_COUNT_2 = TxInputEqRecallBuffersSupportedEnum.BUFFER_COUNT_2
-
-
-class TxInputEqFreezeSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class TxInputAdaptiveEqSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class TxInputEqFixedManualControlSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class TxCDRBypassControlSupportedEnum(Enum):
-
-    NOT_BYPASSABLE = 0
-    BYPASSABLE = 1
-
-
-class TxCDRBypassControlSupported(Field):
-
-    EnumClass = TxCDRBypassControlSupportedEnum
-
-    NOT_BYPASSABLE = TxCDRBypassControlSupportedEnum.NOT_BYPASSABLE
-    BYPASSABLE = TxCDRBypassControlSupportedEnum.BYPASSABLE
-
-
-class TxCDRSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class UnidirReconfigSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class StagedSet1Supported(Field):
-
-    pass
-
-
-class RxOutputEqControlSupportedEnum(Enum):
-
-    NOT_SUPPORTED = 0
-    PRE_CURSOR_SUPPORTED = 1
-    POST_CURSOR_SUPPORTED = 2
-    BOTH_SUPPORTED = 3
-
-
-class RxOutputEqControlSupported(Field):
-
-    EnumClass = RxOutputEqControlSupportedEnum
-
-    NOT_SUPPORTED = RxOutputEqControlSupportedEnum.NOT_SUPPORTED
-    PRE_CURSOR_SUPPORTED = RxOutputEqControlSupportedEnum.PRE_CURSOR_SUPPORTED
-    POST_CURSOR_SUPPORTED = RxOutputEqControlSupportedEnum.POST_CURSOR_SUPPORTED
-    BOTH_SUPPORTED = RxOutputEqControlSupportedEnum.BOTH_SUPPORTED
-
-
-class RxOutputAmplitudeControlSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class RxCDRBypassControlSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class RxCDRSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
 
 
 class LengthMultiplierSMFEnum(Enum):
@@ -3063,11 +2915,6 @@ class LengthMultiplierSMF(Field):
     MULTIPLIER_0_1 = LengthMultiplierSMFEnum.MULTIPLIER_0_1
     MULTIPLIER_1 = LengthMultiplierSMFEnum.MULTIPLIER_1
     MULTIPLIER_10 = LengthMultiplierSMFEnum.MULTIPLIER_10
-
-
-class BaseLengthSMF(Field):
-
-    pass
 
 
 class LengthOM5(Field):
@@ -3090,27 +2937,12 @@ class LengthOM2(Field):
     pass
 
 
-class NetworkPathPagesSupported(Field):
+class NominalWavelength(Field):
 
     pass
 
 
-class VDMPagesSupported(Field):
-
-    pass
-
-
-class DiagnosticPagesSupported(Field):
-
-    pass
-
-
-class Page05hSupported(Field):
-
-    pass
-
-
-class Page03hSupported(Field):
+class WavelengthTolerance(Field):
 
     pass
 
@@ -3131,23 +2963,27 @@ class BanksSupported(Field):
     BANKS_0_3_SUPPORTED = BanksSupportedEnum.BANKS_0_3_SUPPORTED
 
 
-class MaxDurationModulePwrDn(Field, Duration):
-    EnumClass = DurationEnum
+class Page03hSupported(Field):
+
+    pass
 
 
-class MaxDurationModulePwrUp(Field, Duration):
-    EnumClass = DurationEnum
+class Page05hSupported(Field):
+
+    pass
 
 
-class MaxDurationDPTxTurnOff(Field, Duration):
-    EnumClass = DurationEnum
+class DiagnosticPagesSupported(Field):
+
+    pass
 
 
-class MaxDurationDPTxTurnOn(Field, Duration):
-    EnumClass = DurationEnum
+class VDMPagesSupported(Field):
+
+    pass
 
 
-class ModSelWaitTimeExponent(Field):
+class NetworkPathPagesSupported(Field):
 
     pass
 
@@ -3157,23 +2993,304 @@ class ModSelWaitTimeMantissa(Field):
     pass
 
 
-class MaxDurationDPDeinit(Field, Duration):
-    EnumClass = DurationEnum
+class ModSelWaitTimeExponent(Field):
+
+    pass
 
 
 class MaxDurationDPInit(Field, Duration):
     EnumClass = DurationEnum
 
 
-class AdaptiveInputEqFailFlagTxSupported(Field, SupportFlag):
+class MaxDurationDPDeinit(Field, Duration):
+    EnumClass = DurationEnum
+
+
+class Aux1MonObservableEnum(Enum):
+
+    CUSTOM = 0
+    TEC_CURRENT = 1
+
+
+class Aux1MonObservable(Field):
+
+    EnumClass = Aux1MonObservableEnum
+
+    CUSTOM = Aux1MonObservableEnum.CUSTOM
+    TEC_CURRENT = Aux1MonObservableEnum.TEC_CURRENT
+
+
+class Aux2MonObservableEnum(Enum):
+
+    LASER_TEMP = 0
+    TEC_CURRENT = 1
+
+
+class Aux2MonObservable(Field):
+
+    EnumClass = Aux2MonObservableEnum
+
+    LASER_TEMP = Aux2MonObservableEnum.LASER_TEMP
+    TEC_CURRENT = Aux2MonObservableEnum.TEC_CURRENT
+
+
+class Aux3MonObservableEnum(Enum):
+
+    LASER_TEMP = 0
+    VCC2 = 1
+
+
+class Aux3MonObservable(Field):
+
+    EnumClass = Aux3MonObservableEnum
+
+    LASER_TEMP = Aux3MonObservableEnum.LASER_TEMP
+    VCC2 = Aux3MonObservableEnum.VCC2
+
+
+class TimingPage15hSupported(Field, SupportFlag):
     EnumClass = SupportFlagEnum
 
 
-class CDRLOLFlagTxSupported(Field, SupportFlag):
+class ePPSSupported(Field, SupportFlag):
     EnumClass = SupportFlagEnum
 
 
-class LOSFlagTxSupported(Field, SupportFlag):
+class TxInputClockingCapabilitiesEnum(Enum):
+
+    LANES_1_8 = 0
+    LANES_1_4_AND_5_8 = 1
+    PAIRS = 2
+    ASYNCHRONOUS = 3
+
+
+class TxInputClockingCapabilities(Field):
+
+    EnumClass = TxInputClockingCapabilitiesEnum
+
+    LANES_1_8 = TxInputClockingCapabilitiesEnum.LANES_1_8
+    LANES_1_4_AND_5_8 = TxInputClockingCapabilitiesEnum.LANES_1_4_AND_5_8
+    PAIRS = TxInputClockingCapabilitiesEnum.PAIRS
+    ASYNCHRONOUS = TxInputClockingCapabilitiesEnum.ASYNCHRONOUS
+
+
+class CoolingImplementedEnum(Enum):
+
+    UNCOOLED = 0
+    COOLED = 1
+
+
+class CoolingImplemented(Field):
+
+    EnumClass = CoolingImplementedEnum
+
+    UNCOOLED = CoolingImplementedEnum.UNCOOLED
+    COOLED = CoolingImplementedEnum.COOLED
+
+
+class ModuleTempMax(Field):
+
+    pass
+
+
+class ModuleTempMin(Field):
+
+    pass
+
+
+class PropagationDelay(Field):
+
+    pass
+
+
+class OperatingVoltageMin(Field):
+
+    pass
+
+
+class RxLOSIsFastEnum(Enum):
+
+    REGULAR = 0
+    FAST = 1
+
+
+class RxLOSIsFast(Field):
+
+    EnumClass = RxLOSIsFastEnum
+
+    REGULAR = RxLOSIsFastEnum.REGULAR
+    FAST = RxLOSIsFastEnum.FAST
+
+
+class RxLOSTypeEnum(Enum):
+
+    OMA = 0
+    PAVG = 1
+
+
+class RxLOSType(Field):
+
+    EnumClass = RxLOSTypeEnum
+
+    OMA = RxLOSTypeEnum.OMA
+    PAVG = RxLOSTypeEnum.PAVG
+
+
+class RxPowerMeasurementTypeEnum(Enum):
+
+    OMA = 0
+    AVG_POWER = 1
+
+
+class RxPowerMeasurementType(Field):
+
+    EnumClass = RxPowerMeasurementTypeEnum
+
+    OMA = RxPowerMeasurementTypeEnum.OMA
+    AVG_POWER = RxPowerMeasurementTypeEnum.AVG_POWER
+
+
+class RxOutputEqTypeEnum(Enum):
+
+    PEAK_TO_PEAK = 0
+    STEADY_STATE = 1
+    AVERAGE_PP_STEADY = 2
+
+
+class RxOutputEqType(Field):
+
+    EnumClass = RxOutputEqTypeEnum
+
+    PEAK_TO_PEAK = RxOutputEqTypeEnum.PEAK_TO_PEAK
+    STEADY_STATE = RxOutputEqTypeEnum.STEADY_STATE
+    AVERAGE_PP_STEADY = RxOutputEqTypeEnum.AVERAGE_PP_STEADY
+
+
+class OpticalDetectorTypeEnum(Enum):
+
+    PIN = 0
+    APD = 1
+
+
+class OpticalDetectorType(Field):
+
+    EnumClass = OpticalDetectorTypeEnum
+
+    PIN = OpticalDetectorTypeEnum.PIN
+    APD = OpticalDetectorTypeEnum.APD
+
+
+class CDRPowerSavedPerLane(Field):
+
+    pass
+
+
+class TxInputEqMax(Field):
+
+    pass
+
+
+class RxOutputLevel0Supported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class RxOutputLevel1Supported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class RxOutputLevel2Supported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class RxOutputLevel3Supported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class RxOutputEqPreCursorMax(Field):
+
+    pass
+
+
+class RxOutputEqPostCursorMax(Field):
+
+    pass
+
+
+class InputPolarityFlipTxSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class OutputDisableTxSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class AutoSquelchDisableTxSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class ForcedSquelchTxSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class SquelchMethodTxEnum(Enum):
+
+    NOT_SUPPORTED = 0
+    REDUCES_OMA = 1
+    REDUCES_PAV = 2
+    HOST_CONTROL = 3
+
+
+class SquelchMethodTx(Field):
+
+    EnumClass = SquelchMethodTxEnum
+
+    NOT_SUPPORTED = SquelchMethodTxEnum.NOT_SUPPORTED
+    REDUCES_OMA = SquelchMethodTxEnum.REDUCES_OMA
+    REDUCES_PAV = SquelchMethodTxEnum.REDUCES_PAV
+    HOST_CONTROL = SquelchMethodTxEnum.HOST_CONTROL
+
+
+class TransmitterIsTunableEnum(Enum):
+
+    NOT_TUNABLE = 0
+    TUNABLE = 1
+
+
+class TransmitterIsTunable(Field):
+
+    EnumClass = TransmitterIsTunableEnum
+
+    NOT_TUNABLE = TransmitterIsTunableEnum.NOT_TUNABLE
+    TUNABLE = TransmitterIsTunableEnum.TUNABLE
+
+
+class WavelengthIsControllableEnum(Enum):
+
+    NO_CONTROL = 0
+    CONTROL_SUPPORTED = 1
+
+
+class WavelengthIsControllable(Field):
+
+    EnumClass = WavelengthIsControllableEnum
+
+    NO_CONTROL = WavelengthIsControllableEnum.NO_CONTROL
+    CONTROL_SUPPORTED = WavelengthIsControllableEnum.CONTROL_SUPPORTED
+
+
+class OutputPolarityFlipRxSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class OutputDisableRxSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class AutoSquelchDisableRxSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class BankBroadcastSupported(Field, SupportFlag):
     EnumClass = SupportFlagEnum
 
 
@@ -3181,7 +3298,15 @@ class FailureFlagTxSupported(Field, SupportFlag):
     EnumClass = SupportFlagEnum
 
 
-class CDRLOLFlagRxSupported(Field, SupportFlag):
+class LOSFlagTxSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class CDRLOLFlagTxSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class AdaptiveInputEqFailFlagTxSupported(Field, SupportFlag):
     EnumClass = SupportFlagEnum
 
 
@@ -3189,27 +3314,144 @@ class LOSFlagRxSupported(Field, SupportFlag):
     EnumClass = SupportFlagEnum
 
 
-class CdbInstancesSupportedEnum(Enum):
-
-    NOT_SUPPORTED = 0
-    ONE_INSTANCE = 1
-    TWO_INSTANCES = 2
-
-
-class CdbInstancesSupported(Field):
-
-    EnumClass = CdbInstancesSupportedEnum
-
-    NOT_SUPPORTED = CdbInstancesSupportedEnum.NOT_SUPPORTED
-    ONE_INSTANCE = CdbInstancesSupportedEnum.ONE_INSTANCE
-    TWO_INSTANCES = CdbInstancesSupportedEnum.TWO_INSTANCES
-
-
-class CdbBackgroundModeSupported(Field, SupportFlag):
+class CDRLOLFlagRxSupported(Field, SupportFlag):
     EnumClass = SupportFlagEnum
 
 
-class CdbAutoPagingSupported(Field, SupportFlag):
+class TempMonSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class VccMonSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class Aux1MonSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class Aux2MonSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class Aux3MonSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class CustomMonSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class TxBiasMonSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class TxOpticalPowerMonSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class RxOpticalPowerMonSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class TxBiasCurrentScalingFactorEnum(Enum):
+
+    MULTIPLY_X1 = 0
+    MULTIPLY_X2 = 1
+    MULTIPLY_X4 = 2
+
+
+class TxBiasCurrentScalingFactor(Field):
+
+    EnumClass = TxBiasCurrentScalingFactorEnum
+
+    MULTIPLY_X1 = TxBiasCurrentScalingFactorEnum.MULTIPLY_X1
+    MULTIPLY_X2 = TxBiasCurrentScalingFactorEnum.MULTIPLY_X2
+    MULTIPLY_X4 = TxBiasCurrentScalingFactorEnum.MULTIPLY_X4
+
+
+class TxCDRSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class TxCDRBypassControlSupportedEnum(Enum):
+
+    NOT_BYPASSABLE = 0
+    BYPASSABLE = 1
+
+
+class TxCDRBypassControlSupported(Field):
+
+    EnumClass = TxCDRBypassControlSupportedEnum
+
+    NOT_BYPASSABLE = TxCDRBypassControlSupportedEnum.NOT_BYPASSABLE
+    BYPASSABLE = TxCDRBypassControlSupportedEnum.BYPASSABLE
+
+
+class TxInputEqFixedManualControlSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class TxInputAdaptiveEqSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class TxInputEqFreezeSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class TxInputEqRecallBuffersSupportedEnum(Enum):
+
+    NOT_SUPPORTED = 0
+    BUFFER_COUNT_1 = 1
+    BUFFER_COUNT_2 = 2
+
+
+class TxInputEqRecallBuffersSupported(Field):
+
+    EnumClass = TxInputEqRecallBuffersSupportedEnum
+
+    NOT_SUPPORTED = TxInputEqRecallBuffersSupportedEnum.NOT_SUPPORTED
+    BUFFER_COUNT_1 = TxInputEqRecallBuffersSupportedEnum.BUFFER_COUNT_1
+    BUFFER_COUNT_2 = TxInputEqRecallBuffersSupportedEnum.BUFFER_COUNT_2
+
+
+class RxCDRSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class RxCDRBypassControlSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class RxOutputAmplitudeControlSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class RxOutputEqControlSupportedEnum(Enum):
+
+    NOT_SUPPORTED = 0
+    PRE_CURSOR_SUPPORTED = 1
+    POST_CURSOR_SUPPORTED = 2
+    BOTH_SUPPORTED = 3
+
+
+class RxOutputEqControlSupported(Field):
+
+    EnumClass = RxOutputEqControlSupportedEnum
+
+    NOT_SUPPORTED = RxOutputEqControlSupportedEnum.NOT_SUPPORTED
+    PRE_CURSOR_SUPPORTED = RxOutputEqControlSupportedEnum.PRE_CURSOR_SUPPORTED
+    POST_CURSOR_SUPPORTED = RxOutputEqControlSupportedEnum.POST_CURSOR_SUPPORTED
+    BOTH_SUPPORTED = RxOutputEqControlSupportedEnum.BOTH_SUPPORTED
+
+
+class StagedSet1Supported(Field):
+
+    pass
+
+
+class UnidirReconfigSupported(Field, SupportFlag):
     EnumClass = SupportFlagEnum
 
 
@@ -3239,7 +3481,36 @@ class CdbMaxPagesEPL(Field):
     A0H_AFH = CdbMaxPagesEPLEnum.A0H_AFH
 
 
+class CdbAutoPagingSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class CdbBackgroundModeSupported(Field, SupportFlag):
+    EnumClass = SupportFlagEnum
+
+
+class CdbInstancesSupportedEnum(Enum):
+
+    NOT_SUPPORTED = 0
+    ONE_INSTANCE = 1
+    TWO_INSTANCES = 2
+
+
+class CdbInstancesSupported(Field):
+
+    EnumClass = CdbInstancesSupportedEnum
+
+    NOT_SUPPORTED = CdbInstancesSupportedEnum.NOT_SUPPORTED
+    ONE_INSTANCE = CdbInstancesSupportedEnum.ONE_INSTANCE
+    TWO_INSTANCES = CdbInstancesSupportedEnum.TWO_INSTANCES
+
+
 class CdbReadWriteLengthExtension(Field):
+
+    pass
+
+
+class CdbExtMaxBusyTime(Field):
 
     pass
 
@@ -3258,7 +3529,7 @@ class CdbCommandTriggerMethod(Field):
     MCI_TRANSACTION = CdbCommandTriggerMethodEnum.MCI_TRANSACTION
 
 
-class CdbExtMaxBusyTime(Field):
+class CdbMaxBusyTime(Field):
 
     pass
 
@@ -3277,306 +3548,33 @@ class CdbMaxBusySpecMethod(Field):
     CDB_EXT_MAX_BUSY_TIME = CdbMaxBusySpecMethodEnum.CDB_EXT_MAX_BUSY_TIME
 
 
-class CdbMaxBusyTime(Field):
+class MaxDurationModulePwrUp(Field, Duration):
+    EnumClass = DurationEnum
 
-    pass
 
+class MaxDurationModulePwrDn(Field, Duration):
+    EnumClass = DurationEnum
 
-class ModuleInactiveFirmwareMajorRevision(Field):
 
-    pass
+class MaxDurationDPTxTurnOn(Field, Duration):
+    EnumClass = DurationEnum
 
 
-class ModuleInactiveFirmwareMinorRevision(Field):
-
-    pass
-
-
-class ModuleHardwareMajorRevision(Field):
-
-    pass
-
-
-class ModuleHardwareMinorRevision(Field):
-
-    pass
-
-
-class CustomMonSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class Aux3MonSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class Aux2MonSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class Aux1MonSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class VccMonSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class TempMonSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class TxBiasCurrentScalingFactorEnum(Enum):
-
-    MULTIPLY_X1 = 0
-    MULTIPLY_X2 = 1
-    MULTIPLY_X4 = 2
-
-
-class TxBiasCurrentScalingFactor(Field):
-
-    EnumClass = TxBiasCurrentScalingFactorEnum
-
-    MULTIPLY_X1 = TxBiasCurrentScalingFactorEnum.MULTIPLY_X1
-    MULTIPLY_X2 = TxBiasCurrentScalingFactorEnum.MULTIPLY_X2
-    MULTIPLY_X4 = TxBiasCurrentScalingFactorEnum.MULTIPLY_X4
-
-
-class RxOpticalPowerMonSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class TxOpticalPowerMonSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class TxBiasMonSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class CoolingImplementedEnum(Enum):
-
-    UNCOOLED = 0
-    COOLED = 1
-
-
-class CoolingImplemented(Field):
-
-    EnumClass = CoolingImplementedEnum
-
-    UNCOOLED = CoolingImplementedEnum.UNCOOLED
-    COOLED = CoolingImplementedEnum.COOLED
-
-
-class TxInputClockingCapabilitiesEnum(Enum):
-
-    LANES_1_8 = 0
-    LANES_1_4_AND_5_8 = 1
-    PAIRS = 2
-    ASYNCHRONOUS = 3
-
-
-class TxInputClockingCapabilities(Field):
-
-    EnumClass = TxInputClockingCapabilitiesEnum
-
-    LANES_1_8 = TxInputClockingCapabilitiesEnum.LANES_1_8
-    LANES_1_4_AND_5_8 = TxInputClockingCapabilitiesEnum.LANES_1_4_AND_5_8
-    PAIRS = TxInputClockingCapabilitiesEnum.PAIRS
-    ASYNCHRONOUS = TxInputClockingCapabilitiesEnum.ASYNCHRONOUS
-
-
-class ePPSSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class TimingPage15hSupported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class Aux3MonObservableEnum(Enum):
-
-    LASER_TEMP = 0
-    VCC2 = 1
-
-
-class Aux3MonObservable(Field):
-
-    EnumClass = Aux3MonObservableEnum
-
-    LASER_TEMP = Aux3MonObservableEnum.LASER_TEMP
-    VCC2 = Aux3MonObservableEnum.VCC2
-
-
-class Aux2MonObservableEnum(Enum):
-
-    LASER_TEMP = 0
-    TEC_CURRENT = 1
-
-
-class Aux2MonObservable(Field):
-
-    EnumClass = Aux2MonObservableEnum
-
-    LASER_TEMP = Aux2MonObservableEnum.LASER_TEMP
-    TEC_CURRENT = Aux2MonObservableEnum.TEC_CURRENT
-
-
-class Aux1MonObservableEnum(Enum):
-
-    CUSTOM = 0
-    TEC_CURRENT = 1
-
-
-class Aux1MonObservable(Field):
-
-    EnumClass = Aux1MonObservableEnum
-
-    CUSTOM = Aux1MonObservableEnum.CUSTOM
-    TEC_CURRENT = Aux1MonObservableEnum.TEC_CURRENT
-
-
-class ModuleTempMax(Field):
-
-    pass
-
-
-class ModuleTempMin(Field):
-
-    pass
-
-
-class PropagationDelay(Field):
-
-    pass
-
-
-class OperatingVoltageMin(Field):
-
-    pass
-
-
-class OpticalDetectorTypeEnum(Enum):
-
-    PIN = 0
-    APD = 1
-
-
-class OpticalDetectorType(Field):
-
-    EnumClass = OpticalDetectorTypeEnum
-
-    PIN = OpticalDetectorTypeEnum.PIN
-    APD = OpticalDetectorTypeEnum.APD
-
-
-class RxOutputEqTypeEnum(Enum):
-
-    PEAK_TO_PEAK = 0
-    STEADY_STATE = 1
-    AVERAGE_PP_STEADY = 2
-
-
-class RxOutputEqType(Field):
-
-    EnumClass = RxOutputEqTypeEnum
-
-    PEAK_TO_PEAK = RxOutputEqTypeEnum.PEAK_TO_PEAK
-    STEADY_STATE = RxOutputEqTypeEnum.STEADY_STATE
-    AVERAGE_PP_STEADY = RxOutputEqTypeEnum.AVERAGE_PP_STEADY
-
-
-class RxPowerMeasurementTypeEnum(Enum):
-
-    OMA = 0
-    AVG_POWER = 1
-
-
-class RxPowerMeasurementType(Field):
-
-    EnumClass = RxPowerMeasurementTypeEnum
-
-    OMA = RxPowerMeasurementTypeEnum.OMA
-    AVG_POWER = RxPowerMeasurementTypeEnum.AVG_POWER
-
-
-class RxLOSTypeEnum(Enum):
-
-    OMA = 0
-    PAVG = 1
-
-
-class RxLOSType(Field):
-
-    EnumClass = RxLOSTypeEnum
-
-    OMA = RxLOSTypeEnum.OMA
-    PAVG = RxLOSTypeEnum.PAVG
-
-
-class RxLOSIsFastEnum(Enum):
-
-    REGULAR = 0
-    FAST = 1
-
-
-class RxLOSIsFast(Field):
-
-    EnumClass = RxLOSIsFastEnum
-
-    REGULAR = RxLOSIsFastEnum.REGULAR
-    FAST = RxLOSIsFastEnum.FAST
-
-
-class CDRPowerSavedPerLane(Field):
-
-    pass
-
-
-class RxOutputLevel3Supported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class RxOutputLevel2Supported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class RxOutputLevel1Supported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class RxOutputLevel0Supported(Field, SupportFlag):
-    EnumClass = SupportFlagEnum
-
-
-class TxInputEqMax(Field):
-
-    pass
-
-
-class RxOutputEqPostCursorMax(Field):
-
-    pass
-
-
-class RxOutputEqPreCursorMax(Field):
-
-    pass
+class MaxDurationDPTxTurnOff(Field, Duration):
+    EnumClass = DurationEnum
 
 
 class MemMap(BaseMemMap):
-
-    # 00h:210
-    @property
-    def MediaLaneUnsupportedLane(self) -> MediaLaneUnsupportedLaneRange:
-        return MediaLaneUnsupportedLaneRange(
-            self, self._search_group("MediaLaneUnsupportedLane")
-        )
 
     # 00h:1
     @property
     def CmisRevision(self) -> CmisRevision:
         return CmisRevision(self, self._search_group("CmisRevision"))
+
+    # 00h:37-38
+    @property
+    def CdbStatus(self) -> CdbStatusRange:
+        return CdbStatusRange(self, self._search_group("CdbStatus"))
 
     # 00h:86-250
     @property
@@ -3590,238 +3588,24 @@ class MemMap(BaseMemMap):
     def DateCode(self) -> DateCode:
         return DateCode(self, self._search_group("DateCode"))
 
-    # 00h:37-38
+    # 00h:210
     @property
-    def CdbStatus(self) -> CdbStatusRange:
-        return CdbStatusRange(self, self._search_group("CdbStatus"))
-
-    # 11h:240-247
-    @property
-    def MediaLaneMappingTx(self) -> MediaLaneMappingTxRange:
-        return MediaLaneMappingTxRange(self, self._search_group("MediaLaneMappingTx"))
-
-    # 11h:248-255
-    @property
-    def MediaLaneMappingRx(self) -> MediaLaneMappingRxRange:
-        return MediaLaneMappingRxRange(self, self._search_group("MediaLaneMappingRx"))
-
-    # 11h:132
-    @property
-    def OutputStatusRx(self) -> OutputStatusRxRange:
-        return OutputStatusRxRange(self, self._search_group("OutputStatusRx"))
-
-    # 11h:133
-    @property
-    def OutputStatusTx(self) -> OutputStatusTxRange:
-        return OutputStatusTxRange(self, self._search_group("OutputStatusTx"))
-
-    # 11h:134
-    @property
-    def DPStateChangedFlag(self) -> DPStateChangedFlagRange:
-        return DPStateChangedFlagRange(self, self._search_group("DPStateChangedFlag"))
-
-    # 11h:154-169
-    @property
-    def OpticalPowerTx(self) -> OpticalPowerTxRange:
-        return OpticalPowerTxRange(self, self._search_group("OpticalPowerTx"))
-
-    # 11h:170-185
-    @property
-    def LaserBiasTx(self) -> LaserBiasTxRange:
-        return LaserBiasTxRange(self, self._search_group("LaserBiasTx"))
-
-    # 11h:186-201
-    @property
-    def OpticalPowerRx(self) -> OpticalPowerRxRange:
-        return OpticalPowerRxRange(self, self._search_group("OpticalPowerRx"))
-
-    # 11h:235
-    @property
-    def DPInitPendingLane(self) -> DPInitPendingLaneRange:
-        return DPInitPendingLaneRange(self, self._search_group("DPInitPendingLane"))
-
-    # 11h:128-131
-    @property
-    def DPStateHostLane(self) -> DPStateHostLaneRange:
-        return DPStateHostLaneRange(self, self._search_group("DPStateHostLane"))
-
-    # 11h:202-205
-    @property
-    def ConfigStatusLane(self) -> ConfigStatusLaneRange:
-        return ConfigStatusLaneRange(self, self._search_group("ConfigStatusLane"))
-
-    # 11h:147
-    @property
-    def LOSFlagRx(self) -> LOSFlagRxRange:
-        return LOSFlagRxRange(self, self._search_group("LOSFlagRx"))
-
-    # 11h:148
-    @property
-    def CDRLOLFlagRx(self) -> CDRLOLFlagRxRange:
-        return CDRLOLFlagRxRange(self, self._search_group("CDRLOLFlagRx"))
-
-    # 11h:149
-    @property
-    def OpticalPowerHighAlarmFlagRx(self) -> OpticalPowerHighAlarmFlagRxRange:
-        return OpticalPowerHighAlarmFlagRxRange(
-            self, self._search_group("OpticalPowerHighAlarmFlagRx")
+    def MediaLaneUnsupportedLane(self) -> MediaLaneUnsupportedLaneRange:
+        return MediaLaneUnsupportedLaneRange(
+            self, self._search_group("MediaLaneUnsupportedLane")
         )
 
-    # 11h:150
+    # 01h:176-190
     @property
-    def OpticalPowerLowAlarmFlagRx(self) -> OpticalPowerLowAlarmFlagRxRange:
-        return OpticalPowerLowAlarmFlagRxRange(
-            self, self._search_group("OpticalPowerLowAlarmFlagRx")
+    def MediaLaneAssignmentOptions(self) -> MediaLaneAssignmentOptionsRange:
+        return MediaLaneAssignmentOptionsRange(
+            self, self._search_group("MediaLaneAssignmentOptions")
         )
-
-    # 11h:151
-    @property
-    def OpticalPowerHighWarningFlagRx(self) -> OpticalPowerHighWarningFlagRxRange:
-        return OpticalPowerHighWarningFlagRxRange(
-            self, self._search_group("OpticalPowerHighWarningFlagRx")
-        )
-
-    # 11h:152
-    @property
-    def OpticalPowerLowWarningFlagRx(self) -> OpticalPowerLowWarningFlagRxRange:
-        return OpticalPowerLowWarningFlagRxRange(
-            self, self._search_group("OpticalPowerLowWarningFlagRx")
-        )
-
-    # 11h:153
-    @property
-    def OutputStatusChangedFlagRx(self) -> OutputStatusChangedFlagRxRange:
-        return OutputStatusChangedFlagRxRange(
-            self, self._search_group("OutputStatusChangedFlagRx")
-        )
-
-    # 11h:214-221
-    @property
-    def ACS_TxControls(self) -> TxControls:
-        return TxControls(self, self._search_group("ACS_TxControls"))
-
-    # 11h:222-234
-    @property
-    def ACS_RxControls(self) -> RxControls:
-        return RxControls(self, self._search_group("ACS_RxControls"))
-
-    # 11h:135
-    @property
-    def FailureFlagTx(self) -> FailureFlagTxRange:
-        return FailureFlagTxRange(self, self._search_group("FailureFlagTx"))
-
-    # 11h:136
-    @property
-    def LOSFlagTx(self) -> LOSFlagTxRange:
-        return LOSFlagTxRange(self, self._search_group("LOSFlagTx"))
-
-    # 11h:137
-    @property
-    def CDRLOLFlagTx(self) -> CDRLOLFlagTxRange:
-        return CDRLOLFlagTxRange(self, self._search_group("CDRLOLFlagTx"))
-
-    # 11h:138
-    @property
-    def AdaptiveInputEqFailFlagTx(self) -> AdaptiveInputEqFailFlagTxRange:
-        return AdaptiveInputEqFailFlagTxRange(
-            self, self._search_group("AdaptiveInputEqFailFlagTx")
-        )
-
-    # 11h:139
-    @property
-    def OpticalPowerHighAlarmFlagTx(self) -> OpticalPowerHighAlarmFlagTxRange:
-        return OpticalPowerHighAlarmFlagTxRange(
-            self, self._search_group("OpticalPowerHighAlarmFlagTx")
-        )
-
-    # 11h:140
-    @property
-    def OpticalPowerLowAlarmFlagTx(self) -> OpticalPowerLowAlarmFlagTxRange:
-        return OpticalPowerLowAlarmFlagTxRange(
-            self, self._search_group("OpticalPowerLowAlarmFlagTx")
-        )
-
-    # 11h:141
-    @property
-    def OpticalPowerHighWarningFlagTx(self) -> OpticalPowerHighWarningFlagTxRange:
-        return OpticalPowerHighWarningFlagTxRange(
-            self, self._search_group("OpticalPowerHighWarningFlagTx")
-        )
-
-    # 11h:142
-    @property
-    def OpticalPowerLowWarningFlagTx(self) -> OpticalPowerLowWarningFlagTxRange:
-        return OpticalPowerLowWarningFlagTxRange(
-            self, self._search_group("OpticalPowerLowWarningFlagTx")
-        )
-
-    # 11h:143
-    @property
-    def LaserBiasHighAlarmFlagTx(self) -> LaserBiasHighAlarmFlagTxRange:
-        return LaserBiasHighAlarmFlagTxRange(
-            self, self._search_group("LaserBiasHighAlarmFlagTx")
-        )
-
-    # 11h:144
-    @property
-    def LaserBiasLowAlarmFlagTx(self) -> LaserBiasLowAlarmFlagTxRange:
-        return LaserBiasLowAlarmFlagTxRange(
-            self, self._search_group("LaserBiasLowAlarmFlagTx")
-        )
-
-    # 11h:145
-    @property
-    def LaserBiasHighWarningFlagTx(self) -> LaserBiasHighWarningFlagTxRange:
-        return LaserBiasHighWarningFlagTxRange(
-            self, self._search_group("LaserBiasHighWarningFlagTx")
-        )
-
-    # 11h:146
-    @property
-    def LaserBiasLowWarningFlagTx(self) -> LaserBiasLowWarningFlagTxRange:
-        return LaserBiasLowWarningFlagTxRange(
-            self, self._search_group("LaserBiasLowWarningFlagTx")
-        )
-
-    # 11h:206-213
-    @property
-    def ACS_DPConfigLane(self) -> DPConfigLaneRange:
-        return DPConfigLaneRange(self, self._search_group("ACS_DPConfigLane"))
 
     # 10h:128
     @property
     def DPDeinitLane(self) -> DPDeinitLaneRange:
         return DPDeinitLaneRange(self, self._search_group("DPDeinitLane"))
-
-    # 10h:153-160
-    @property
-    def SCS0_TxControl(self) -> TxControl:
-        return TxControl(self, self._search_group("SCS0_TxControl"))
-
-    # 10h:188-195
-    @property
-    def SCS1_TxControl(self) -> TxControl:
-        return TxControl(self, self._search_group("SCS1_TxControl"))
-
-    # 10h:145-152
-    @property
-    def SCS0_DPConfigLane(self) -> DPConfigLaneRange:
-        return DPConfigLaneRange(self, self._search_group("SCS0_DPConfigLane"))
-
-    # 10h:180-187
-    @property
-    def SCS1_DPConfigLane(self) -> DPConfigLaneRange:
-        return DPConfigLaneRange(self, self._search_group("SCS1_DPConfigLane"))
-
-    # 10h:143-144
-    @property
-    def SCS0_ApplyTriggers(self) -> ApplyTriggers:
-        return ApplyTriggers(self, self._search_group("SCS0_ApplyTriggers"))
-
-    # 10h:178-179
-    @property
-    def SCS1_ApplyTriggers(self) -> ApplyTriggers:
-        return ApplyTriggers(self, self._search_group("SCS1_ApplyTriggers"))
 
     # 10h:129
     @property
@@ -3880,15 +3664,25 @@ class MemMap(BaseMemMap):
             self, self._search_group("AutoSquelchDisableRx")
         )
 
+    # 10h:143-144
+    @property
+    def SCS0_ApplyTriggers(self) -> ApplyTriggers:
+        return ApplyTriggers(self, self._search_group("SCS0_ApplyTriggers"))
+
+    # 10h:145-152
+    @property
+    def SCS0_DPConfigLane(self) -> DPConfigLaneRange:
+        return DPConfigLaneRange(self, self._search_group("SCS0_DPConfigLane"))
+
+    # 10h:153-160
+    @property
+    def SCS0_TxControl(self) -> TxControl:
+        return TxControl(self, self._search_group("SCS0_TxControl"))
+
     # 10h:161-173
     @property
     def SCS0_RxControls(self) -> RxControls:
         return RxControls(self, self._search_group("SCS0_RxControls"))
-
-    # 10h:196-208
-    @property
-    def SCS1_RxControls(self) -> RxControls:
-        return RxControls(self, self._search_group("SCS1_RxControls"))
 
     # 10h:176-177
     @property
@@ -3896,6 +3690,26 @@ class MemMap(BaseMemMap):
         return UnidirectionalApplyTriggers(
             self, self._search_group("SCS0_UnidirectionalApplyTriggers")
         )
+
+    # 10h:178-179
+    @property
+    def SCS1_ApplyTriggers(self) -> ApplyTriggers:
+        return ApplyTriggers(self, self._search_group("SCS1_ApplyTriggers"))
+
+    # 10h:180-187
+    @property
+    def SCS1_DPConfigLane(self) -> DPConfigLaneRange:
+        return DPConfigLaneRange(self, self._search_group("SCS1_DPConfigLane"))
+
+    # 10h:188-195
+    @property
+    def SCS1_TxControl(self) -> TxControl:
+        return TxControl(self, self._search_group("SCS1_TxControl"))
+
+    # 10h:196-208
+    @property
+    def SCS1_RxControls(self) -> RxControls:
+        return RxControls(self, self._search_group("SCS1_RxControls"))
 
     # 10h:211-212
     @property
@@ -4032,190 +3846,234 @@ class MemMap(BaseMemMap):
             self, self._search_group("OutputStatusChangedMaskRx")
         )
 
-    # 01h:176-190
+    # 11h:128-131
     @property
-    def MediaLaneAssignmentOptions(self) -> MediaLaneAssignmentOptionsRange:
-        return MediaLaneAssignmentOptionsRange(
-            self, self._search_group("MediaLaneAssignmentOptions")
+    def DPStateHostLane(self) -> DPStateHostLaneRange:
+        return DPStateHostLaneRange(self, self._search_group("DPStateHostLane"))
+
+    # 11h:132
+    @property
+    def OutputStatusRx(self) -> OutputStatusRxRange:
+        return OutputStatusRxRange(self, self._search_group("OutputStatusRx"))
+
+    # 11h:133
+    @property
+    def OutputStatusTx(self) -> OutputStatusTxRange:
+        return OutputStatusTxRange(self, self._search_group("OutputStatusTx"))
+
+    # 11h:134
+    @property
+    def DPStateChangedFlag(self) -> DPStateChangedFlagRange:
+        return DPStateChangedFlagRange(self, self._search_group("DPStateChangedFlag"))
+
+    # 11h:135
+    @property
+    def FailureFlagTx(self) -> FailureFlagTxRange:
+        return FailureFlagTxRange(self, self._search_group("FailureFlagTx"))
+
+    # 11h:136
+    @property
+    def LOSFlagTx(self) -> LOSFlagTxRange:
+        return LOSFlagTxRange(self, self._search_group("LOSFlagTx"))
+
+    # 11h:137
+    @property
+    def CDRLOLFlagTx(self) -> CDRLOLFlagTxRange:
+        return CDRLOLFlagTxRange(self, self._search_group("CDRLOLFlagTx"))
+
+    # 11h:138
+    @property
+    def AdaptiveInputEqFailFlagTx(self) -> AdaptiveInputEqFailFlagTxRange:
+        return AdaptiveInputEqFailFlagTxRange(
+            self, self._search_group("AdaptiveInputEqFailFlagTx")
         )
 
-    # 00h:31.7
+    # 11h:139
     @property
-    def CdbCmdCompleteMask2(self) -> CdbCmdCompleteMask2:
-        return CdbCmdCompleteMask2(self, self._search_field("CdbCmdCompleteMask2"))
-
-    # 00h:31.6
-    @property
-    def CdbCmdCompleteMask1(self) -> CdbCmdCompleteMask1:
-        return CdbCmdCompleteMask1(self, self._search_field("CdbCmdCompleteMask1"))
-
-    # 00h:31.2
-    @property
-    def DataPathFirmwareErrorMask(self) -> DataPathFirmwareErrorMask:
-        return DataPathFirmwareErrorMask(
-            self, self._search_field("DataPathFirmwareErrorMask")
+    def OpticalPowerHighAlarmFlagTx(self) -> OpticalPowerHighAlarmFlagTxRange:
+        return OpticalPowerHighAlarmFlagTxRange(
+            self, self._search_group("OpticalPowerHighAlarmFlagTx")
         )
 
-    # 00h:31.1
+    # 11h:140
     @property
-    def ModuleFirmwareErrorMask(self) -> ModuleFirmwareErrorMask:
-        return ModuleFirmwareErrorMask(
-            self, self._search_field("ModuleFirmwareErrorMask")
+    def OpticalPowerLowAlarmFlagTx(self) -> OpticalPowerLowAlarmFlagTxRange:
+        return OpticalPowerLowAlarmFlagTxRange(
+            self, self._search_group("OpticalPowerLowAlarmFlagTx")
         )
 
-    # 00h:31.0
+    # 11h:141
     @property
-    def ModuleStateChangedMask(self) -> ModuleStateChangedMask:
-        return ModuleStateChangedMask(
-            self, self._search_field("ModuleStateChangedMask")
+    def OpticalPowerHighWarningFlagTx(self) -> OpticalPowerHighWarningFlagTxRange:
+        return OpticalPowerHighWarningFlagTxRange(
+            self, self._search_group("OpticalPowerHighWarningFlagTx")
         )
 
-    # 00h:32.7
+    # 11h:142
     @property
-    def VccMonLowWarningMask(self) -> VccMonLowWarningMask:
-        return VccMonLowWarningMask(self, self._search_field("VccMonLowWarningMask"))
-
-    # 00h:32.6
-    @property
-    def VccMonHighWarningMask(self) -> VccMonHighWarningMask:
-        return VccMonHighWarningMask(self, self._search_field("VccMonHighWarningMask"))
-
-    # 00h:32.5
-    @property
-    def VccMonLowAlarmMask(self) -> VccMonLowAlarmMask:
-        return VccMonLowAlarmMask(self, self._search_field("VccMonLowAlarmMask"))
-
-    # 00h:32.4
-    @property
-    def VccMonHighAlarmMask(self) -> VccMonHighAlarmMask:
-        return VccMonHighAlarmMask(self, self._search_field("VccMonHighAlarmMask"))
-
-    # 00h:32.3
-    @property
-    def TempMonLowWarningMask(self) -> TempMonLowWarningMask:
-        return TempMonLowWarningMask(self, self._search_field("TempMonLowWarningMask"))
-
-    # 00h:32.2
-    @property
-    def TempMonHighWarningMask(self) -> TempMonHighWarningMask:
-        return TempMonHighWarningMask(
-            self, self._search_field("TempMonHighWarningMask")
+    def OpticalPowerLowWarningFlagTx(self) -> OpticalPowerLowWarningFlagTxRange:
+        return OpticalPowerLowWarningFlagTxRange(
+            self, self._search_group("OpticalPowerLowWarningFlagTx")
         )
 
-    # 00h:32.1
+    # 11h:143
     @property
-    def TempMonLowAlarmMask(self) -> TempMonLowAlarmMask:
-        return TempMonLowAlarmMask(self, self._search_field("TempMonLowAlarmMask"))
-
-    # 00h:32.0
-    @property
-    def TempMonHighAlarmMask(self) -> TempMonHighAlarmMask:
-        return TempMonHighAlarmMask(self, self._search_field("TempMonHighAlarmMask"))
-
-    # 00h:33.7
-    @property
-    def Aux2MonLowWarningMask(self) -> Aux2MonLowWarningMask:
-        return Aux2MonLowWarningMask(self, self._search_field("Aux2MonLowWarningMask"))
-
-    # 00h:33.6
-    @property
-    def Aux2MonHighWarningMask(self) -> Aux2MonHighWarningMask:
-        return Aux2MonHighWarningMask(
-            self, self._search_field("Aux2MonHighWarningMask")
+    def LaserBiasHighAlarmFlagTx(self) -> LaserBiasHighAlarmFlagTxRange:
+        return LaserBiasHighAlarmFlagTxRange(
+            self, self._search_group("LaserBiasHighAlarmFlagTx")
         )
 
-    # 00h:33.5
+    # 11h:144
     @property
-    def Aux2MonLowAlarmMask(self) -> Aux2MonLowAlarmMask:
-        return Aux2MonLowAlarmMask(self, self._search_field("Aux2MonLowAlarmMask"))
-
-    # 00h:33.4
-    @property
-    def Aux2MonHighAlarmMask(self) -> Aux2MonHighAlarmMask:
-        return Aux2MonHighAlarmMask(self, self._search_field("Aux2MonHighAlarmMask"))
-
-    # 00h:33.3
-    @property
-    def Aux1MonLowWarningMask(self) -> Aux1MonLowWarningMask:
-        return Aux1MonLowWarningMask(self, self._search_field("Aux1MonLowWarningMask"))
-
-    # 00h:33.2
-    @property
-    def Aux1MonHighWarningMask(self) -> Aux1MonHighWarningMask:
-        return Aux1MonHighWarningMask(
-            self, self._search_field("Aux1MonHighWarningMask")
+    def LaserBiasLowAlarmFlagTx(self) -> LaserBiasLowAlarmFlagTxRange:
+        return LaserBiasLowAlarmFlagTxRange(
+            self, self._search_group("LaserBiasLowAlarmFlagTx")
         )
 
-    # 00h:33.1
+    # 11h:145
     @property
-    def Aux1MonLowAlarmMask(self) -> Aux1MonLowAlarmMask:
-        return Aux1MonLowAlarmMask(self, self._search_field("Aux1MonLowAlarmMask"))
-
-    # 00h:33.0
-    @property
-    def Aux1MonHighAlarmMask(self) -> Aux1MonHighAlarmMask:
-        return Aux1MonHighAlarmMask(self, self._search_field("Aux1MonHighAlarmMask"))
-
-    # 00h:34.7
-    @property
-    def CustomMonLowWarningMask(self) -> CustomMonLowWarningMask:
-        return CustomMonLowWarningMask(
-            self, self._search_field("CustomMonLowWarningMask")
+    def LaserBiasHighWarningFlagTx(self) -> LaserBiasHighWarningFlagTxRange:
+        return LaserBiasHighWarningFlagTxRange(
+            self, self._search_group("LaserBiasHighWarningFlagTx")
         )
 
-    # 00h:34.6
+    # 11h:146
     @property
-    def CustomMonHighWarningMask(self) -> CustomMonHighWarningMask:
-        return CustomMonHighWarningMask(
-            self, self._search_field("CustomMonHighWarningMask")
+    def LaserBiasLowWarningFlagTx(self) -> LaserBiasLowWarningFlagTxRange:
+        return LaserBiasLowWarningFlagTxRange(
+            self, self._search_group("LaserBiasLowWarningFlagTx")
         )
 
-    # 00h:34.5
+    # 11h:147
     @property
-    def CustomMonLowAlarmMask(self) -> CustomMonLowAlarmMask:
-        return CustomMonLowAlarmMask(self, self._search_field("CustomMonLowAlarmMask"))
+    def LOSFlagRx(self) -> LOSFlagRxRange:
+        return LOSFlagRxRange(self, self._search_group("LOSFlagRx"))
 
-    # 00h:34.4
+    # 11h:148
     @property
-    def CustomMonHighAlarmMask(self) -> CustomMonHighAlarmMask:
-        return CustomMonHighAlarmMask(
-            self, self._search_field("CustomMonHighAlarmMask")
+    def CDRLOLFlagRx(self) -> CDRLOLFlagRxRange:
+        return CDRLOLFlagRxRange(self, self._search_group("CDRLOLFlagRx"))
+
+    # 11h:149
+    @property
+    def OpticalPowerHighAlarmFlagRx(self) -> OpticalPowerHighAlarmFlagRxRange:
+        return OpticalPowerHighAlarmFlagRxRange(
+            self, self._search_group("OpticalPowerHighAlarmFlagRx")
         )
 
-    # 00h:34.3
+    # 11h:150
     @property
-    def Aux3MonLowWarningMask(self) -> Aux3MonLowWarningMask:
-        return Aux3MonLowWarningMask(self, self._search_field("Aux3MonLowWarningMask"))
-
-    # 00h:34.2
-    @property
-    def Aux3MonHighWarningMask(self) -> Aux3MonHighWarningMask:
-        return Aux3MonHighWarningMask(
-            self, self._search_field("Aux3MonHighWarningMask")
+    def OpticalPowerLowAlarmFlagRx(self) -> OpticalPowerLowAlarmFlagRxRange:
+        return OpticalPowerLowAlarmFlagRxRange(
+            self, self._search_group("OpticalPowerLowAlarmFlagRx")
         )
 
-    # 00h:34.1
+    # 11h:151
     @property
-    def Aux3MonLowAlarmMask(self) -> Aux3MonLowAlarmMask:
-        return Aux3MonLowAlarmMask(self, self._search_field("Aux3MonLowAlarmMask"))
-
-    # 00h:34.0
-    @property
-    def Aux3MonHighAlarmMask(self) -> Aux3MonHighAlarmMask:
-        return Aux3MonHighAlarmMask(self, self._search_field("Aux3MonHighAlarmMask"))
-
-    # 00h:4.3
-    @property
-    def FlagsSummaryBank0Page2Ch(self) -> FlagsSummaryBank0Page2Ch:
-        return FlagsSummaryBank0Page2Ch(
-            self, self._search_field("FlagsSummaryBank0Page2Ch")
+    def OpticalPowerHighWarningFlagRx(self) -> OpticalPowerHighWarningFlagRxRange:
+        return OpticalPowerHighWarningFlagRxRange(
+            self, self._search_group("OpticalPowerHighWarningFlagRx")
         )
 
-    # 00h:4.2
+    # 11h:152
     @property
-    def FlagsSummaryBank0Page14h(self) -> FlagsSummaryBank0Page14h:
-        return FlagsSummaryBank0Page14h(
-            self, self._search_field("FlagsSummaryBank0Page14h")
+    def OpticalPowerLowWarningFlagRx(self) -> OpticalPowerLowWarningFlagRxRange:
+        return OpticalPowerLowWarningFlagRxRange(
+            self, self._search_group("OpticalPowerLowWarningFlagRx")
+        )
+
+    # 11h:153
+    @property
+    def OutputStatusChangedFlagRx(self) -> OutputStatusChangedFlagRxRange:
+        return OutputStatusChangedFlagRxRange(
+            self, self._search_group("OutputStatusChangedFlagRx")
+        )
+
+    # 11h:154-169
+    @property
+    def OpticalPowerTx(self) -> OpticalPowerTxRange:
+        return OpticalPowerTxRange(self, self._search_group("OpticalPowerTx"))
+
+    # 11h:170-185
+    @property
+    def LaserBiasTx(self) -> LaserBiasTxRange:
+        return LaserBiasTxRange(self, self._search_group("LaserBiasTx"))
+
+    # 11h:186-201
+    @property
+    def OpticalPowerRx(self) -> OpticalPowerRxRange:
+        return OpticalPowerRxRange(self, self._search_group("OpticalPowerRx"))
+
+    # 11h:202-205
+    @property
+    def ConfigStatusLane(self) -> ConfigStatusLaneRange:
+        return ConfigStatusLaneRange(self, self._search_group("ConfigStatusLane"))
+
+    # 11h:206-213
+    @property
+    def ACS_DPConfigLane(self) -> DPConfigLaneRange:
+        return DPConfigLaneRange(self, self._search_group("ACS_DPConfigLane"))
+
+    # 11h:214-221
+    @property
+    def ACS_TxControls(self) -> TxControls:
+        return TxControls(self, self._search_group("ACS_TxControls"))
+
+    # 11h:222-234
+    @property
+    def ACS_RxControls(self) -> RxControls:
+        return RxControls(self, self._search_group("ACS_RxControls"))
+
+    # 11h:235
+    @property
+    def DPInitPendingLane(self) -> DPInitPendingLaneRange:
+        return DPInitPendingLaneRange(self, self._search_group("DPInitPendingLane"))
+
+    # 11h:240-247
+    @property
+    def MediaLaneMappingTx(self) -> MediaLaneMappingTxRange:
+        return MediaLaneMappingTxRange(self, self._search_group("MediaLaneMappingTx"))
+
+    # 11h:248-255
+    @property
+    def MediaLaneMappingRx(self) -> MediaLaneMappingRxRange:
+        return MediaLaneMappingRxRange(self, self._search_group("MediaLaneMappingRx"))
+
+    # 00h:0
+    @property
+    def SFF8024Identifier(self) -> SFF8024Identifier:
+        return SFF8024Identifier(self, self._search_field("SFF8024Identifier"))
+
+    # 00h:2.2-3
+    @property
+    def MciMaxSpeed(self) -> MciMaxSpeed:
+        return MciMaxSpeed(self, self._search_field("MciMaxSpeed"))
+
+    # 00h:2.6
+    @property
+    def SteppedConfigOnly(self) -> SteppedConfigOnly:
+        return SteppedConfigOnly(self, self._search_field("SteppedConfigOnly"))
+
+    # 00h:2.7
+    @property
+    def MemoryModel(self) -> MemoryModel:
+        return MemoryModel(self, self._search_field("MemoryModel"))
+
+    # 00h:3.0
+    @property
+    def InterruptDeasserted(self) -> InterruptDeasserted:
+        return InterruptDeasserted(self, self._search_field("InterruptDeasserted"))
+
+    # 00h:3.1-3
+    @property
+    def ModuleState(self) -> ModuleState:
+        return ModuleState(self, self._search_field("ModuleState"))
+
+    # 00h:4.0
+    @property
+    def FlagsSummaryBank0Page11h(self) -> FlagsSummaryBank0Page11h:
+        return FlagsSummaryBank0Page11h(
+            self, self._search_field("FlagsSummaryBank0Page11h")
         )
 
     # 00h:4.1
@@ -4225,32 +4083,18 @@ class MemMap(BaseMemMap):
             self, self._search_field("FlagsSummaryBank0Page12h")
         )
 
-    # 00h:4.0
+    # 00h:4.2
     @property
-    def FlagsSummaryBank0Page11h(self) -> FlagsSummaryBank0Page11h:
-        return FlagsSummaryBank0Page11h(
-            self, self._search_field("FlagsSummaryBank0Page11h")
+    def FlagsSummaryBank0Page14h(self) -> FlagsSummaryBank0Page14h:
+        return FlagsSummaryBank0Page14h(
+            self, self._search_field("FlagsSummaryBank0Page14h")
         )
 
-    # 00h:5.3
+    # 00h:4.3
     @property
-    def FlagsSummaryBank1Page2Ch(self) -> FlagsSummaryBank1Page2Ch:
-        return FlagsSummaryBank1Page2Ch(
-            self, self._search_field("FlagsSummaryBank1Page2Ch")
-        )
-
-    # 00h:5.2
-    @property
-    def FlagsSummaryBank1Page14h(self) -> FlagsSummaryBank1Page14h:
-        return FlagsSummaryBank1Page14h(
-            self, self._search_field("FlagsSummaryBank1Page14h")
-        )
-
-    # 00h:5.1
-    @property
-    def FlagsSummaryBank1Page12h(self) -> FlagsSummaryBank1Page12h:
-        return FlagsSummaryBank1Page12h(
-            self, self._search_field("FlagsSummaryBank1Page12h")
+    def FlagsSummaryBank0Page2Ch(self) -> FlagsSummaryBank0Page2Ch:
+        return FlagsSummaryBank0Page2Ch(
+            self, self._search_field("FlagsSummaryBank0Page2Ch")
         )
 
     # 00h:5.0
@@ -4260,25 +4104,25 @@ class MemMap(BaseMemMap):
             self, self._search_field("FlagsSummaryBank1Page11h")
         )
 
-    # 00h:6.3
+    # 00h:5.1
     @property
-    def FlagsSummaryBank2Page2Ch(self) -> FlagsSummaryBank2Page2Ch:
-        return FlagsSummaryBank2Page2Ch(
-            self, self._search_field("FlagsSummaryBank2Page2Ch")
+    def FlagsSummaryBank1Page12h(self) -> FlagsSummaryBank1Page12h:
+        return FlagsSummaryBank1Page12h(
+            self, self._search_field("FlagsSummaryBank1Page12h")
         )
 
-    # 00h:6.2
+    # 00h:5.2
     @property
-    def FlagsSummaryBank2Page14h(self) -> FlagsSummaryBank2Page14h:
-        return FlagsSummaryBank2Page14h(
-            self, self._search_field("FlagsSummaryBank2Page14h")
+    def FlagsSummaryBank1Page14h(self) -> FlagsSummaryBank1Page14h:
+        return FlagsSummaryBank1Page14h(
+            self, self._search_field("FlagsSummaryBank1Page14h")
         )
 
-    # 00h:6.1
+    # 00h:5.3
     @property
-    def FlagsSummaryBank2Page12h(self) -> FlagsSummaryBank2Page12h:
-        return FlagsSummaryBank2Page12h(
-            self, self._search_field("FlagsSummaryBank2Page12h")
+    def FlagsSummaryBank1Page2Ch(self) -> FlagsSummaryBank1Page2Ch:
+        return FlagsSummaryBank1Page2Ch(
+            self, self._search_field("FlagsSummaryBank1Page2Ch")
         )
 
     # 00h:6.0
@@ -4288,25 +4132,25 @@ class MemMap(BaseMemMap):
             self, self._search_field("FlagsSummaryBank2Page11h")
         )
 
-    # 00h:7.3
+    # 00h:6.1
     @property
-    def FlagsSummaryBank3Page2Ch(self) -> FlagsSummaryBank3Page2Ch:
-        return FlagsSummaryBank3Page2Ch(
-            self, self._search_field("FlagsSummaryBank3Page2Ch")
+    def FlagsSummaryBank2Page12h(self) -> FlagsSummaryBank2Page12h:
+        return FlagsSummaryBank2Page12h(
+            self, self._search_field("FlagsSummaryBank2Page12h")
         )
 
-    # 00h:7.2
+    # 00h:6.2
     @property
-    def FlagsSummaryBank3Page14h(self) -> FlagsSummaryBank3Page14h:
-        return FlagsSummaryBank3Page14h(
-            self, self._search_field("FlagsSummaryBank3Page14h")
+    def FlagsSummaryBank2Page14h(self) -> FlagsSummaryBank2Page14h:
+        return FlagsSummaryBank2Page14h(
+            self, self._search_field("FlagsSummaryBank2Page14h")
         )
 
-    # 00h:7.1
+    # 00h:6.3
     @property
-    def FlagsSummaryBank3Page12h(self) -> FlagsSummaryBank3Page12h:
-        return FlagsSummaryBank3Page12h(
-            self, self._search_field("FlagsSummaryBank3Page12h")
+    def FlagsSummaryBank2Page2Ch(self) -> FlagsSummaryBank2Page2Ch:
+        return FlagsSummaryBank2Page2Ch(
+            self, self._search_field("FlagsSummaryBank2Page2Ch")
         )
 
     # 00h:7.0
@@ -4316,114 +4160,191 @@ class MemMap(BaseMemMap):
             self, self._search_field("FlagsSummaryBank3Page11h")
         )
 
-    # 00h:3.1-3
+    # 00h:7.1
     @property
-    def ModuleState(self) -> ModuleState:
-        return ModuleState(self, self._search_field("ModuleState"))
-
-    # 00h:3.0
-    @property
-    def InterruptDeasserted(self) -> InterruptDeasserted:
-        return InterruptDeasserted(self, self._search_field("InterruptDeasserted"))
-
-    # 00h:204
-    @property
-    def AttenuationAt5GHz(self) -> AttenuationAt5GHz:
-        return AttenuationAt5GHz(self, self._search_field("AttenuationAt5GHz"))
-
-    # 00h:205
-    @property
-    def AttenuationAt7GHz(self) -> AttenuationAt7GHz:
-        return AttenuationAt7GHz(self, self._search_field("AttenuationAt7GHz"))
-
-    # 00h:206
-    @property
-    def AttenuationAt12p9GHz(self) -> AttenuationAt12p9GHz:
-        return AttenuationAt12p9GHz(self, self._search_field("AttenuationAt12p9GHz"))
-
-    # 00h:207
-    @property
-    def AttenuationAt25p8GHz(self) -> AttenuationAt25p8GHz:
-        return AttenuationAt25p8GHz(self, self._search_field("AttenuationAt25p8GHz"))
-
-    # 00h:39
-    @property
-    def ModuleActiveFirmwareMajorRevision(self) -> ModuleActiveFirmwareMajorRevision:
-        return ModuleActiveFirmwareMajorRevision(
-            self, self._search_field("ModuleActiveFirmwareMajorRevision")
+    def FlagsSummaryBank3Page12h(self) -> FlagsSummaryBank3Page12h:
+        return FlagsSummaryBank3Page12h(
+            self, self._search_field("FlagsSummaryBank3Page12h")
         )
 
-    # 00h:40
+    # 00h:7.2
     @property
-    def ModuleActiveFirmwareMinorRevision(self) -> ModuleActiveFirmwareMinorRevision:
-        return ModuleActiveFirmwareMinorRevision(
-            self, self._search_field("ModuleActiveFirmwareMinorRevision")
+    def FlagsSummaryBank3Page14h(self) -> FlagsSummaryBank3Page14h:
+        return FlagsSummaryBank3Page14h(
+            self, self._search_field("FlagsSummaryBank3Page14h")
         )
 
-    # 00h:211.0-4
+    # 00h:7.3
     @property
-    def FarEndConfiguration(self) -> FarEndConfiguration:
-        return FarEndConfiguration(self, self._search_field("FarEndConfiguration"))
+    def FlagsSummaryBank3Page2Ch(self) -> FlagsSummaryBank3Page2Ch:
+        return FlagsSummaryBank3Page2Ch(
+            self, self._search_field("FlagsSummaryBank3Page2Ch")
+        )
 
-    # 00h:126
+    # 00h:8.0
     @property
-    def BankSelect(self) -> BankSelect:
-        return BankSelect(self, self._search_field("BankSelect"))
+    def ModuleStateChangedFlag(self) -> ModuleStateChangedFlag:
+        return ModuleStateChangedFlag(
+            self, self._search_field("ModuleStateChangedFlag")
+        )
 
-    # 00h:127
+    # 00h:8.1
     @property
-    def PageSelect(self) -> PageSelect:
-        return PageSelect(self, self._search_field("PageSelect"))
+    def ModuleFirmwareErrorFlag(self) -> ModuleFirmwareErrorFlag:
+        return ModuleFirmwareErrorFlag(
+            self, self._search_field("ModuleFirmwareErrorFlag")
+        )
 
-    # 00h:26.7
+    # 00h:8.2
     @property
-    def BankBroadcastEnable(self) -> BankBroadcastEnable:
-        return BankBroadcastEnable(self, self._search_field("BankBroadcastEnable"))
+    def DataPathFirmwareErrorFlag(self) -> DataPathFirmwareErrorFlag:
+        return DataPathFirmwareErrorFlag(
+            self, self._search_field("DataPathFirmwareErrorFlag")
+        )
 
-    # 00h:26.6
+    # 00h:8.6
     @property
-    def LowPwrAllowRequestHW(self) -> LowPwrAllowRequestHW:
-        return LowPwrAllowRequestHW(self, self._search_field("LowPwrAllowRequestHW"))
+    def CdbCmdCompleteFlag1(self) -> CdbCmdCompleteFlag1:
+        return CdbCmdCompleteFlag1(self, self._search_field("CdbCmdCompleteFlag1"))
 
-    # 00h:26.5
+    # 00h:8.7
     @property
-    def SquelchMethodSelect(self) -> SquelchMethodSelect:
-        return SquelchMethodSelect(self, self._search_field("SquelchMethodSelect"))
+    def CdbCmdCompleteFlag2(self) -> CdbCmdCompleteFlag2:
+        return CdbCmdCompleteFlag2(self, self._search_field("CdbCmdCompleteFlag2"))
 
-    # 00h:26.4
+    # 00h:9.0
     @property
-    def LowPwrRequestSW(self) -> LowPwrRequestSW:
-        return LowPwrRequestSW(self, self._search_field("LowPwrRequestSW"))
+    def TempMonHighAlarmFlag(self) -> TempMonHighAlarmFlag:
+        return TempMonHighAlarmFlag(self, self._search_field("TempMonHighAlarmFlag"))
 
-    # 00h:26.3
+    # 00h:9.1
     @property
-    def SoftwareReset(self) -> SoftwareReset:
-        return SoftwareReset(self, self._search_field("SoftwareReset"))
+    def TempMonLowAlarmFlag(self) -> TempMonLowAlarmFlag:
+        return TempMonLowAlarmFlag(self, self._search_field("TempMonLowAlarmFlag"))
 
-    # 00h:26
+    # 00h:9.2
     @property
-    def ModuleGlobalControls(self) -> ModuleGlobalControls:
-        return ModuleGlobalControls(self, self._search_field("ModuleGlobalControls"))
+    def TempMonHighWarningFlag(self) -> TempMonHighWarningFlag:
+        return TempMonHighWarningFlag(
+            self, self._search_field("TempMonHighWarningFlag")
+        )
 
-    # 00h:0
+    # 00h:9.3
     @property
-    def SFF8024Identifier(self) -> SFF8024Identifier:
-        return SFF8024Identifier(self, self._search_field("SFF8024Identifier"))
+    def TempMonLowWarningFlag(self) -> TempMonLowWarningFlag:
+        return TempMonLowWarningFlag(self, self._search_field("TempMonLowWarningFlag"))
 
-    # 00h:2.7
+    # 00h:9.4
     @property
-    def MemoryModel(self) -> MemoryModel:
-        return MemoryModel(self, self._search_field("MemoryModel"))
+    def VccMonHighAlarmFlag(self) -> VccMonHighAlarmFlag:
+        return VccMonHighAlarmFlag(self, self._search_field("VccMonHighAlarmFlag"))
 
-    # 00h:2.6
+    # 00h:9.5
     @property
-    def SteppedConfigOnly(self) -> SteppedConfigOnly:
-        return SteppedConfigOnly(self, self._search_field("SteppedConfigOnly"))
+    def VccMonLowAlarmFlag(self) -> VccMonLowAlarmFlag:
+        return VccMonLowAlarmFlag(self, self._search_field("VccMonLowAlarmFlag"))
 
-    # 00h:2.2-3
+    # 00h:9.6
     @property
-    def MciMaxSpeed(self) -> MciMaxSpeed:
-        return MciMaxSpeed(self, self._search_field("MciMaxSpeed"))
+    def VccMonHighWarningFlag(self) -> VccMonHighWarningFlag:
+        return VccMonHighWarningFlag(self, self._search_field("VccMonHighWarningFlag"))
+
+    # 00h:9.7
+    @property
+    def VccMonLowWarningFlag(self) -> VccMonLowWarningFlag:
+        return VccMonLowWarningFlag(self, self._search_field("VccMonLowWarningFlag"))
+
+    # 00h:10.0
+    @property
+    def Aux1MonHighAlarmFlag(self) -> Aux1MonHighAlarmFlag:
+        return Aux1MonHighAlarmFlag(self, self._search_field("Aux1MonHighAlarmFlag"))
+
+    # 00h:10.1
+    @property
+    def Aux1MonLowAlarmFlag(self) -> Aux1MonLowAlarmFlag:
+        return Aux1MonLowAlarmFlag(self, self._search_field("Aux1MonLowAlarmFlag"))
+
+    # 00h:10.2
+    @property
+    def Aux1MonHighWarningFlag(self) -> Aux1MonHighWarningFlag:
+        return Aux1MonHighWarningFlag(
+            self, self._search_field("Aux1MonHighWarningFlag")
+        )
+
+    # 00h:10.3
+    @property
+    def Aux1MonLowWarningFlag(self) -> Aux1MonLowWarningFlag:
+        return Aux1MonLowWarningFlag(self, self._search_field("Aux1MonLowWarningFlag"))
+
+    # 00h:10.4
+    @property
+    def Aux2MonHighAlarmFlag(self) -> Aux2MonHighAlarmFlag:
+        return Aux2MonHighAlarmFlag(self, self._search_field("Aux2MonHighAlarmFlag"))
+
+    # 00h:10.5
+    @property
+    def Aux2MonLowAlarmFlag(self) -> Aux2MonLowAlarmFlag:
+        return Aux2MonLowAlarmFlag(self, self._search_field("Aux2MonLowAlarmFlag"))
+
+    # 00h:10.6
+    @property
+    def Aux2MonHighWarningFlag(self) -> Aux2MonHighWarningFlag:
+        return Aux2MonHighWarningFlag(
+            self, self._search_field("Aux2MonHighWarningFlag")
+        )
+
+    # 00h:10.7
+    @property
+    def Aux2MonLowWarningFlag(self) -> Aux2MonLowWarningFlag:
+        return Aux2MonLowWarningFlag(self, self._search_field("Aux2MonLowWarningFlag"))
+
+    # 00h:11.0
+    @property
+    def Aux3MonHighAlarmFlag(self) -> Aux3MonHighAlarmFlag:
+        return Aux3MonHighAlarmFlag(self, self._search_field("Aux3MonHighAlarmFlag"))
+
+    # 00h:11.1
+    @property
+    def Aux3MonLowAlarmFlag(self) -> Aux3MonLowAlarmFlag:
+        return Aux3MonLowAlarmFlag(self, self._search_field("Aux3MonLowAlarmFlag"))
+
+    # 00h:11.2
+    @property
+    def Aux3MonHighWarningFlag(self) -> Aux3MonHighWarningFlag:
+        return Aux3MonHighWarningFlag(
+            self, self._search_field("Aux3MonHighWarningFlag")
+        )
+
+    # 00h:11.3
+    @property
+    def Aux3MonLowWarningFlag(self) -> Aux3MonLowWarningFlag:
+        return Aux3MonLowWarningFlag(self, self._search_field("Aux3MonLowWarningFlag"))
+
+    # 00h:11.4
+    @property
+    def CustomMonHighAlarmFlag(self) -> CustomMonHighAlarmFlag:
+        return CustomMonHighAlarmFlag(
+            self, self._search_field("CustomMonHighAlarmFlag")
+        )
+
+    # 00h:11.5
+    @property
+    def CustomMonLowAlarmFlag(self) -> CustomMonLowAlarmFlag:
+        return CustomMonLowAlarmFlag(self, self._search_field("CustomMonLowAlarmFlag"))
+
+    # 00h:11.6
+    @property
+    def CustomMonHighWarningFlag(self) -> CustomMonHighWarningFlag:
+        return CustomMonHighWarningFlag(
+            self, self._search_field("CustomMonHighWarningFlag")
+        )
+
+    # 00h:11.7
+    @property
+    def CustomMonLowWarningFlag(self) -> CustomMonLowWarningFlag:
+        return CustomMonLowWarningFlag(
+            self, self._search_field("CustomMonLowWarningFlag")
+        )
 
     # 00h:14
     @property
@@ -4455,10 +4376,246 @@ class MemMap(BaseMemMap):
     def CustomMonValue(self) -> CustomMonValue:
         return CustomMonValue(self, self._search_field("CustomMonValue"))
 
+    # 00h:26
+    @property
+    def ModuleGlobalControls(self) -> ModuleGlobalControls:
+        return ModuleGlobalControls(self, self._search_field("ModuleGlobalControls"))
+
+    # 00h:26.3
+    @property
+    def SoftwareReset(self) -> SoftwareReset:
+        return SoftwareReset(self, self._search_field("SoftwareReset"))
+
+    # 00h:26.4
+    @property
+    def LowPwrRequestSW(self) -> LowPwrRequestSW:
+        return LowPwrRequestSW(self, self._search_field("LowPwrRequestSW"))
+
+    # 00h:26.5
+    @property
+    def SquelchMethodSelect(self) -> SquelchMethodSelect:
+        return SquelchMethodSelect(self, self._search_field("SquelchMethodSelect"))
+
+    # 00h:26.6
+    @property
+    def LowPwrAllowRequestHW(self) -> LowPwrAllowRequestHW:
+        return LowPwrAllowRequestHW(self, self._search_field("LowPwrAllowRequestHW"))
+
+    # 00h:26.7
+    @property
+    def BankBroadcastEnable(self) -> BankBroadcastEnable:
+        return BankBroadcastEnable(self, self._search_field("BankBroadcastEnable"))
+
+    # 00h:31.0
+    @property
+    def ModuleStateChangedMask(self) -> ModuleStateChangedMask:
+        return ModuleStateChangedMask(
+            self, self._search_field("ModuleStateChangedMask")
+        )
+
+    # 00h:31.1
+    @property
+    def ModuleFirmwareErrorMask(self) -> ModuleFirmwareErrorMask:
+        return ModuleFirmwareErrorMask(
+            self, self._search_field("ModuleFirmwareErrorMask")
+        )
+
+    # 00h:31.2
+    @property
+    def DataPathFirmwareErrorMask(self) -> DataPathFirmwareErrorMask:
+        return DataPathFirmwareErrorMask(
+            self, self._search_field("DataPathFirmwareErrorMask")
+        )
+
+    # 00h:31.6
+    @property
+    def CdbCmdCompleteMask1(self) -> CdbCmdCompleteMask1:
+        return CdbCmdCompleteMask1(self, self._search_field("CdbCmdCompleteMask1"))
+
+    # 00h:31.7
+    @property
+    def CdbCmdCompleteMask2(self) -> CdbCmdCompleteMask2:
+        return CdbCmdCompleteMask2(self, self._search_field("CdbCmdCompleteMask2"))
+
+    # 00h:32.0
+    @property
+    def TempMonHighAlarmMask(self) -> TempMonHighAlarmMask:
+        return TempMonHighAlarmMask(self, self._search_field("TempMonHighAlarmMask"))
+
+    # 00h:32.1
+    @property
+    def TempMonLowAlarmMask(self) -> TempMonLowAlarmMask:
+        return TempMonLowAlarmMask(self, self._search_field("TempMonLowAlarmMask"))
+
+    # 00h:32.2
+    @property
+    def TempMonHighWarningMask(self) -> TempMonHighWarningMask:
+        return TempMonHighWarningMask(
+            self, self._search_field("TempMonHighWarningMask")
+        )
+
+    # 00h:32.3
+    @property
+    def TempMonLowWarningMask(self) -> TempMonLowWarningMask:
+        return TempMonLowWarningMask(self, self._search_field("TempMonLowWarningMask"))
+
+    # 00h:32.4
+    @property
+    def VccMonHighAlarmMask(self) -> VccMonHighAlarmMask:
+        return VccMonHighAlarmMask(self, self._search_field("VccMonHighAlarmMask"))
+
+    # 00h:32.5
+    @property
+    def VccMonLowAlarmMask(self) -> VccMonLowAlarmMask:
+        return VccMonLowAlarmMask(self, self._search_field("VccMonLowAlarmMask"))
+
+    # 00h:32.6
+    @property
+    def VccMonHighWarningMask(self) -> VccMonHighWarningMask:
+        return VccMonHighWarningMask(self, self._search_field("VccMonHighWarningMask"))
+
+    # 00h:32.7
+    @property
+    def VccMonLowWarningMask(self) -> VccMonLowWarningMask:
+        return VccMonLowWarningMask(self, self._search_field("VccMonLowWarningMask"))
+
+    # 00h:33.0
+    @property
+    def Aux1MonHighAlarmMask(self) -> Aux1MonHighAlarmMask:
+        return Aux1MonHighAlarmMask(self, self._search_field("Aux1MonHighAlarmMask"))
+
+    # 00h:33.1
+    @property
+    def Aux1MonLowAlarmMask(self) -> Aux1MonLowAlarmMask:
+        return Aux1MonLowAlarmMask(self, self._search_field("Aux1MonLowAlarmMask"))
+
+    # 00h:33.2
+    @property
+    def Aux1MonHighWarningMask(self) -> Aux1MonHighWarningMask:
+        return Aux1MonHighWarningMask(
+            self, self._search_field("Aux1MonHighWarningMask")
+        )
+
+    # 00h:33.3
+    @property
+    def Aux1MonLowWarningMask(self) -> Aux1MonLowWarningMask:
+        return Aux1MonLowWarningMask(self, self._search_field("Aux1MonLowWarningMask"))
+
+    # 00h:33.4
+    @property
+    def Aux2MonHighAlarmMask(self) -> Aux2MonHighAlarmMask:
+        return Aux2MonHighAlarmMask(self, self._search_field("Aux2MonHighAlarmMask"))
+
+    # 00h:33.5
+    @property
+    def Aux2MonLowAlarmMask(self) -> Aux2MonLowAlarmMask:
+        return Aux2MonLowAlarmMask(self, self._search_field("Aux2MonLowAlarmMask"))
+
+    # 00h:33.6
+    @property
+    def Aux2MonHighWarningMask(self) -> Aux2MonHighWarningMask:
+        return Aux2MonHighWarningMask(
+            self, self._search_field("Aux2MonHighWarningMask")
+        )
+
+    # 00h:33.7
+    @property
+    def Aux2MonLowWarningMask(self) -> Aux2MonLowWarningMask:
+        return Aux2MonLowWarningMask(self, self._search_field("Aux2MonLowWarningMask"))
+
+    # 00h:34.0
+    @property
+    def Aux3MonHighAlarmMask(self) -> Aux3MonHighAlarmMask:
+        return Aux3MonHighAlarmMask(self, self._search_field("Aux3MonHighAlarmMask"))
+
+    # 00h:34.1
+    @property
+    def Aux3MonLowAlarmMask(self) -> Aux3MonLowAlarmMask:
+        return Aux3MonLowAlarmMask(self, self._search_field("Aux3MonLowAlarmMask"))
+
+    # 00h:34.2
+    @property
+    def Aux3MonHighWarningMask(self) -> Aux3MonHighWarningMask:
+        return Aux3MonHighWarningMask(
+            self, self._search_field("Aux3MonHighWarningMask")
+        )
+
+    # 00h:34.3
+    @property
+    def Aux3MonLowWarningMask(self) -> Aux3MonLowWarningMask:
+        return Aux3MonLowWarningMask(self, self._search_field("Aux3MonLowWarningMask"))
+
+    # 00h:34.4
+    @property
+    def CustomMonHighAlarmMask(self) -> CustomMonHighAlarmMask:
+        return CustomMonHighAlarmMask(
+            self, self._search_field("CustomMonHighAlarmMask")
+        )
+
+    # 00h:34.5
+    @property
+    def CustomMonLowAlarmMask(self) -> CustomMonLowAlarmMask:
+        return CustomMonLowAlarmMask(self, self._search_field("CustomMonLowAlarmMask"))
+
+    # 00h:34.6
+    @property
+    def CustomMonHighWarningMask(self) -> CustomMonHighWarningMask:
+        return CustomMonHighWarningMask(
+            self, self._search_field("CustomMonHighWarningMask")
+        )
+
+    # 00h:34.7
+    @property
+    def CustomMonLowWarningMask(self) -> CustomMonLowWarningMask:
+        return CustomMonLowWarningMask(
+            self, self._search_field("CustomMonLowWarningMask")
+        )
+
+    # 00h:39
+    @property
+    def ModuleActiveFirmwareMajorRevision(self) -> ModuleActiveFirmwareMajorRevision:
+        return ModuleActiveFirmwareMajorRevision(
+            self, self._search_field("ModuleActiveFirmwareMajorRevision")
+        )
+
+    # 00h:40
+    @property
+    def ModuleActiveFirmwareMinorRevision(self) -> ModuleActiveFirmwareMinorRevision:
+        return ModuleActiveFirmwareMinorRevision(
+            self, self._search_field("ModuleActiveFirmwareMinorRevision")
+        )
+
+    # 00h:41
+    @property
+    def ModuleFaultCause(self) -> ModuleFaultCause:
+        return ModuleFaultCause(self, self._search_field("ModuleFaultCause"))
+
     # 00h:85
     @property
     def MediaType(self) -> MediaType:
         return MediaType(self, self._search_field("MediaType"))
+
+    # 00h:118
+    @property
+    def PasswordChangeEntryArea(self) -> PasswordChangeEntryArea:
+        return PasswordChangeEntryArea(
+            self, self._search_field("PasswordChangeEntryArea")
+        )
+
+    # 00h:122
+    @property
+    def PasswordEntryArea(self) -> PasswordEntryArea:
+        return PasswordEntryArea(self, self._search_field("PasswordEntryArea"))
+
+    # 00h:126
+    @property
+    def BankSelect(self) -> BankSelect:
+        return BankSelect(self, self._search_field("BankSelect"))
+
+    # 00h:127
+    @property
+    def PageSelect(self) -> PageSelect:
+        return PageSelect(self, self._search_field("PageSelect"))
 
     # 00h:128
     @property
@@ -4505,20 +4662,45 @@ class MemMap(BaseMemMap):
     def MaxPower(self) -> MaxPower:
         return MaxPower(self, self._search_field("MaxPower"))
 
-    # 00h:202.6-7
-    @property
-    def LengthMultiplier(self) -> LengthMultiplier:
-        return LengthMultiplier(self, self._search_field("LengthMultiplier"))
-
     # 00h:202.0-5
     @property
     def BaseLength(self) -> BaseLength:
         return BaseLength(self, self._search_field("BaseLength"))
 
+    # 00h:202.6-7
+    @property
+    def LengthMultiplier(self) -> LengthMultiplier:
+        return LengthMultiplier(self, self._search_field("LengthMultiplier"))
+
     # 00h:203
     @property
     def ConnectorType(self) -> ConnectorType:
         return ConnectorType(self, self._search_field("ConnectorType"))
+
+    # 00h:204
+    @property
+    def AttenuationAt5GHz(self) -> AttenuationAt5GHz:
+        return AttenuationAt5GHz(self, self._search_field("AttenuationAt5GHz"))
+
+    # 00h:205
+    @property
+    def AttenuationAt7GHz(self) -> AttenuationAt7GHz:
+        return AttenuationAt7GHz(self, self._search_field("AttenuationAt7GHz"))
+
+    # 00h:206
+    @property
+    def AttenuationAt12p9GHz(self) -> AttenuationAt12p9GHz:
+        return AttenuationAt12p9GHz(self, self._search_field("AttenuationAt12p9GHz"))
+
+    # 00h:207
+    @property
+    def AttenuationAt25p8GHz(self) -> AttenuationAt25p8GHz:
+        return AttenuationAt25p8GHz(self, self._search_field("AttenuationAt25p8GHz"))
+
+    # 00h:211.0-4
+    @property
+    def FarEndConfiguration(self) -> FarEndConfiguration:
+        return FarEndConfiguration(self, self._search_field("FarEndConfiguration"))
 
     # 00h:212
     @property
@@ -4531,552 +4713,6 @@ class MemMap(BaseMemMap):
     @property
     def PageChecksum(self) -> PageChecksum:
         return PageChecksum(self, self._search_field("PageChecksum"))
-
-    # 00h:118
-    @property
-    def PasswordChangeEntryArea(self) -> PasswordChangeEntryArea:
-        return PasswordChangeEntryArea(
-            self, self._search_field("PasswordChangeEntryArea")
-        )
-
-    # 00h:122
-    @property
-    def PasswordEntryArea(self) -> PasswordEntryArea:
-        return PasswordEntryArea(self, self._search_field("PasswordEntryArea"))
-
-    # 00h:8.7
-    @property
-    def CdbCmdCompleteFlag2(self) -> CdbCmdCompleteFlag2:
-        return CdbCmdCompleteFlag2(self, self._search_field("CdbCmdCompleteFlag2"))
-
-    # 00h:8.6
-    @property
-    def CdbCmdCompleteFlag1(self) -> CdbCmdCompleteFlag1:
-        return CdbCmdCompleteFlag1(self, self._search_field("CdbCmdCompleteFlag1"))
-
-    # 00h:8.2
-    @property
-    def DataPathFirmwareErrorFlag(self) -> DataPathFirmwareErrorFlag:
-        return DataPathFirmwareErrorFlag(
-            self, self._search_field("DataPathFirmwareErrorFlag")
-        )
-
-    # 00h:8.1
-    @property
-    def ModuleFirmwareErrorFlag(self) -> ModuleFirmwareErrorFlag:
-        return ModuleFirmwareErrorFlag(
-            self, self._search_field("ModuleFirmwareErrorFlag")
-        )
-
-    # 00h:8.0
-    @property
-    def ModuleStateChangedFlag(self) -> ModuleStateChangedFlag:
-        return ModuleStateChangedFlag(
-            self, self._search_field("ModuleStateChangedFlag")
-        )
-
-    # 00h:9.7
-    @property
-    def VccMonLowWarningFlag(self) -> VccMonLowWarningFlag:
-        return VccMonLowWarningFlag(self, self._search_field("VccMonLowWarningFlag"))
-
-    # 00h:9.6
-    @property
-    def VccMonHighWarningFlag(self) -> VccMonHighWarningFlag:
-        return VccMonHighWarningFlag(self, self._search_field("VccMonHighWarningFlag"))
-
-    # 00h:9.5
-    @property
-    def VccMonLowAlarmFlag(self) -> VccMonLowAlarmFlag:
-        return VccMonLowAlarmFlag(self, self._search_field("VccMonLowAlarmFlag"))
-
-    # 00h:9.4
-    @property
-    def VccMonHighAlarmFlag(self) -> VccMonHighAlarmFlag:
-        return VccMonHighAlarmFlag(self, self._search_field("VccMonHighAlarmFlag"))
-
-    # 00h:9.3
-    @property
-    def TempMonLowWarningFlag(self) -> TempMonLowWarningFlag:
-        return TempMonLowWarningFlag(self, self._search_field("TempMonLowWarningFlag"))
-
-    # 00h:9.2
-    @property
-    def TempMonHighWarningFlag(self) -> TempMonHighWarningFlag:
-        return TempMonHighWarningFlag(
-            self, self._search_field("TempMonHighWarningFlag")
-        )
-
-    # 00h:9.1
-    @property
-    def TempMonLowAlarmFlag(self) -> TempMonLowAlarmFlag:
-        return TempMonLowAlarmFlag(self, self._search_field("TempMonLowAlarmFlag"))
-
-    # 00h:9.0
-    @property
-    def TempMonHighAlarmFlag(self) -> TempMonHighAlarmFlag:
-        return TempMonHighAlarmFlag(self, self._search_field("TempMonHighAlarmFlag"))
-
-    # 00h:10.7
-    @property
-    def Aux2MonLowWarningFlag(self) -> Aux2MonLowWarningFlag:
-        return Aux2MonLowWarningFlag(self, self._search_field("Aux2MonLowWarningFlag"))
-
-    # 00h:10.6
-    @property
-    def Aux2MonHighWarningFlag(self) -> Aux2MonHighWarningFlag:
-        return Aux2MonHighWarningFlag(
-            self, self._search_field("Aux2MonHighWarningFlag")
-        )
-
-    # 00h:10.5
-    @property
-    def Aux2MonLowAlarmFlag(self) -> Aux2MonLowAlarmFlag:
-        return Aux2MonLowAlarmFlag(self, self._search_field("Aux2MonLowAlarmFlag"))
-
-    # 00h:10.4
-    @property
-    def Aux2MonHighAlarmFlag(self) -> Aux2MonHighAlarmFlag:
-        return Aux2MonHighAlarmFlag(self, self._search_field("Aux2MonHighAlarmFlag"))
-
-    # 00h:10.3
-    @property
-    def Aux1MonLowWarningFlag(self) -> Aux1MonLowWarningFlag:
-        return Aux1MonLowWarningFlag(self, self._search_field("Aux1MonLowWarningFlag"))
-
-    # 00h:10.2
-    @property
-    def Aux1MonHighWarningFlag(self) -> Aux1MonHighWarningFlag:
-        return Aux1MonHighWarningFlag(
-            self, self._search_field("Aux1MonHighWarningFlag")
-        )
-
-    # 00h:10.1
-    @property
-    def Aux1MonLowAlarmFlag(self) -> Aux1MonLowAlarmFlag:
-        return Aux1MonLowAlarmFlag(self, self._search_field("Aux1MonLowAlarmFlag"))
-
-    # 00h:10.0
-    @property
-    def Aux1MonHighAlarmFlag(self) -> Aux1MonHighAlarmFlag:
-        return Aux1MonHighAlarmFlag(self, self._search_field("Aux1MonHighAlarmFlag"))
-
-    # 00h:11.7
-    @property
-    def CustomMonLowWarningFlag(self) -> CustomMonLowWarningFlag:
-        return CustomMonLowWarningFlag(
-            self, self._search_field("CustomMonLowWarningFlag")
-        )
-
-    # 00h:11.6
-    @property
-    def CustomMonHighWarningFlag(self) -> CustomMonHighWarningFlag:
-        return CustomMonHighWarningFlag(
-            self, self._search_field("CustomMonHighWarningFlag")
-        )
-
-    # 00h:11.5
-    @property
-    def CustomMonLowAlarmFlag(self) -> CustomMonLowAlarmFlag:
-        return CustomMonLowAlarmFlag(self, self._search_field("CustomMonLowAlarmFlag"))
-
-    # 00h:11.4
-    @property
-    def CustomMonHighAlarmFlag(self) -> CustomMonHighAlarmFlag:
-        return CustomMonHighAlarmFlag(
-            self, self._search_field("CustomMonHighAlarmFlag")
-        )
-
-    # 00h:11.3
-    @property
-    def Aux3MonLowWarningFlag(self) -> Aux3MonLowWarningFlag:
-        return Aux3MonLowWarningFlag(self, self._search_field("Aux3MonLowWarningFlag"))
-
-    # 00h:11.2
-    @property
-    def Aux3MonHighWarningFlag(self) -> Aux3MonHighWarningFlag:
-        return Aux3MonHighWarningFlag(
-            self, self._search_field("Aux3MonHighWarningFlag")
-        )
-
-    # 00h:11.1
-    @property
-    def Aux3MonLowAlarmFlag(self) -> Aux3MonLowAlarmFlag:
-        return Aux3MonLowAlarmFlag(self, self._search_field("Aux3MonLowAlarmFlag"))
-
-    # 00h:11.0
-    @property
-    def Aux3MonHighAlarmFlag(self) -> Aux3MonHighAlarmFlag:
-        return Aux3MonHighAlarmFlag(self, self._search_field("Aux3MonHighAlarmFlag"))
-
-    # 00h:41
-    @property
-    def ModuleFaultCause(self) -> ModuleFaultCause:
-        return ModuleFaultCause(self, self._search_field("ModuleFaultCause"))
-
-    # 01h:155.7
-    @property
-    def WavelengthIsControllable(self) -> WavelengthIsControllable:
-        return WavelengthIsControllable(
-            self, self._search_field("WavelengthIsControllable")
-        )
-
-    # 01h:155.6
-    @property
-    def TransmitterIsTunable(self) -> TransmitterIsTunable:
-        return TransmitterIsTunable(self, self._search_field("TransmitterIsTunable"))
-
-    # 01h:155.4-5
-    @property
-    def SquelchMethodTx(self) -> SquelchMethodTx:
-        return SquelchMethodTx(self, self._search_field("SquelchMethodTx"))
-
-    # 01h:155.3
-    @property
-    def ForcedSquelchTxSupported(self) -> ForcedSquelchTxSupported:
-        return ForcedSquelchTxSupported(
-            self, self._search_field("ForcedSquelchTxSupported")
-        )
-
-    # 01h:155.2
-    @property
-    def AutoSquelchDisableTxSupported(self) -> AutoSquelchDisableTxSupported:
-        return AutoSquelchDisableTxSupported(
-            self, self._search_field("AutoSquelchDisableTxSupported")
-        )
-
-    # 01h:155.1
-    @property
-    def OutputDisableTxSupported(self) -> OutputDisableTxSupported:
-        return OutputDisableTxSupported(
-            self, self._search_field("OutputDisableTxSupported")
-        )
-
-    # 01h:155.0
-    @property
-    def InputPolarityFlipTxSupported(self) -> InputPolarityFlipTxSupported:
-        return InputPolarityFlipTxSupported(
-            self, self._search_field("InputPolarityFlipTxSupported")
-        )
-
-    # 01h:156.7
-    @property
-    def BankBroadcastSupported(self) -> BankBroadcastSupported:
-        return BankBroadcastSupported(
-            self, self._search_field("BankBroadcastSupported")
-        )
-
-    # 01h:156.2
-    @property
-    def AutoSquelchDisableRxSupported(self) -> AutoSquelchDisableRxSupported:
-        return AutoSquelchDisableRxSupported(
-            self, self._search_field("AutoSquelchDisableRxSupported")
-        )
-
-    # 01h:156.1
-    @property
-    def OutputDisableRxSupported(self) -> OutputDisableRxSupported:
-        return OutputDisableRxSupported(
-            self, self._search_field("OutputDisableRxSupported")
-        )
-
-    # 01h:156.0
-    @property
-    def OutputPolarityFlipRxSupported(self) -> OutputPolarityFlipRxSupported:
-        return OutputPolarityFlipRxSupported(
-            self, self._search_field("OutputPolarityFlipRxSupported")
-        )
-
-    # 01h:138
-    @property
-    def NominalWavelength(self) -> NominalWavelength:
-        return NominalWavelength(self, self._search_field("NominalWavelength"))
-
-    # 01h:140
-    @property
-    def WavelengthTolerance(self) -> WavelengthTolerance:
-        return WavelengthTolerance(self, self._search_field("WavelengthTolerance"))
-
-    # 01h:161.5-6
-    @property
-    def TxInputEqRecallBuffersSupported(self) -> TxInputEqRecallBuffersSupported:
-        return TxInputEqRecallBuffersSupported(
-            self, self._search_field("TxInputEqRecallBuffersSupported")
-        )
-
-    # 01h:161.4
-    @property
-    def TxInputEqFreezeSupported(self) -> TxInputEqFreezeSupported:
-        return TxInputEqFreezeSupported(
-            self, self._search_field("TxInputEqFreezeSupported")
-        )
-
-    # 01h:161.3
-    @property
-    def TxInputAdaptiveEqSupported(self) -> TxInputAdaptiveEqSupported:
-        return TxInputAdaptiveEqSupported(
-            self, self._search_field("TxInputAdaptiveEqSupported")
-        )
-
-    # 01h:161.2
-    @property
-    def TxInputEqFixedManualControlSupported(
-        self,
-    ) -> TxInputEqFixedManualControlSupported:
-        return TxInputEqFixedManualControlSupported(
-            self, self._search_field("TxInputEqFixedManualControlSupported")
-        )
-
-    # 01h:161.1
-    @property
-    def TxCDRBypassControlSupported(self) -> TxCDRBypassControlSupported:
-        return TxCDRBypassControlSupported(
-            self, self._search_field("TxCDRBypassControlSupported")
-        )
-
-    # 01h:161.0
-    @property
-    def TxCDRSupported(self) -> TxCDRSupported:
-        return TxCDRSupported(self, self._search_field("TxCDRSupported"))
-
-    # 01h:162.6
-    @property
-    def UnidirReconfigSupported(self) -> UnidirReconfigSupported:
-        return UnidirReconfigSupported(
-            self, self._search_field("UnidirReconfigSupported")
-        )
-
-    # 01h:162.5
-    @property
-    def StagedSet1Supported(self) -> StagedSet1Supported:
-        return StagedSet1Supported(self, self._search_field("StagedSet1Supported"))
-
-    # 01h:162.3-4
-    @property
-    def RxOutputEqControlSupported(self) -> RxOutputEqControlSupported:
-        return RxOutputEqControlSupported(
-            self, self._search_field("RxOutputEqControlSupported")
-        )
-
-    # 01h:162.2
-    @property
-    def RxOutputAmplitudeControlSupported(self) -> RxOutputAmplitudeControlSupported:
-        return RxOutputAmplitudeControlSupported(
-            self, self._search_field("RxOutputAmplitudeControlSupported")
-        )
-
-    # 01h:162.1
-    @property
-    def RxCDRBypassControlSupported(self) -> RxCDRBypassControlSupported:
-        return RxCDRBypassControlSupported(
-            self, self._search_field("RxCDRBypassControlSupported")
-        )
-
-    # 01h:162.0
-    @property
-    def RxCDRSupported(self) -> RxCDRSupported:
-        return RxCDRSupported(self, self._search_field("RxCDRSupported"))
-
-    # 01h:132.6-7
-    @property
-    def LengthMultiplierSMF(self) -> LengthMultiplierSMF:
-        return LengthMultiplierSMF(self, self._search_field("LengthMultiplierSMF"))
-
-    # 01h:132.0-5
-    @property
-    def BaseLengthSMF(self) -> BaseLengthSMF:
-        return BaseLengthSMF(self, self._search_field("BaseLengthSMF"))
-
-    # 01h:133
-    @property
-    def LengthOM5(self) -> LengthOM5:
-        return LengthOM5(self, self._search_field("LengthOM5"))
-
-    # 01h:134
-    @property
-    def LengthOM4(self) -> LengthOM4:
-        return LengthOM4(self, self._search_field("LengthOM4"))
-
-    # 01h:135
-    @property
-    def LengthOM3(self) -> LengthOM3:
-        return LengthOM3(self, self._search_field("LengthOM3"))
-
-    # 01h:136
-    @property
-    def LengthOM2(self) -> LengthOM2:
-        return LengthOM2(self, self._search_field("LengthOM2"))
-
-    # 01h:142.7
-    @property
-    def NetworkPathPagesSupported(self) -> NetworkPathPagesSupported:
-        return NetworkPathPagesSupported(
-            self, self._search_field("NetworkPathPagesSupported")
-        )
-
-    # 01h:142.6
-    @property
-    def VDMPagesSupported(self) -> VDMPagesSupported:
-        return VDMPagesSupported(self, self._search_field("VDMPagesSupported"))
-
-    # 01h:142.5
-    @property
-    def DiagnosticPagesSupported(self) -> DiagnosticPagesSupported:
-        return DiagnosticPagesSupported(
-            self, self._search_field("DiagnosticPagesSupported")
-        )
-
-    # 01h:142.3
-    @property
-    def Page05hSupported(self) -> Page05hSupported:
-        return Page05hSupported(self, self._search_field("Page05hSupported"))
-
-    # 01h:142.2
-    @property
-    def Page03hSupported(self) -> Page03hSupported:
-        return Page03hSupported(self, self._search_field("Page03hSupported"))
-
-    # 01h:142.0-1
-    @property
-    def BanksSupported(self) -> BanksSupported:
-        return BanksSupported(self, self._search_field("BanksSupported"))
-
-    # 01h:167.4-7
-    @property
-    def MaxDurationModulePwrDn(self) -> MaxDurationModulePwrDn:
-        return MaxDurationModulePwrDn(
-            self, self._search_field("MaxDurationModulePwrDn")
-        )
-
-    # 01h:167.0-3
-    @property
-    def MaxDurationModulePwrUp(self) -> MaxDurationModulePwrUp:
-        return MaxDurationModulePwrUp(
-            self, self._search_field("MaxDurationModulePwrUp")
-        )
-
-    # 01h:168.4-7
-    @property
-    def MaxDurationDPTxTurnOff(self) -> MaxDurationDPTxTurnOff:
-        return MaxDurationDPTxTurnOff(
-            self, self._search_field("MaxDurationDPTxTurnOff")
-        )
-
-    # 01h:168.0-3
-    @property
-    def MaxDurationDPTxTurnOn(self) -> MaxDurationDPTxTurnOn:
-        return MaxDurationDPTxTurnOn(self, self._search_field("MaxDurationDPTxTurnOn"))
-
-    # 01h:143.5-7
-    @property
-    def ModSelWaitTimeExponent(self) -> ModSelWaitTimeExponent:
-        return ModSelWaitTimeExponent(
-            self, self._search_field("ModSelWaitTimeExponent")
-        )
-
-    # 01h:143.0-4
-    @property
-    def ModSelWaitTimeMantissa(self) -> ModSelWaitTimeMantissa:
-        return ModSelWaitTimeMantissa(
-            self, self._search_field("ModSelWaitTimeMantissa")
-        )
-
-    # 01h:144.4-7
-    @property
-    def MaxDurationDPDeinit(self) -> MaxDurationDPDeinit:
-        return MaxDurationDPDeinit(self, self._search_field("MaxDurationDPDeinit"))
-
-    # 01h:144.0-3
-    @property
-    def MaxDurationDPInit(self) -> MaxDurationDPInit:
-        return MaxDurationDPInit(self, self._search_field("MaxDurationDPInit"))
-
-    # 01h:157.3
-    @property
-    def AdaptiveInputEqFailFlagTxSupported(self) -> AdaptiveInputEqFailFlagTxSupported:
-        return AdaptiveInputEqFailFlagTxSupported(
-            self, self._search_field("AdaptiveInputEqFailFlagTxSupported")
-        )
-
-    # 01h:157.2
-    @property
-    def CDRLOLFlagTxSupported(self) -> CDRLOLFlagTxSupported:
-        return CDRLOLFlagTxSupported(self, self._search_field("CDRLOLFlagTxSupported"))
-
-    # 01h:157.1
-    @property
-    def LOSFlagTxSupported(self) -> LOSFlagTxSupported:
-        return LOSFlagTxSupported(self, self._search_field("LOSFlagTxSupported"))
-
-    # 01h:157.0
-    @property
-    def FailureFlagTxSupported(self) -> FailureFlagTxSupported:
-        return FailureFlagTxSupported(
-            self, self._search_field("FailureFlagTxSupported")
-        )
-
-    # 01h:158.2
-    @property
-    def CDRLOLFlagRxSupported(self) -> CDRLOLFlagRxSupported:
-        return CDRLOLFlagRxSupported(self, self._search_field("CDRLOLFlagRxSupported"))
-
-    # 01h:158.1
-    @property
-    def LOSFlagRxSupported(self) -> LOSFlagRxSupported:
-        return LOSFlagRxSupported(self, self._search_field("LOSFlagRxSupported"))
-
-    # 01h:163.6-7
-    @property
-    def CdbInstancesSupported(self) -> CdbInstancesSupported:
-        return CdbInstancesSupported(self, self._search_field("CdbInstancesSupported"))
-
-    # 01h:163.5
-    @property
-    def CdbBackgroundModeSupported(self) -> CdbBackgroundModeSupported:
-        return CdbBackgroundModeSupported(
-            self, self._search_field("CdbBackgroundModeSupported")
-        )
-
-    # 01h:163.4
-    @property
-    def CdbAutoPagingSupported(self) -> CdbAutoPagingSupported:
-        return CdbAutoPagingSupported(
-            self, self._search_field("CdbAutoPagingSupported")
-        )
-
-    # 01h:163.0-3
-    @property
-    def CdbMaxPagesEPL(self) -> CdbMaxPagesEPL:
-        return CdbMaxPagesEPL(self, self._search_field("CdbMaxPagesEPL"))
-
-    # 01h:164
-    @property
-    def CdbReadWriteLengthExtension(self) -> CdbReadWriteLengthExtension:
-        return CdbReadWriteLengthExtension(
-            self, self._search_field("CdbReadWriteLengthExtension")
-        )
-
-    # 01h:165.7
-    @property
-    def CdbCommandTriggerMethod(self) -> CdbCommandTriggerMethod:
-        return CdbCommandTriggerMethod(
-            self, self._search_field("CdbCommandTriggerMethod")
-        )
-
-    # 01h:165.0-4
-    @property
-    def CdbExtMaxBusyTime(self) -> CdbExtMaxBusyTime:
-        return CdbExtMaxBusyTime(self, self._search_field("CdbExtMaxBusyTime"))
-
-    # 01h:166.7
-    @property
-    def CdbMaxBusySpecMethod(self) -> CdbMaxBusySpecMethod:
-        return CdbMaxBusySpecMethod(self, self._search_field("CdbMaxBusySpecMethod"))
-
-    # 01h:166.0-6
-    @property
-    def CdbMaxBusyTime(self) -> CdbMaxBusyTime:
-        return CdbMaxBusyTime(self, self._search_field("CdbMaxBusyTime"))
 
     # 01h:128
     @property
@@ -5110,78 +4746,118 @@ class MemMap(BaseMemMap):
             self, self._search_field("ModuleHardwareMinorRevision")
         )
 
-    # 01h:159.5
+    # 01h:132.0-5
     @property
-    def CustomMonSupported(self) -> CustomMonSupported:
-        return CustomMonSupported(self, self._search_field("CustomMonSupported"))
+    def BaseLengthSMF(self) -> BaseLengthSMF:
+        return BaseLengthSMF(self, self._search_field("BaseLengthSMF"))
 
-    # 01h:159.4
+    # 01h:132.6-7
     @property
-    def Aux3MonSupported(self) -> Aux3MonSupported:
-        return Aux3MonSupported(self, self._search_field("Aux3MonSupported"))
+    def LengthMultiplierSMF(self) -> LengthMultiplierSMF:
+        return LengthMultiplierSMF(self, self._search_field("LengthMultiplierSMF"))
 
-    # 01h:159.3
+    # 01h:133
     @property
-    def Aux2MonSupported(self) -> Aux2MonSupported:
-        return Aux2MonSupported(self, self._search_field("Aux2MonSupported"))
+    def LengthOM5(self) -> LengthOM5:
+        return LengthOM5(self, self._search_field("LengthOM5"))
 
-    # 01h:159.2
+    # 01h:134
     @property
-    def Aux1MonSupported(self) -> Aux1MonSupported:
-        return Aux1MonSupported(self, self._search_field("Aux1MonSupported"))
+    def LengthOM4(self) -> LengthOM4:
+        return LengthOM4(self, self._search_field("LengthOM4"))
 
-    # 01h:159.1
+    # 01h:135
     @property
-    def VccMonSupported(self) -> VccMonSupported:
-        return VccMonSupported(self, self._search_field("VccMonSupported"))
+    def LengthOM3(self) -> LengthOM3:
+        return LengthOM3(self, self._search_field("LengthOM3"))
 
-    # 01h:159.0
+    # 01h:136
     @property
-    def TempMonSupported(self) -> TempMonSupported:
-        return TempMonSupported(self, self._search_field("TempMonSupported"))
+    def LengthOM2(self) -> LengthOM2:
+        return LengthOM2(self, self._search_field("LengthOM2"))
 
-    # 01h:160.3-4
+    # 01h:138
     @property
-    def TxBiasCurrentScalingFactor(self) -> TxBiasCurrentScalingFactor:
-        return TxBiasCurrentScalingFactor(
-            self, self._search_field("TxBiasCurrentScalingFactor")
+    def NominalWavelength(self) -> NominalWavelength:
+        return NominalWavelength(self, self._search_field("NominalWavelength"))
+
+    # 01h:140
+    @property
+    def WavelengthTolerance(self) -> WavelengthTolerance:
+        return WavelengthTolerance(self, self._search_field("WavelengthTolerance"))
+
+    # 01h:142.0-1
+    @property
+    def BanksSupported(self) -> BanksSupported:
+        return BanksSupported(self, self._search_field("BanksSupported"))
+
+    # 01h:142.2
+    @property
+    def Page03hSupported(self) -> Page03hSupported:
+        return Page03hSupported(self, self._search_field("Page03hSupported"))
+
+    # 01h:142.3
+    @property
+    def Page05hSupported(self) -> Page05hSupported:
+        return Page05hSupported(self, self._search_field("Page05hSupported"))
+
+    # 01h:142.5
+    @property
+    def DiagnosticPagesSupported(self) -> DiagnosticPagesSupported:
+        return DiagnosticPagesSupported(
+            self, self._search_field("DiagnosticPagesSupported")
         )
 
-    # 01h:160.2
+    # 01h:142.6
     @property
-    def RxOpticalPowerMonSupported(self) -> RxOpticalPowerMonSupported:
-        return RxOpticalPowerMonSupported(
-            self, self._search_field("RxOpticalPowerMonSupported")
+    def VDMPagesSupported(self) -> VDMPagesSupported:
+        return VDMPagesSupported(self, self._search_field("VDMPagesSupported"))
+
+    # 01h:142.7
+    @property
+    def NetworkPathPagesSupported(self) -> NetworkPathPagesSupported:
+        return NetworkPathPagesSupported(
+            self, self._search_field("NetworkPathPagesSupported")
         )
 
-    # 01h:160.1
+    # 01h:143.0-4
     @property
-    def TxOpticalPowerMonSupported(self) -> TxOpticalPowerMonSupported:
-        return TxOpticalPowerMonSupported(
-            self, self._search_field("TxOpticalPowerMonSupported")
+    def ModSelWaitTimeMantissa(self) -> ModSelWaitTimeMantissa:
+        return ModSelWaitTimeMantissa(
+            self, self._search_field("ModSelWaitTimeMantissa")
         )
 
-    # 01h:160.0
+    # 01h:143.5-7
     @property
-    def TxBiasMonSupported(self) -> TxBiasMonSupported:
-        return TxBiasMonSupported(self, self._search_field("TxBiasMonSupported"))
-
-    # 01h:145.7
-    @property
-    def CoolingImplemented(self) -> CoolingImplemented:
-        return CoolingImplemented(self, self._search_field("CoolingImplemented"))
-
-    # 01h:145.5-6
-    @property
-    def TxInputClockingCapabilities(self) -> TxInputClockingCapabilities:
-        return TxInputClockingCapabilities(
-            self, self._search_field("TxInputClockingCapabilities")
+    def ModSelWaitTimeExponent(self) -> ModSelWaitTimeExponent:
+        return ModSelWaitTimeExponent(
+            self, self._search_field("ModSelWaitTimeExponent")
         )
 
-    # 01h:145.4
+    # 01h:144.0-3
     @property
-    def ePPSSupported(self) -> ePPSSupported:
-        return ePPSSupported(self, self._search_field("ePPSSupported"))
+    def MaxDurationDPInit(self) -> MaxDurationDPInit:
+        return MaxDurationDPInit(self, self._search_field("MaxDurationDPInit"))
+
+    # 01h:144.4-7
+    @property
+    def MaxDurationDPDeinit(self) -> MaxDurationDPDeinit:
+        return MaxDurationDPDeinit(self, self._search_field("MaxDurationDPDeinit"))
+
+    # 01h:145.0
+    @property
+    def Aux1MonObservable(self) -> Aux1MonObservable:
+        return Aux1MonObservable(self, self._search_field("Aux1MonObservable"))
+
+    # 01h:145.1
+    @property
+    def Aux2MonObservable(self) -> Aux2MonObservable:
+        return Aux2MonObservable(self, self._search_field("Aux2MonObservable"))
+
+    # 01h:145.2
+    @property
+    def Aux3MonObservable(self) -> Aux3MonObservable:
+        return Aux3MonObservable(self, self._search_field("Aux3MonObservable"))
 
     # 01h:145.3
     @property
@@ -5190,20 +4866,22 @@ class MemMap(BaseMemMap):
             self, self._search_field("TimingPage15hSupported")
         )
 
-    # 01h:145.2
+    # 01h:145.4
     @property
-    def Aux3MonObservable(self) -> Aux3MonObservable:
-        return Aux3MonObservable(self, self._search_field("Aux3MonObservable"))
+    def ePPSSupported(self) -> ePPSSupported:
+        return ePPSSupported(self, self._search_field("ePPSSupported"))
 
-    # 01h:145.1
+    # 01h:145.5-6
     @property
-    def Aux2MonObservable(self) -> Aux2MonObservable:
-        return Aux2MonObservable(self, self._search_field("Aux2MonObservable"))
+    def TxInputClockingCapabilities(self) -> TxInputClockingCapabilities:
+        return TxInputClockingCapabilities(
+            self, self._search_field("TxInputClockingCapabilities")
+        )
 
-    # 01h:145.0
+    # 01h:145.7
     @property
-    def Aux1MonObservable(self) -> Aux1MonObservable:
-        return Aux1MonObservable(self, self._search_field("Aux1MonObservable"))
+    def CoolingImplemented(self) -> CoolingImplemented:
+        return CoolingImplemented(self, self._search_field("CoolingImplemented"))
 
     # 01h:146
     @property
@@ -5225,15 +4903,15 @@ class MemMap(BaseMemMap):
     def OperatingVoltageMin(self) -> OperatingVoltageMin:
         return OperatingVoltageMin(self, self._search_field("OperatingVoltageMin"))
 
-    # 01h:151.7
+    # 01h:151.2
     @property
-    def OpticalDetectorType(self) -> OpticalDetectorType:
-        return OpticalDetectorType(self, self._search_field("OpticalDetectorType"))
+    def RxLOSIsFast(self) -> RxLOSIsFast:
+        return RxLOSIsFast(self, self._search_field("RxLOSIsFast"))
 
-    # 01h:151.5-6
+    # 01h:151.3
     @property
-    def RxOutputEqType(self) -> RxOutputEqType:
-        return RxOutputEqType(self, self._search_field("RxOutputEqType"))
+    def RxLOSType(self) -> RxLOSType:
+        return RxLOSType(self, self._search_field("RxLOSType"))
 
     # 01h:151.4
     @property
@@ -5242,33 +4920,31 @@ class MemMap(BaseMemMap):
             self, self._search_field("RxPowerMeasurementType")
         )
 
-    # 01h:151.3
+    # 01h:151.5-6
     @property
-    def RxLOSType(self) -> RxLOSType:
-        return RxLOSType(self, self._search_field("RxLOSType"))
+    def RxOutputEqType(self) -> RxOutputEqType:
+        return RxOutputEqType(self, self._search_field("RxOutputEqType"))
 
-    # 01h:151.2
+    # 01h:151.7
     @property
-    def RxLOSIsFast(self) -> RxLOSIsFast:
-        return RxLOSIsFast(self, self._search_field("RxLOSIsFast"))
+    def OpticalDetectorType(self) -> OpticalDetectorType:
+        return OpticalDetectorType(self, self._search_field("OpticalDetectorType"))
 
     # 01h:152
     @property
     def CDRPowerSavedPerLane(self) -> CDRPowerSavedPerLane:
         return CDRPowerSavedPerLane(self, self._search_field("CDRPowerSavedPerLane"))
 
-    # 01h:153.7
+    # 01h:153.0-3
     @property
-    def RxOutputLevel3Supported(self) -> RxOutputLevel3Supported:
-        return RxOutputLevel3Supported(
-            self, self._search_field("RxOutputLevel3Supported")
-        )
+    def TxInputEqMax(self) -> TxInputEqMax:
+        return TxInputEqMax(self, self._search_field("TxInputEqMax"))
 
-    # 01h:153.6
+    # 01h:153.4
     @property
-    def RxOutputLevel2Supported(self) -> RxOutputLevel2Supported:
-        return RxOutputLevel2Supported(
-            self, self._search_field("RxOutputLevel2Supported")
+    def RxOutputLevel0Supported(self) -> RxOutputLevel0Supported:
+        return RxOutputLevel0Supported(
+            self, self._search_field("RxOutputLevel0Supported")
         )
 
     # 01h:153.5
@@ -5278,23 +4954,18 @@ class MemMap(BaseMemMap):
             self, self._search_field("RxOutputLevel1Supported")
         )
 
-    # 01h:153.4
+    # 01h:153.6
     @property
-    def RxOutputLevel0Supported(self) -> RxOutputLevel0Supported:
-        return RxOutputLevel0Supported(
-            self, self._search_field("RxOutputLevel0Supported")
+    def RxOutputLevel2Supported(self) -> RxOutputLevel2Supported:
+        return RxOutputLevel2Supported(
+            self, self._search_field("RxOutputLevel2Supported")
         )
 
-    # 01h:153.0-3
+    # 01h:153.7
     @property
-    def TxInputEqMax(self) -> TxInputEqMax:
-        return TxInputEqMax(self, self._search_field("TxInputEqMax"))
-
-    # 01h:154.4-7
-    @property
-    def RxOutputEqPostCursorMax(self) -> RxOutputEqPostCursorMax:
-        return RxOutputEqPostCursorMax(
-            self, self._search_field("RxOutputEqPostCursorMax")
+    def RxOutputLevel3Supported(self) -> RxOutputLevel3Supported:
+        return RxOutputLevel3Supported(
+            self, self._search_field("RxOutputLevel3Supported")
         )
 
     # 01h:154.0-3
@@ -5304,93 +4975,449 @@ class MemMap(BaseMemMap):
             self, self._search_field("RxOutputEqPreCursorMax")
         )
 
+    # 01h:154.4-7
+    @property
+    def RxOutputEqPostCursorMax(self) -> RxOutputEqPostCursorMax:
+        return RxOutputEqPostCursorMax(
+            self, self._search_field("RxOutputEqPostCursorMax")
+        )
+
+    # 01h:155.0
+    @property
+    def InputPolarityFlipTxSupported(self) -> InputPolarityFlipTxSupported:
+        return InputPolarityFlipTxSupported(
+            self, self._search_field("InputPolarityFlipTxSupported")
+        )
+
+    # 01h:155.1
+    @property
+    def OutputDisableTxSupported(self) -> OutputDisableTxSupported:
+        return OutputDisableTxSupported(
+            self, self._search_field("OutputDisableTxSupported")
+        )
+
+    # 01h:155.2
+    @property
+    def AutoSquelchDisableTxSupported(self) -> AutoSquelchDisableTxSupported:
+        return AutoSquelchDisableTxSupported(
+            self, self._search_field("AutoSquelchDisableTxSupported")
+        )
+
+    # 01h:155.3
+    @property
+    def ForcedSquelchTxSupported(self) -> ForcedSquelchTxSupported:
+        return ForcedSquelchTxSupported(
+            self, self._search_field("ForcedSquelchTxSupported")
+        )
+
+    # 01h:155.4-5
+    @property
+    def SquelchMethodTx(self) -> SquelchMethodTx:
+        return SquelchMethodTx(self, self._search_field("SquelchMethodTx"))
+
+    # 01h:155.6
+    @property
+    def TransmitterIsTunable(self) -> TransmitterIsTunable:
+        return TransmitterIsTunable(self, self._search_field("TransmitterIsTunable"))
+
+    # 01h:155.7
+    @property
+    def WavelengthIsControllable(self) -> WavelengthIsControllable:
+        return WavelengthIsControllable(
+            self, self._search_field("WavelengthIsControllable")
+        )
+
+    # 01h:156.0
+    @property
+    def OutputPolarityFlipRxSupported(self) -> OutputPolarityFlipRxSupported:
+        return OutputPolarityFlipRxSupported(
+            self, self._search_field("OutputPolarityFlipRxSupported")
+        )
+
+    # 01h:156.1
+    @property
+    def OutputDisableRxSupported(self) -> OutputDisableRxSupported:
+        return OutputDisableRxSupported(
+            self, self._search_field("OutputDisableRxSupported")
+        )
+
+    # 01h:156.2
+    @property
+    def AutoSquelchDisableRxSupported(self) -> AutoSquelchDisableRxSupported:
+        return AutoSquelchDisableRxSupported(
+            self, self._search_field("AutoSquelchDisableRxSupported")
+        )
+
+    # 01h:156.7
+    @property
+    def BankBroadcastSupported(self) -> BankBroadcastSupported:
+        return BankBroadcastSupported(
+            self, self._search_field("BankBroadcastSupported")
+        )
+
+    # 01h:157.0
+    @property
+    def FailureFlagTxSupported(self) -> FailureFlagTxSupported:
+        return FailureFlagTxSupported(
+            self, self._search_field("FailureFlagTxSupported")
+        )
+
+    # 01h:157.1
+    @property
+    def LOSFlagTxSupported(self) -> LOSFlagTxSupported:
+        return LOSFlagTxSupported(self, self._search_field("LOSFlagTxSupported"))
+
+    # 01h:157.2
+    @property
+    def CDRLOLFlagTxSupported(self) -> CDRLOLFlagTxSupported:
+        return CDRLOLFlagTxSupported(self, self._search_field("CDRLOLFlagTxSupported"))
+
+    # 01h:157.3
+    @property
+    def AdaptiveInputEqFailFlagTxSupported(self) -> AdaptiveInputEqFailFlagTxSupported:
+        return AdaptiveInputEqFailFlagTxSupported(
+            self, self._search_field("AdaptiveInputEqFailFlagTxSupported")
+        )
+
+    # 01h:158.1
+    @property
+    def LOSFlagRxSupported(self) -> LOSFlagRxSupported:
+        return LOSFlagRxSupported(self, self._search_field("LOSFlagRxSupported"))
+
+    # 01h:158.2
+    @property
+    def CDRLOLFlagRxSupported(self) -> CDRLOLFlagRxSupported:
+        return CDRLOLFlagRxSupported(self, self._search_field("CDRLOLFlagRxSupported"))
+
+    # 01h:159.0
+    @property
+    def TempMonSupported(self) -> TempMonSupported:
+        return TempMonSupported(self, self._search_field("TempMonSupported"))
+
+    # 01h:159.1
+    @property
+    def VccMonSupported(self) -> VccMonSupported:
+        return VccMonSupported(self, self._search_field("VccMonSupported"))
+
+    # 01h:159.2
+    @property
+    def Aux1MonSupported(self) -> Aux1MonSupported:
+        return Aux1MonSupported(self, self._search_field("Aux1MonSupported"))
+
+    # 01h:159.3
+    @property
+    def Aux2MonSupported(self) -> Aux2MonSupported:
+        return Aux2MonSupported(self, self._search_field("Aux2MonSupported"))
+
+    # 01h:159.4
+    @property
+    def Aux3MonSupported(self) -> Aux3MonSupported:
+        return Aux3MonSupported(self, self._search_field("Aux3MonSupported"))
+
+    # 01h:159.5
+    @property
+    def CustomMonSupported(self) -> CustomMonSupported:
+        return CustomMonSupported(self, self._search_field("CustomMonSupported"))
+
+    # 01h:160.0
+    @property
+    def TxBiasMonSupported(self) -> TxBiasMonSupported:
+        return TxBiasMonSupported(self, self._search_field("TxBiasMonSupported"))
+
+    # 01h:160.1
+    @property
+    def TxOpticalPowerMonSupported(self) -> TxOpticalPowerMonSupported:
+        return TxOpticalPowerMonSupported(
+            self, self._search_field("TxOpticalPowerMonSupported")
+        )
+
+    # 01h:160.2
+    @property
+    def RxOpticalPowerMonSupported(self) -> RxOpticalPowerMonSupported:
+        return RxOpticalPowerMonSupported(
+            self, self._search_field("RxOpticalPowerMonSupported")
+        )
+
+    # 01h:160.3-4
+    @property
+    def TxBiasCurrentScalingFactor(self) -> TxBiasCurrentScalingFactor:
+        return TxBiasCurrentScalingFactor(
+            self, self._search_field("TxBiasCurrentScalingFactor")
+        )
+
+    # 01h:161.0
+    @property
+    def TxCDRSupported(self) -> TxCDRSupported:
+        return TxCDRSupported(self, self._search_field("TxCDRSupported"))
+
+    # 01h:161.1
+    @property
+    def TxCDRBypassControlSupported(self) -> TxCDRBypassControlSupported:
+        return TxCDRBypassControlSupported(
+            self, self._search_field("TxCDRBypassControlSupported")
+        )
+
+    # 01h:161.2
+    @property
+    def TxInputEqFixedManualControlSupported(
+        self,
+    ) -> TxInputEqFixedManualControlSupported:
+        return TxInputEqFixedManualControlSupported(
+            self, self._search_field("TxInputEqFixedManualControlSupported")
+        )
+
+    # 01h:161.3
+    @property
+    def TxInputAdaptiveEqSupported(self) -> TxInputAdaptiveEqSupported:
+        return TxInputAdaptiveEqSupported(
+            self, self._search_field("TxInputAdaptiveEqSupported")
+        )
+
+    # 01h:161.4
+    @property
+    def TxInputEqFreezeSupported(self) -> TxInputEqFreezeSupported:
+        return TxInputEqFreezeSupported(
+            self, self._search_field("TxInputEqFreezeSupported")
+        )
+
+    # 01h:161.5-6
+    @property
+    def TxInputEqRecallBuffersSupported(self) -> TxInputEqRecallBuffersSupported:
+        return TxInputEqRecallBuffersSupported(
+            self, self._search_field("TxInputEqRecallBuffersSupported")
+        )
+
+    # 01h:162.0
+    @property
+    def RxCDRSupported(self) -> RxCDRSupported:
+        return RxCDRSupported(self, self._search_field("RxCDRSupported"))
+
+    # 01h:162.1
+    @property
+    def RxCDRBypassControlSupported(self) -> RxCDRBypassControlSupported:
+        return RxCDRBypassControlSupported(
+            self, self._search_field("RxCDRBypassControlSupported")
+        )
+
+    # 01h:162.2
+    @property
+    def RxOutputAmplitudeControlSupported(self) -> RxOutputAmplitudeControlSupported:
+        return RxOutputAmplitudeControlSupported(
+            self, self._search_field("RxOutputAmplitudeControlSupported")
+        )
+
+    # 01h:162.3-4
+    @property
+    def RxOutputEqControlSupported(self) -> RxOutputEqControlSupported:
+        return RxOutputEqControlSupported(
+            self, self._search_field("RxOutputEqControlSupported")
+        )
+
+    # 01h:162.5
+    @property
+    def StagedSet1Supported(self) -> StagedSet1Supported:
+        return StagedSet1Supported(self, self._search_field("StagedSet1Supported"))
+
+    # 01h:162.6
+    @property
+    def UnidirReconfigSupported(self) -> UnidirReconfigSupported:
+        return UnidirReconfigSupported(
+            self, self._search_field("UnidirReconfigSupported")
+        )
+
+    # 01h:163.0-3
+    @property
+    def CdbMaxPagesEPL(self) -> CdbMaxPagesEPL:
+        return CdbMaxPagesEPL(self, self._search_field("CdbMaxPagesEPL"))
+
+    # 01h:163.4
+    @property
+    def CdbAutoPagingSupported(self) -> CdbAutoPagingSupported:
+        return CdbAutoPagingSupported(
+            self, self._search_field("CdbAutoPagingSupported")
+        )
+
+    # 01h:163.5
+    @property
+    def CdbBackgroundModeSupported(self) -> CdbBackgroundModeSupported:
+        return CdbBackgroundModeSupported(
+            self, self._search_field("CdbBackgroundModeSupported")
+        )
+
+    # 01h:163.6-7
+    @property
+    def CdbInstancesSupported(self) -> CdbInstancesSupported:
+        return CdbInstancesSupported(self, self._search_field("CdbInstancesSupported"))
+
+    # 01h:164
+    @property
+    def CdbReadWriteLengthExtension(self) -> CdbReadWriteLengthExtension:
+        return CdbReadWriteLengthExtension(
+            self, self._search_field("CdbReadWriteLengthExtension")
+        )
+
+    # 01h:165.0-4
+    @property
+    def CdbExtMaxBusyTime(self) -> CdbExtMaxBusyTime:
+        return CdbExtMaxBusyTime(self, self._search_field("CdbExtMaxBusyTime"))
+
+    # 01h:165.7
+    @property
+    def CdbCommandTriggerMethod(self) -> CdbCommandTriggerMethod:
+        return CdbCommandTriggerMethod(
+            self, self._search_field("CdbCommandTriggerMethod")
+        )
+
+    # 01h:166.0-6
+    @property
+    def CdbMaxBusyTime(self) -> CdbMaxBusyTime:
+        return CdbMaxBusyTime(self, self._search_field("CdbMaxBusyTime"))
+
+    # 01h:166.7
+    @property
+    def CdbMaxBusySpecMethod(self) -> CdbMaxBusySpecMethod:
+        return CdbMaxBusySpecMethod(self, self._search_field("CdbMaxBusySpecMethod"))
+
+    # 01h:167.0-3
+    @property
+    def MaxDurationModulePwrUp(self) -> MaxDurationModulePwrUp:
+        return MaxDurationModulePwrUp(
+            self, self._search_field("MaxDurationModulePwrUp")
+        )
+
+    # 01h:167.4-7
+    @property
+    def MaxDurationModulePwrDn(self) -> MaxDurationModulePwrDn:
+        return MaxDurationModulePwrDn(
+            self, self._search_field("MaxDurationModulePwrDn")
+        )
+
+    # 01h:168.0-3
+    @property
+    def MaxDurationDPTxTurnOn(self) -> MaxDurationDPTxTurnOn:
+        return MaxDurationDPTxTurnOn(self, self._search_field("MaxDurationDPTxTurnOn"))
+
+    # 01h:168.4-7
+    @property
+    def MaxDurationDPTxTurnOff(self) -> MaxDurationDPTxTurnOff:
+        return MaxDurationDPTxTurnOff(
+            self, self._search_field("MaxDurationDPTxTurnOff")
+        )
+
 
 CMIS_EXPORTS = [
     "MemMap",
-    "MediaLaneUnsupportedLane",
-    "MediaLaneUnsupportedLaneRange",
     "CmisRevision",
-    "LanesEnum",
-    "ApplicationDescriptor",
-    "ApplicationDescriptorRange",
-    "DateCode",
     "IdleOrBusyEnum",
     "SuccessOrFailedEnum",
     "CdbStatus",
     "CdbStatusRange",
-    "CdbCmdCompleteMask2",
-    "CdbCmdCompleteMask1",
-    "DataPathFirmwareErrorMask",
-    "ModuleFirmwareErrorMask",
-    "ModuleStateChangedMask",
-    "VccMonLowWarningMask",
-    "VccMonHighWarningMask",
-    "VccMonLowAlarmMask",
-    "VccMonHighAlarmMask",
-    "TempMonLowWarningMask",
-    "TempMonHighWarningMask",
-    "TempMonLowAlarmMask",
-    "TempMonHighAlarmMask",
-    "Aux2MonLowWarningMask",
-    "Aux2MonHighWarningMask",
-    "Aux2MonLowAlarmMask",
-    "Aux2MonHighAlarmMask",
-    "Aux1MonLowWarningMask",
-    "Aux1MonHighWarningMask",
-    "Aux1MonLowAlarmMask",
-    "Aux1MonHighAlarmMask",
-    "CustomMonLowWarningMask",
-    "CustomMonHighWarningMask",
-    "CustomMonLowAlarmMask",
-    "CustomMonHighAlarmMask",
-    "Aux3MonLowWarningMask",
-    "Aux3MonHighWarningMask",
-    "Aux3MonLowAlarmMask",
-    "Aux3MonHighAlarmMask",
-    "FlagsSummaryBank0Page2Ch",
-    "FlagsSummaryBank0Page14h",
-    "FlagsSummaryBank0Page12h",
-    "FlagsSummaryBank0Page11h",
-    "FlagsSummaryBank1Page2Ch",
-    "FlagsSummaryBank1Page14h",
-    "FlagsSummaryBank1Page12h",
-    "FlagsSummaryBank1Page11h",
-    "FlagsSummaryBank2Page2Ch",
-    "FlagsSummaryBank2Page14h",
-    "FlagsSummaryBank2Page12h",
-    "FlagsSummaryBank2Page11h",
-    "FlagsSummaryBank3Page2Ch",
-    "FlagsSummaryBank3Page14h",
-    "FlagsSummaryBank3Page12h",
-    "FlagsSummaryBank3Page11h",
-    "ModuleState",
-    "InterruptDeasserted",
-    "AttenuationAt5GHz",
-    "AttenuationAt7GHz",
-    "AttenuationAt12p9GHz",
-    "AttenuationAt25p8GHz",
-    "ModuleActiveFirmwareMajorRevision",
-    "ModuleActiveFirmwareMinorRevision",
-    "FarEndConfiguration",
-    "BankSelect",
-    "PageSelect",
-    "BankBroadcastEnable",
-    "LowPwrAllowRequestHW",
-    "SquelchMethodSelect",
-    "LowPwrRequestSW",
-    "SoftwareReset",
-    "ModuleGlobalControls",
+    "LanesEnum",
+    "ApplicationDescriptor",
+    "ApplicationDescriptorRange",
+    "DateCode",
+    "MediaLaneUnsupportedLane",
+    "MediaLaneUnsupportedLaneRange",
     "SFF8024Identifier",
-    "MemoryModel",
-    "SteppedConfigOnly",
     "MciMaxSpeed",
+    "SteppedConfigOnly",
+    "MemoryModel",
+    "InterruptDeasserted",
+    "ModuleState",
+    "FlagsSummaryBank0Page11h",
+    "FlagsSummaryBank0Page12h",
+    "FlagsSummaryBank0Page14h",
+    "FlagsSummaryBank0Page2Ch",
+    "FlagsSummaryBank1Page11h",
+    "FlagsSummaryBank1Page12h",
+    "FlagsSummaryBank1Page14h",
+    "FlagsSummaryBank1Page2Ch",
+    "FlagsSummaryBank2Page11h",
+    "FlagsSummaryBank2Page12h",
+    "FlagsSummaryBank2Page14h",
+    "FlagsSummaryBank2Page2Ch",
+    "FlagsSummaryBank3Page11h",
+    "FlagsSummaryBank3Page12h",
+    "FlagsSummaryBank3Page14h",
+    "FlagsSummaryBank3Page2Ch",
+    "ModuleStateChangedFlag",
+    "ModuleFirmwareErrorFlag",
+    "DataPathFirmwareErrorFlag",
+    "CdbCmdCompleteFlag1",
+    "CdbCmdCompleteFlag2",
+    "TempMonHighAlarmFlag",
+    "TempMonLowAlarmFlag",
+    "TempMonHighWarningFlag",
+    "TempMonLowWarningFlag",
+    "VccMonHighAlarmFlag",
+    "VccMonLowAlarmFlag",
+    "VccMonHighWarningFlag",
+    "VccMonLowWarningFlag",
+    "Aux1MonHighAlarmFlag",
+    "Aux1MonLowAlarmFlag",
+    "Aux1MonHighWarningFlag",
+    "Aux1MonLowWarningFlag",
+    "Aux2MonHighAlarmFlag",
+    "Aux2MonLowAlarmFlag",
+    "Aux2MonHighWarningFlag",
+    "Aux2MonLowWarningFlag",
+    "Aux3MonHighAlarmFlag",
+    "Aux3MonLowAlarmFlag",
+    "Aux3MonHighWarningFlag",
+    "Aux3MonLowWarningFlag",
+    "CustomMonHighAlarmFlag",
+    "CustomMonLowAlarmFlag",
+    "CustomMonHighWarningFlag",
+    "CustomMonLowWarningFlag",
     "TempMonValue",
     "VccMonVoltage",
     "Aux1MonValue",
     "Aux2MonValue",
     "Aux3MonValue",
     "CustomMonValue",
+    "ModuleGlobalControls",
+    "SoftwareReset",
+    "LowPwrRequestSW",
+    "SquelchMethodSelect",
+    "LowPwrAllowRequestHW",
+    "BankBroadcastEnable",
+    "ModuleStateChangedMask",
+    "ModuleFirmwareErrorMask",
+    "DataPathFirmwareErrorMask",
+    "CdbCmdCompleteMask1",
+    "CdbCmdCompleteMask2",
+    "TempMonHighAlarmMask",
+    "TempMonLowAlarmMask",
+    "TempMonHighWarningMask",
+    "TempMonLowWarningMask",
+    "VccMonHighAlarmMask",
+    "VccMonLowAlarmMask",
+    "VccMonHighWarningMask",
+    "VccMonLowWarningMask",
+    "Aux1MonHighAlarmMask",
+    "Aux1MonLowAlarmMask",
+    "Aux1MonHighWarningMask",
+    "Aux1MonLowWarningMask",
+    "Aux2MonHighAlarmMask",
+    "Aux2MonLowAlarmMask",
+    "Aux2MonHighWarningMask",
+    "Aux2MonLowWarningMask",
+    "Aux3MonHighAlarmMask",
+    "Aux3MonLowAlarmMask",
+    "Aux3MonHighWarningMask",
+    "Aux3MonLowWarningMask",
+    "CustomMonHighAlarmMask",
+    "CustomMonLowAlarmMask",
+    "CustomMonHighWarningMask",
+    "CustomMonLowWarningMask",
+    "ModuleActiveFirmwareMajorRevision",
+    "ModuleActiveFirmwareMinorRevision",
+    "ModuleFaultCause",
     "MediaType",
+    "PasswordChangeEntryArea",
+    "PasswordEntryArea",
+    "BankSelect",
+    "PageSelect",
     "Identifier",
     "IdentifierEnum",
     "SFF8024IdentifierCopy",
@@ -5402,117 +5429,122 @@ CMIS_EXPORTS = [
     "CLEICode",
     "ModulePowerClass",
     "MaxPower",
-    "LengthMultiplier",
     "BaseLength",
+    "LengthMultiplier",
     "ConnectorType",
+    "AttenuationAt5GHz",
+    "AttenuationAt7GHz",
+    "AttenuationAt12p9GHz",
+    "AttenuationAt25p8GHz",
+    "FarEndConfiguration",
     "MediaInterfaceTechnology",
     "PageChecksum",
-    "PasswordChangeEntryArea",
-    "PasswordEntryArea",
-    "CdbCmdCompleteFlag2",
-    "CdbCmdCompleteFlag1",
-    "DataPathFirmwareErrorFlag",
-    "ModuleFirmwareErrorFlag",
-    "ModuleStateChangedFlag",
-    "VccMonLowWarningFlag",
-    "VccMonHighWarningFlag",
-    "VccMonLowAlarmFlag",
-    "VccMonHighAlarmFlag",
-    "TempMonLowWarningFlag",
-    "TempMonHighWarningFlag",
-    "TempMonLowAlarmFlag",
-    "TempMonHighAlarmFlag",
-    "Aux2MonLowWarningFlag",
-    "Aux2MonHighWarningFlag",
-    "Aux2MonLowAlarmFlag",
-    "Aux2MonHighAlarmFlag",
-    "Aux1MonLowWarningFlag",
-    "Aux1MonHighWarningFlag",
-    "Aux1MonLowAlarmFlag",
-    "Aux1MonHighAlarmFlag",
-    "CustomMonLowWarningFlag",
-    "CustomMonHighWarningFlag",
-    "CustomMonLowAlarmFlag",
-    "CustomMonHighAlarmFlag",
-    "Aux3MonLowWarningFlag",
-    "Aux3MonHighWarningFlag",
-    "Aux3MonLowAlarmFlag",
-    "Aux3MonHighAlarmFlag",
-    "ModuleFaultCause",
-    "MediaLaneMappingTx",
-    "MediaLaneMappingTxRange",
-    "MediaLaneMappingRx",
-    "MediaLaneMappingRxRange",
-    "OutputStatusRx",
-    "OutputStatusRxRange",
-    "OutputStatusTx",
-    "OutputStatusTxRange",
-    "DPStateChangedFlag",
-    "DPStateChangedFlagRange",
-    "OpticalPowerTx",
-    "OpticalPowerTxRange",
-    "LaserBiasTx",
-    "LaserBiasTxRange",
-    "OpticalPowerRx",
-    "OpticalPowerRxRange",
-    "DPInitPendingLane",
-    "DPInitPendingLaneRange",
-    "DPStateHostLane",
-    "DPStateHostLaneRange",
-    "ConfigStatusLane",
-    "ConfigStatusLaneRange",
-    "LOSFlagRx",
-    "LOSFlagRxRange",
-    "CDRLOLFlagRx",
-    "CDRLOLFlagRxRange",
-    "OpticalPowerHighAlarmFlagRx",
-    "OpticalPowerHighAlarmFlagRxRange",
-    "OpticalPowerLowAlarmFlagRx",
-    "OpticalPowerLowAlarmFlagRxRange",
-    "OpticalPowerHighWarningFlagRx",
-    "OpticalPowerHighWarningFlagRxRange",
-    "OpticalPowerLowWarningFlagRx",
-    "OpticalPowerLowWarningFlagRxRange",
-    "OutputStatusChangedFlagRx",
-    "OutputStatusChangedFlagRxRange",
-    "FixedOrAdaptiveEnum",
-    "RecallBufferEnum",
-    "BypassedOrEnabledEnum",
-    "TxControls",
-    "RxControls",
-    "FailureFlagTx",
-    "FailureFlagTxRange",
-    "LOSFlagTx",
-    "LOSFlagTxRange",
-    "CDRLOLFlagTx",
-    "CDRLOLFlagTxRange",
-    "AdaptiveInputEqFailFlagTx",
-    "AdaptiveInputEqFailFlagTxRange",
-    "OpticalPowerHighAlarmFlagTx",
-    "OpticalPowerHighAlarmFlagTxRange",
-    "OpticalPowerLowAlarmFlagTx",
-    "OpticalPowerLowAlarmFlagTxRange",
-    "OpticalPowerHighWarningFlagTx",
-    "OpticalPowerHighWarningFlagTxRange",
-    "OpticalPowerLowWarningFlagTx",
-    "OpticalPowerLowWarningFlagTxRange",
-    "LaserBiasHighAlarmFlagTx",
-    "LaserBiasHighAlarmFlagTxRange",
-    "LaserBiasLowAlarmFlagTx",
-    "LaserBiasLowAlarmFlagTxRange",
-    "LaserBiasHighWarningFlagTx",
-    "LaserBiasHighWarningFlagTxRange",
-    "LaserBiasLowWarningFlagTx",
-    "LaserBiasLowWarningFlagTxRange",
-    "ExplicitControlFlagEnum",
-    "DPConfigLane",
-    "DPConfigLaneRange",
+    "MediaLaneAssignmentOptions",
+    "MediaLaneAssignmentOptionsRange",
+    "ModuleInactiveFirmwareMajorRevision",
+    "ModuleInactiveFirmwareMinorRevision",
+    "ModuleHardwareMajorRevision",
+    "ModuleHardwareMinorRevision",
+    "BaseLengthSMF",
+    "LengthMultiplierSMF",
+    "LengthOM5",
+    "LengthOM4",
+    "LengthOM3",
+    "LengthOM2",
+    "NominalWavelength",
+    "WavelengthTolerance",
+    "BanksSupported",
+    "Page03hSupported",
+    "Page05hSupported",
+    "DiagnosticPagesSupported",
+    "VDMPagesSupported",
+    "NetworkPathPagesSupported",
+    "ModSelWaitTimeMantissa",
+    "ModSelWaitTimeExponent",
+    "MaxDurationDPInit",
+    "Duration",
+    "DurationEnum",
+    "MaxDurationDPDeinit",
+    "Aux1MonObservable",
+    "Aux2MonObservable",
+    "Aux3MonObservable",
+    "TimingPage15hSupported",
+    "SupportFlag",
+    "SupportFlagEnum",
+    "ePPSSupported",
+    "TxInputClockingCapabilities",
+    "CoolingImplemented",
+    "ModuleTempMax",
+    "ModuleTempMin",
+    "PropagationDelay",
+    "OperatingVoltageMin",
+    "RxLOSIsFast",
+    "RxLOSType",
+    "RxPowerMeasurementType",
+    "RxOutputEqType",
+    "OpticalDetectorType",
+    "CDRPowerSavedPerLane",
+    "TxInputEqMax",
+    "RxOutputLevel0Supported",
+    "RxOutputLevel1Supported",
+    "RxOutputLevel2Supported",
+    "RxOutputLevel3Supported",
+    "RxOutputEqPreCursorMax",
+    "RxOutputEqPostCursorMax",
+    "InputPolarityFlipTxSupported",
+    "OutputDisableTxSupported",
+    "AutoSquelchDisableTxSupported",
+    "ForcedSquelchTxSupported",
+    "SquelchMethodTx",
+    "TransmitterIsTunable",
+    "WavelengthIsControllable",
+    "OutputPolarityFlipRxSupported",
+    "OutputDisableRxSupported",
+    "AutoSquelchDisableRxSupported",
+    "BankBroadcastSupported",
+    "FailureFlagTxSupported",
+    "LOSFlagTxSupported",
+    "CDRLOLFlagTxSupported",
+    "AdaptiveInputEqFailFlagTxSupported",
+    "LOSFlagRxSupported",
+    "CDRLOLFlagRxSupported",
+    "TempMonSupported",
+    "VccMonSupported",
+    "Aux1MonSupported",
+    "Aux2MonSupported",
+    "Aux3MonSupported",
+    "CustomMonSupported",
+    "TxBiasMonSupported",
+    "TxOpticalPowerMonSupported",
+    "RxOpticalPowerMonSupported",
+    "TxBiasCurrentScalingFactor",
+    "TxCDRSupported",
+    "TxCDRBypassControlSupported",
+    "TxInputEqFixedManualControlSupported",
+    "TxInputAdaptiveEqSupported",
+    "TxInputEqFreezeSupported",
+    "TxInputEqRecallBuffersSupported",
+    "RxCDRSupported",
+    "RxCDRBypassControlSupported",
+    "RxOutputAmplitudeControlSupported",
+    "RxOutputEqControlSupported",
+    "StagedSet1Supported",
+    "UnidirReconfigSupported",
+    "CdbMaxPagesEPL",
+    "CdbAutoPagingSupported",
+    "CdbBackgroundModeSupported",
+    "CdbInstancesSupported",
+    "CdbReadWriteLengthExtension",
+    "CdbExtMaxBusyTime",
+    "CdbCommandTriggerMethod",
+    "CdbMaxBusyTime",
+    "CdbMaxBusySpecMethod",
+    "MaxDurationModulePwrUp",
+    "MaxDurationModulePwrDn",
+    "MaxDurationDPTxTurnOn",
+    "MaxDurationDPTxTurnOff",
     "DPDeinitLane",
     "DPDeinitLaneRange",
-    "TxControl",
-    "ApplyDPInitLaneFlagEnum",
-    "ApplyImmediateDPInitLaneFlagEnum",
-    "ApplyTriggers",
     "InputPolarityFlipTx",
     "InputPolarityFlipTxRange",
     "OutputDisableTx",
@@ -5531,6 +5563,17 @@ CMIS_EXPORTS = [
     "OutputDisableRxRange",
     "AutoSquelchDisableRx",
     "AutoSquelchDisableRxRange",
+    "ApplyDPInitLaneFlagEnum",
+    "ApplyImmediateDPInitLaneFlagEnum",
+    "ApplyTriggers",
+    "ExplicitControlFlagEnum",
+    "DPConfigLane",
+    "DPConfigLaneRange",
+    "FixedOrAdaptiveEnum",
+    "RecallBufferEnum",
+    "BypassedOrEnabledEnum",
+    "TxControl",
+    "RxControls",
     "UnidirectionalApplyTriggers",
     "DPStateChangedMask",
     "DPStateChangedMaskRange",
@@ -5572,108 +5615,65 @@ CMIS_EXPORTS = [
     "OpticalPowerLowWarningMaskRxRange",
     "OutputStatusChangedMaskRx",
     "OutputStatusChangedMaskRxRange",
-    "MediaLaneAssignmentOptions",
-    "MediaLaneAssignmentOptionsRange",
-    "WavelengthIsControllable",
-    "TransmitterIsTunable",
-    "SquelchMethodTx",
-    "ForcedSquelchTxSupported",
-    "SupportFlag",
-    "SupportFlagEnum",
-    "AutoSquelchDisableTxSupported",
-    "OutputDisableTxSupported",
-    "InputPolarityFlipTxSupported",
-    "BankBroadcastSupported",
-    "AutoSquelchDisableRxSupported",
-    "OutputDisableRxSupported",
-    "OutputPolarityFlipRxSupported",
-    "NominalWavelength",
-    "WavelengthTolerance",
-    "TxInputEqRecallBuffersSupported",
-    "TxInputEqFreezeSupported",
-    "TxInputAdaptiveEqSupported",
-    "TxInputEqFixedManualControlSupported",
-    "TxCDRBypassControlSupported",
-    "TxCDRSupported",
-    "UnidirReconfigSupported",
-    "StagedSet1Supported",
-    "RxOutputEqControlSupported",
-    "RxOutputAmplitudeControlSupported",
-    "RxCDRBypassControlSupported",
-    "RxCDRSupported",
-    "LengthMultiplierSMF",
-    "BaseLengthSMF",
-    "LengthOM5",
-    "LengthOM4",
-    "LengthOM3",
-    "LengthOM2",
-    "NetworkPathPagesSupported",
-    "VDMPagesSupported",
-    "DiagnosticPagesSupported",
-    "Page05hSupported",
-    "Page03hSupported",
-    "BanksSupported",
-    "MaxDurationModulePwrDn",
-    "Duration",
-    "DurationEnum",
-    "MaxDurationModulePwrUp",
-    "MaxDurationDPTxTurnOff",
-    "MaxDurationDPTxTurnOn",
-    "ModSelWaitTimeExponent",
-    "ModSelWaitTimeMantissa",
-    "MaxDurationDPDeinit",
-    "MaxDurationDPInit",
-    "AdaptiveInputEqFailFlagTxSupported",
-    "CDRLOLFlagTxSupported",
-    "LOSFlagTxSupported",
-    "FailureFlagTxSupported",
-    "CDRLOLFlagRxSupported",
-    "LOSFlagRxSupported",
-    "CdbInstancesSupported",
-    "CdbBackgroundModeSupported",
-    "CdbAutoPagingSupported",
-    "CdbMaxPagesEPL",
-    "CdbReadWriteLengthExtension",
-    "CdbCommandTriggerMethod",
-    "CdbExtMaxBusyTime",
-    "CdbMaxBusySpecMethod",
-    "CdbMaxBusyTime",
-    "ModuleInactiveFirmwareMajorRevision",
-    "ModuleInactiveFirmwareMinorRevision",
-    "ModuleHardwareMajorRevision",
-    "ModuleHardwareMinorRevision",
-    "CustomMonSupported",
-    "Aux3MonSupported",
-    "Aux2MonSupported",
-    "Aux1MonSupported",
-    "VccMonSupported",
-    "TempMonSupported",
-    "TxBiasCurrentScalingFactor",
-    "RxOpticalPowerMonSupported",
-    "TxOpticalPowerMonSupported",
-    "TxBiasMonSupported",
-    "CoolingImplemented",
-    "TxInputClockingCapabilities",
-    "ePPSSupported",
-    "TimingPage15hSupported",
-    "Aux3MonObservable",
-    "Aux2MonObservable",
-    "Aux1MonObservable",
-    "ModuleTempMax",
-    "ModuleTempMin",
-    "PropagationDelay",
-    "OperatingVoltageMin",
-    "OpticalDetectorType",
-    "RxOutputEqType",
-    "RxPowerMeasurementType",
-    "RxLOSType",
-    "RxLOSIsFast",
-    "CDRPowerSavedPerLane",
-    "RxOutputLevel3Supported",
-    "RxOutputLevel2Supported",
-    "RxOutputLevel1Supported",
-    "RxOutputLevel0Supported",
-    "TxInputEqMax",
-    "RxOutputEqPostCursorMax",
-    "RxOutputEqPreCursorMax",
+    "DPStateHostLane",
+    "DPStateHostLaneRange",
+    "OutputStatusRx",
+    "OutputStatusRxRange",
+    "OutputStatusTx",
+    "OutputStatusTxRange",
+    "DPStateChangedFlag",
+    "DPStateChangedFlagRange",
+    "FailureFlagTx",
+    "FailureFlagTxRange",
+    "LOSFlagTx",
+    "LOSFlagTxRange",
+    "CDRLOLFlagTx",
+    "CDRLOLFlagTxRange",
+    "AdaptiveInputEqFailFlagTx",
+    "AdaptiveInputEqFailFlagTxRange",
+    "OpticalPowerHighAlarmFlagTx",
+    "OpticalPowerHighAlarmFlagTxRange",
+    "OpticalPowerLowAlarmFlagTx",
+    "OpticalPowerLowAlarmFlagTxRange",
+    "OpticalPowerHighWarningFlagTx",
+    "OpticalPowerHighWarningFlagTxRange",
+    "OpticalPowerLowWarningFlagTx",
+    "OpticalPowerLowWarningFlagTxRange",
+    "LaserBiasHighAlarmFlagTx",
+    "LaserBiasHighAlarmFlagTxRange",
+    "LaserBiasLowAlarmFlagTx",
+    "LaserBiasLowAlarmFlagTxRange",
+    "LaserBiasHighWarningFlagTx",
+    "LaserBiasHighWarningFlagTxRange",
+    "LaserBiasLowWarningFlagTx",
+    "LaserBiasLowWarningFlagTxRange",
+    "LOSFlagRx",
+    "LOSFlagRxRange",
+    "CDRLOLFlagRx",
+    "CDRLOLFlagRxRange",
+    "OpticalPowerHighAlarmFlagRx",
+    "OpticalPowerHighAlarmFlagRxRange",
+    "OpticalPowerLowAlarmFlagRx",
+    "OpticalPowerLowAlarmFlagRxRange",
+    "OpticalPowerHighWarningFlagRx",
+    "OpticalPowerHighWarningFlagRxRange",
+    "OpticalPowerLowWarningFlagRx",
+    "OpticalPowerLowWarningFlagRxRange",
+    "OutputStatusChangedFlagRx",
+    "OutputStatusChangedFlagRxRange",
+    "OpticalPowerTx",
+    "OpticalPowerTxRange",
+    "LaserBiasTx",
+    "LaserBiasTxRange",
+    "OpticalPowerRx",
+    "OpticalPowerRxRange",
+    "ConfigStatusLane",
+    "ConfigStatusLaneRange",
+    "TxControls",
+    "DPInitPendingLane",
+    "DPInitPendingLaneRange",
+    "MediaLaneMappingTx",
+    "MediaLaneMappingTxRange",
+    "MediaLaneMappingRx",
+    "MediaLaneMappingRxRange",
 ]
