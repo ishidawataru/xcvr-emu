@@ -1,0 +1,71 @@
+transceivers:
+  0:
+    present: true
+    defaults: &defaults
+      SFF8024Identifier: "QSFP_DD"
+      SFF8024IdentifierCopy: "QSFP_DD"
+      VendorName: "xcvr-emu"
+      VendorRev: "01"
+      VendorOUI: 0x010203
+      VendorSN: "0123456789"
+      DateCode:
+        Year: "24"
+        Month: "12"
+        DayOfMonth: "14"
+      LengthMultiplier: "MULTIPLIER_100"
+      BaseLength: 1
+      CmisRevision:
+        Major: 5
+        Minor: 2
+      MediaType: "OPTICAL_SMF"
+      ModulePowerClass: "CLASS_8"
+      MaxPower: 40 # 10.0 W
+
+      ConnectorType: "MPO_1X16"
+      ModuleActiveFirmwareMajorRevision: 1
+      ModuleActiveFirmwareMinorRevision: 2
+      ModuleInactiveFirmwareMajorRevision: 1
+      ModuleInactiveFirmwareMinorRevision: 1
+      MemoryModel: "PAGED"
+      MciMaxSpeed: "UP_TO_400_KHZ"
+      ApplicationDescriptor:
+        - HostInterfaceID: 79 # 400GAUI-4-S C2M (Annex 120G)
+          MediaInterfaceID: 28 # 400GBASE-DR4 (Cl 124)
+          HostLaneCount: 4
+          MediaLaneCount: 4
+          HostLaneAssignmentOptions: 0b1
+        - HostInterfaceID: 71 # 200GAUI-CR2 (Clause 162)
+          MediaInterfaceID: 23 # 200GBASE-DR4 (Cl 121)
+          HostLaneCount: 2
+          MediaLaneCount: 2
+          HostLaneAssignmentOptions: 0b101
+      MediaLaneAssignmentOptions:
+      - 0b001
+      - 0b101
+      MaxDurationDPInit: "BETWEEN_1_AND_5_S"
+      OutputDisableTxSupported: "SUPPORTED"
+      SteppedConfigOnly: "STEP_BY_STEP" # no support for intervention-free reconfiguration
+  1:
+    present: true
+    defaults: *defaults
+  2:
+    present: true
+    defaults: *defaults
+  3:
+    present: true
+    defaults: *defaults
+  4:
+    present: true
+    defaults: *defaults
+  5:
+    present: true
+    defaults: *defaults
+  6:
+    present: true
+    defaults: *defaults
+  7:
+    present: false
+    defaults: *defaults
+  8:
+    present: false
+    defaults: *defaults

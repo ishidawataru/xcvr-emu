@@ -1,7 +1,13 @@
 import asyncio
 import logging
 
-from cmis import Address, LowPwrRequestSW, MemMap, ModuleState, DPStateHostLane, SteppedConfigOnly
+from cmis import (
+    Address,
+    LowPwrRequestSW,
+    MemMap,
+    ModuleState,
+    DPStateHostLane,
+)
 
 from ..dpsm import DataPathStateMachine
 from ..proto.emulator_pb2 import ReadRequest, WriteRequest
@@ -10,25 +16,28 @@ logger = logging.getLogger(__name__)
 
 
 class CMISTransceiver:
-
-    def __init__(self, index):
+    def __init__(self, index: int, config: dict, mem_map: MemMap | None = None):
         super().__init__()
         self._index = index
-        self._queue = asyncio.Queue()
-        self._task = None
+        self._config = config
+        self._queue: asyncio.Queue = asyncio.Queue()
+        self._task: asyncio.Task | None = None
         self._present = False
 
-        self.mem_map = MemMap()
+        self.mem_map = MemMap() if mem_map is None else mem_map
 
-        self._init()
-        self._dpsms = {}
+        self._dpsms: dict[int, DataPathStateMachine] = {}
+
+        if config.get("present"):
+            self.plugin()
+        else:
+            self._init()
 
     def _init(self):
         self._state = ModuleState.MODULE_LOW_PWR
         self._init_eeprom()
 
     def _init_dpsms(self):
-
         dpsms = {}
         for i, acs in enumerate(self.mem_map.ACS_DPConfigLane):
             appsel = acs.AppSelCode.value
@@ -56,7 +65,9 @@ class CMISTransceiver:
     def _apply_dpinit(self):
         for i, scs in enumerate(self.mem_map.SCS0_DPConfigLane):
             value = scs.value
-            logger.info(f"Applying DPInit({i}): {value:b} AppSelCode: {scs.AppSelCode.value}")
+            logger.info(
+                f"Applying DPInit({i}): {value:b} AppSelCode: {scs.AppSelCode.value}"
+            )
             self.mem_map.ACS_DPConfigLane[i].value = value
             if scs.AppSelCode.value == 0:
                 continue
@@ -72,39 +83,24 @@ class CMISTransceiver:
         return True
 
     def _init_eeprom(self):
-        self.mem_map.SFF8024Identifier.value = 24
-        self.mem_map.SFF8024IdentifierCopy.value = 24
-        self.mem_map.VendorName.value = "dummy"
-        self.mem_map.CmisRevision.Major.value = 5
-        self.mem_map.CmisRevision.Minor.value = 3
-        self.mem_map.MediaType.value = 2  # sm_media_interface
-        self.mem_map.ModulePowerClass.value = self.mem_map.ModulePowerClass.CLASS_8
+        def set_value(field, value):
+            if type(value) is list:
+                for i, val in enumerate(value):
+                    set_value(field[i], val)
+            elif type(value) is dict:
+                for k, val in value.items():
+                    set_value(getattr(field, k), val)
+            else:
+                field.set_value_from_str(str(value))
 
-        self.mem_map.ApplicationDescriptor[0].HostInterfaceID.value = (
-            79  # 400GAUI-4-S C2M (Annex 120G)
-        )
-        self.mem_map.ApplicationDescriptor[0].MediaInterfaceID.value = (
-            28  # 400GBASE-DR4 (Cl 124)
-        )
-        self.mem_map.ApplicationDescriptor[0].HostLaneCount.value = 4
-        self.mem_map.ApplicationDescriptor[0].MediaLaneCount.value = 4
-        self.mem_map.ApplicationDescriptor[0].HostLaneAssignmentOptions.value = (
-            0b00000001
-        )
-        self.mem_map.MediaLaneAssignmentOptions[0].value = 0b00000001
+        for k, v in self._config.get("defaults", {}).items():
+            try:
+                field = getattr(self.mem_map, k)
+            except AttributeError:
+                logger.error(f"Invalid attribute: {k}")
+                continue
 
-        self.mem_map.ApplicationDescriptor[1].HostInterfaceID.value = (
-            71  # 200GBASE-CR2 (Clause 162)
-        )
-        self.mem_map.ApplicationDescriptor[1].MediaInterfaceID.value = (
-            23  # 200GBASE-DR4 (Cl 121)
-        )
-        self.mem_map.ApplicationDescriptor[1].HostLaneCount.value = 2
-        self.mem_map.ApplicationDescriptor[1].MediaLaneCount.value = 2
-        self.mem_map.ApplicationDescriptor[1].HostLaneAssignmentOptions.value = (
-            0b00000101
-        )
-        self.mem_map.MediaLaneAssignmentOptions[1].value = 0b00000101
+            set_value(field, v)
 
         # default staged control set 0, data path configuration
         # and default active control set
@@ -124,18 +120,8 @@ class CMISTransceiver:
                 scs.AppSelCode.value = 1
                 scs.DataPathID.value = 1
 
-        self.mem_map.MaxDurationDPInit.value = (
-            self.mem_map.MaxDurationDPInit.BETWEEN_1_AND_5_S
-        )
-
-        self.mem_map.OutputDisableTxSupported.value = (
-            self.mem_map.OutputDisableTxSupported.SUPPORTED
-        )
-
         self.mem_map.ModuleState.value = ModuleState.MODULE_LOW_PWR
         self.mem_map.LowPwrRequestSW.value = LowPwrRequestSW.LOW_POWER_MODE
-
-        self.mem_map.SteppedConfigOnly.value = SteppedConfigOnly.STEP_BY_STEP # no support for intervention-free reconfiguration
 
         for v in self.mem_map.DPStateHostLane:
             v.value = DPStateHostLane.DPDEACTIVATED
@@ -167,7 +153,11 @@ class CMISTransceiver:
                 self._task = None
             logger.debug(f"Transceiver({self._index}) task cancelled")
 
-    async def plugin(self) -> None:
+    def plugin(self) -> None:
+        if self._task:
+            logger.warning(f"Transceiver({self._index}) already running")
+            return
+
         self._init()
         self._present = True
         self._task = asyncio.create_task(self._run())
@@ -182,7 +172,6 @@ class CMISTransceiver:
         )
 
     async def _run(self) -> None:
-
         logger.info(f"Transceiver({self._index}) started")
 
         while True:
@@ -223,6 +212,8 @@ class CMISTransceiver:
                         for dpsm in self._dpsms.values():
                             if not dpsm.update_state():
                                 logger.warning(f"DPSM invalid config: {dpsm}")
-                    elif address.includes(self.mem_map.SCS0_ApplyTriggers.ApplyDPInitLane.address):
+                    elif address.includes(
+                        self.mem_map.SCS0_ApplyTriggers.ApplyDPInitLane.address
+                    ):
                         if self._apply_dpinit():
                             self._init_dpsms()

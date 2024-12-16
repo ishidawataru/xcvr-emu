@@ -218,6 +218,9 @@ class Field:
         if self.value_type is str:
             assert isinstance(src, str), f"{self.name}: Value must be a string"
             src_value = src.encode("ascii")
+            assert (
+                len(src_value) <= self.address.byte_size
+            ), f"{self.name}: Value too long"
         else:
             assert isinstance(src, int), f"{self.name}: Value must be an integer"
             src_int = src
@@ -244,6 +247,19 @@ class Field:
             self.address.byte_size,
             src_value,
         )
+
+    def set_value_from_str(self, value: str):
+        if self.value_type is str:
+            self.value = value
+        else:
+            try:
+                vint = int(value, 0)
+                self.value = vint
+            except ValueError:
+                if self.EnumClass:
+                    self.value = self.EnumClass[value]
+                else:
+                    raise ValueError(f"Invalid value: {value}")
 
     def to_str(self, value: int | str) -> str:
         values = self.field.fields.get("Values")
