@@ -3,6 +3,8 @@ import logging
 
 import pytest
 import pytest_asyncio
+import importlib.resources
+import yaml
 
 from cmis import MemMap, LanesEnum
 from xcvr_emu.proto.emulator_pb2 import ReadRequest, WriteRequest
@@ -14,8 +16,12 @@ logger = logging.getLogger(__name__)
 @pytest_asyncio.fixture
 async def xcvr(caplog):
     caplog.set_level(logging.INFO)
-    xcvr = CMISTransceiver(0)
-    await xcvr.plugin()
+
+    with importlib.resources.open_text("xcvr_emu", "config.yaml") as f:
+        config = yaml.safe_load(f)
+        config = config["transceivers"][0]
+
+    xcvr = CMISTransceiver(0, config)
     yield xcvr
     await xcvr.plugout()
 

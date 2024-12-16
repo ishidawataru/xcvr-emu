@@ -1,7 +1,6 @@
 from xcvr_emu.xcvr_emud import EmulatorServer
 
 from xcvr_emu.proto.emulator_pb2 import (
-    CreateRequest,
     ReadRequest,
     WriteRequest,
     ListRequest,
@@ -10,41 +9,40 @@ from xcvr_emu.proto.emulator_pb2 import (
 )
 
 import pytest
+import importlib.resources
 
 import pytest_asyncio
 
 
 @pytest_asyncio.fixture
 async def server():
-    async with EmulatorServer() as server:
-        req = CreateRequest(index=0)
-        await server.Create(req, None)
-        yield server
+    with importlib.resources.open_text("xcvr_emu", "config.yaml") as f:
+        async with EmulatorServer(f.name) as server:
+            yield server
 
 
 @pytest.mark.asyncio
-async def test_List(server):
+async def test_List(server: EmulatorServer) -> None:
     req = ListRequest()
     res: ListResponse = await server.List(req, None)
-    assert len(res.infos) == 1
+    assert len(res.infos) == 9
     assert res.infos[0].index == 0
 
 
 @pytest.mark.asyncio
-async def test_Delete(server):
-    req = DeleteRequest(index=0)
-    await server.Delete(req, None)
+async def test_Delete(server: EmulatorServer) -> None:
+    await server.Delete(DeleteRequest(index=0), None)
 
     req = ListRequest()
     res: ListResponse = await server.List(req, None)
-    assert len(res.infos) == 0
+    assert len(res.infos) == 8
 
 
 @pytest.mark.asyncio
 async def test_Read(server):
     req = ReadRequest(index=0, bank=0, offset=0, page=0, length=1)
     res = await server.Read(req, None)
-    assert res.data == bytes([0x0])
+    assert res.data == bytes([0x18])
 
 
 @pytest.mark.asyncio

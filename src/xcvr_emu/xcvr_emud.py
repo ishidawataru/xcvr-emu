@@ -17,13 +17,16 @@ from .proto import emulator_pb2_grpc  # noqa E402
 
 logger = logging.getLogger(__name__)
 
+
 class Emud:
-    def __init__(self, port:int, grace:int=10) -> None:
+    def __init__(self, port: int, config: str = "", grace: int = 10) -> None:
         self.port = port
         self.grace = grace
         self.server = grpc.aio.server()
-        self.emulator = EmulatorServer()
-        emulator_pb2_grpc.add_SfpEmulatorServiceServicer_to_server(self.emulator, self.server)
+        self.emulator = EmulatorServer(config)
+        emulator_pb2_grpc.add_SfpEmulatorServiceServicer_to_server(
+            self.emulator, self.server
+        )
         self.server.add_insecure_port(f"[::]:{port}")
 
     async def start(self) -> None:
@@ -51,10 +54,8 @@ class Emud:
         await self.stop(grace=self.grace)
 
 
-
-
-async def _main(port: int) -> None:
-    async with Emud(port) as emud:
+async def _main(port: int, config: str) -> None:
+    async with Emud(port, config) as emud:
         logger.info(f"Server started at port {port}")
         await emud.wait_for_termination()
 
@@ -70,15 +71,22 @@ def main():
     argparser.add_argument(
         "-p", "--port", type=int, default=50051, help="Port number to listen"
     )
+    argparser.add_argument(
+        "-c",
+        "--config",
+        type=str,
+        help="Path to the configuration file",
+    )
 
     args = argparser.parse_args()
 
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
 
     try:
-        asyncio.run(_main(args.port), debug=args.verbose)
+        asyncio.run(_main(args.port, args.config), debug=args.verbose)
     except KeyboardInterrupt:
         logger.info("Server intterupted by user, exiting...")
+
 
 if __name__ == "__main__":
     main()

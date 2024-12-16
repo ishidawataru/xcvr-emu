@@ -6,9 +6,12 @@ import traceback
 from typing import AsyncGenerator
 
 import grpc
+import yaml
 
 from .proto import emulator_pb2 as pb2
 from .transceiver import CMISTransceiver
+
+from cmis import MemMap
 
 # see https://github.com/grpc/grpc/issues/29459#issuecomment-1641587881
 proto_dir = os.path.dirname(pb2.__file__)
@@ -20,13 +23,28 @@ logger = logging.getLogger(__name__)
 
 
 class EmulatorServer(emulator_pb2_grpc.SfpEmulatorServiceServicer):
-    def __init__(self) -> None:
+    def __init__(self, config: str = "") -> None:
         super().__init__()
+        self._cmis_mem_map = MemMap()
         self.xcvrs: dict[int, CMISTransceiver] = {}
         self.monitors: list[asyncio.Queue] = []
+        if config:
+            self._handle_config(config)
 
     async def __aenter__(self):
         return self
+
+    def _handle_config(self, config):
+        with open(config) as f:
+            try:
+                config = yaml.safe_load(f)
+            except yaml.YAMLError as e:
+                logger.error(f"Error loading config: {e}")
+                raise e from None
+
+        for k, v in config["transceivers"].items():
+            xcvr = CMISTransceiver(k, v, self._cmis_mem_map)
+            self.xcvrs[k] = xcvr
 
     async def stop(self):
         logger.info("Stopping emulator server")
@@ -43,7 +61,7 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorServiceServicer):
                 f"Transceiver({req.index}) already exists",
             )
 
-        xcvr = CMISTransceiver(req.index)
+        xcvr = CMISTransceiver(req.index, {}, self._cmis_mem_map)
         self.xcvrs[req.index] = xcvr
 
         return pb2.CreateResponse()
@@ -68,7 +86,9 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorServiceServicer):
         xcvr = self.xcvrs[req.index]
         data = xcvr.read(req)
 
-        logger.debug(f"Read: bank: {req.bank}, page: {req.page:02X}h, offset: {req.offset}, length: {req.length}, data: {data if len(data) > 1 else bin(data[0])!r}")
+        logger.debug(
+            f"Read: bank: {req.bank}, page: {req.page:02X}h, offset: {req.offset}, length: {req.length}, data: {data if len(data) > 1 else bin(data[0])!r}"
+        )
 
         await self.notify_monitors(
             {
@@ -134,7 +154,9 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorServiceServicer):
         ]
         return pb2.GetInfoResponse(present=xcvr.present, dpsms=dpsms)
 
-    async def UpdateInfo(self, req: pb2.UpdateInfoRequest, context) -> pb2.UpdateInfoResponse:
+    async def UpdateInfo(
+        self, req: pb2.UpdateInfoRequest, context
+    ) -> pb2.UpdateInfoResponse:
         if req.index not in self.xcvrs:
             raise grpc.RpcError(
                 grpc.StatusCode.NOT_FOUND, f"Transceiver({req.index}) does not exist"
@@ -142,7 +164,7 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorServiceServicer):
 
         xcvr = self.xcvrs[req.index]
         if req.present:
-            await xcvr.plugin()
+            xcvr.plugin()
         else:
             await xcvr.plugout()
 
@@ -152,7 +174,9 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorServiceServicer):
         for queue in self.monitors:
             await queue.put(message)
 
-    async def Monitor(self, request: pb2.MonitorRequest, context) -> AsyncGenerator[pb2.MonitorResponse, None]:
+    async def Monitor(
+        self, request: pb2.MonitorRequest, context
+    ) -> AsyncGenerator[pb2.MonitorResponse, None]:
         queue: asyncio.Queue = asyncio.Queue()
         self.monitors.append(queue)
 
