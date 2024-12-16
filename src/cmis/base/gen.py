@@ -319,6 +319,7 @@ class {{ f.name }}Enum(Enum):
 {% endif %}
 {% if valuecls %}
 class {{ f.name }}(Field, {{ valuecls }}):
+    EnumClass = {{ valuecls }}Enum
 {% else %}
 class {{ f.name }}(Field):
 {% endif %}
@@ -328,7 +329,9 @@ class {{ f.name }}(Field):
 {% for (key, _) in values %}
     {{key}} = {{f.name}}Enum.{{key}}
 {%- else %}
+{% if not valuecls %}
     pass
+{% endif %}
 {% endfor %}
 {%- endfor %}
 class MemMap(BaseMemMap):
