@@ -49,7 +49,6 @@ def get_value_enum_name(f, values):
 
 
 class Group:
-
     ValueEnumTemplate = jinja2.Template(
         """class {{name}}Enum(Enum):
 {% for (key, value) in values %}
@@ -360,7 +359,6 @@ class MemMap(BaseMemMap):
         self.mem_map = mem_map
 
     def generate(self) -> None:
-
         print(self.Header)
 
         groups = []
@@ -370,15 +368,15 @@ class MemMap(BaseMemMap):
         value_set: dict[frozenset[tuple[str, int]], dict] = {}
 
         classes: dict[str, set[str]] = {}
-        for page in self.mem_map.pages.values():
-            for g in page.group_map.values():
+        for _, page in sorted(self.mem_map.pages.items(), key=lambda x: x[0]):
+            for g in sorted(page.group_map.values(), key=lambda x: x.address):
                 if g.group is None:  # top level group
                     logger.info(f"Generating group for {g.name}, type: {type(g)}")
                     group = Group(self.mem_map, g)
                     group.generate(classes, value_set, exports)
                     groups.append(group)
 
-            for f in page.field_map.values():
+            for f in sorted(page.field_map.values(), key=lambda x: x.address):
                 if f.group is None and f.name not in FILTERED_FIELDNAMES:
                     values = get_values(f.fields)
                     key = frozenset(values)
