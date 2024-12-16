@@ -2411,8 +2411,7 @@ class ModuleGlobalControls(Field):
 
 
 class SFF8024Identifier(Field, Identifier):
-
-    pass
+    EnumClass = IdentifierEnum
 
 
 class MemoryModelEnum(Enum):
@@ -2510,8 +2509,7 @@ class MediaType(Field):
 
 
 class SFF8024IdentifierCopy(Field, Identifier):
-
-    pass
+    EnumClass = IdentifierEnum
 
 
 class VendorName(Field):
@@ -2925,43 +2923,35 @@ class SquelchMethodTx(Field):
 
 
 class ForcedSquelchTxSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class AutoSquelchDisableTxSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class OutputDisableTxSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class InputPolarityFlipTxSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class BankBroadcastSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class AutoSquelchDisableRxSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class OutputDisableRxSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class OutputPolarityFlipRxSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class NominalWavelength(Field):
@@ -2991,18 +2981,15 @@ class TxInputEqRecallBuffersSupported(Field):
 
 
 class TxInputEqFreezeSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class TxInputAdaptiveEqSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class TxInputEqFixedManualControlSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class TxCDRBypassControlSupportedEnum(Enum):
@@ -3020,13 +3007,11 @@ class TxCDRBypassControlSupported(Field):
 
 
 class TxCDRSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class UnidirReconfigSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class StagedSet1Supported(Field):
@@ -3053,18 +3038,15 @@ class RxOutputEqControlSupported(Field):
 
 
 class RxOutputAmplitudeControlSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class RxCDRBypassControlSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class RxCDRSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class LengthMultiplierSMFEnum(Enum):
@@ -3150,23 +3132,19 @@ class BanksSupported(Field):
 
 
 class MaxDurationModulePwrDn(Field, Duration):
-
-    pass
+    EnumClass = DurationEnum
 
 
 class MaxDurationModulePwrUp(Field, Duration):
-
-    pass
+    EnumClass = DurationEnum
 
 
 class MaxDurationDPTxTurnOff(Field, Duration):
-
-    pass
+    EnumClass = DurationEnum
 
 
 class MaxDurationDPTxTurnOn(Field, Duration):
-
-    pass
+    EnumClass = DurationEnum
 
 
 class ModSelWaitTimeExponent(Field):
@@ -3180,43 +3158,35 @@ class ModSelWaitTimeMantissa(Field):
 
 
 class MaxDurationDPDeinit(Field, Duration):
-
-    pass
+    EnumClass = DurationEnum
 
 
 class MaxDurationDPInit(Field, Duration):
-
-    pass
+    EnumClass = DurationEnum
 
 
 class AdaptiveInputEqFailFlagTxSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class CDRLOLFlagTxSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class LOSFlagTxSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class FailureFlagTxSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class CDRLOLFlagRxSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class LOSFlagRxSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class CdbInstancesSupportedEnum(Enum):
@@ -3236,13 +3206,11 @@ class CdbInstancesSupported(Field):
 
 
 class CdbBackgroundModeSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class CdbAutoPagingSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class CdbMaxPagesEPLEnum(Enum):
@@ -3335,33 +3303,27 @@ class ModuleHardwareMinorRevision(Field):
 
 
 class CustomMonSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class Aux3MonSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class Aux2MonSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class Aux1MonSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class VccMonSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class TempMonSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class TxBiasCurrentScalingFactorEnum(Enum):
@@ -3381,18 +3343,15 @@ class TxBiasCurrentScalingFactor(Field):
 
 
 class RxOpticalPowerMonSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class TxOpticalPowerMonSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class TxBiasMonSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class CoolingImplementedEnum(Enum):
@@ -3428,13 +3387,11 @@ class TxInputClockingCapabilities(Field):
 
 
 class ePPSSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class TimingPage15hSupported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class Aux3MonObservableEnum(Enum):
@@ -3577,23 +3534,19 @@ class CDRPowerSavedPerLane(Field):
 
 
 class RxOutputLevel3Supported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class RxOutputLevel2Supported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class RxOutputLevel1Supported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class RxOutputLevel0Supported(Field, SupportFlag):
-
-    pass
+    EnumClass = SupportFlagEnum
 
 
 class TxInputEqMax(Field):
