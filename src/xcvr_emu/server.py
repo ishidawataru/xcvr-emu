@@ -87,7 +87,7 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorServiceServicer):
         data = xcvr.read(req)
 
         logger.debug(
-            f"Read: bank: {req.bank}, page: {req.page:02X}h, offset: {req.offset}, length: {req.length}, data: {data if len(data) > 1 else bin(data[0])!r}"
+            f"Read: bank: {req.bank}, page: {req.page:02X}h, offset: {req.offset}, length: {req.length}, data: {data if len(data) != 1 else bin(data[0])!r}"
         )
 
         await self.notify_monitors(
@@ -114,7 +114,7 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorServiceServicer):
         xcvr = self.xcvrs[req.index]
         data = req.data
         logger.debug(
-            f"write: bank: {req.bank}, page: {req.page:02X}h, offset: {req.offset}, length: {req.length}, data: {data if len(data) > 1 else bin(data[0])!r}"
+            f"write: bank: {req.bank}, page: {req.page:02X}h, offset: {req.offset}, length: {req.length}, data: {data if len(data) != 1 else bin(data[0])!r}"
         )
 
         try:
