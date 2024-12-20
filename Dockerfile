@@ -1,4 +1,4 @@
-FROM python:3.13-slim AS builder
+FROM python:3.11 AS builder
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ COPY . /app
 
 RUN python -m build
 
-FROM python:3.13-slim AS runtime
+FROM python:3.11-slim AS runtime
 
 RUN --mount=type=bind,from=builder,source=/app,target=/app \
   pip install --no-cache-dir /app/dist/*.whl
