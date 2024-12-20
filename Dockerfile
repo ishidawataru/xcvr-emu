@@ -21,4 +21,7 @@ FROM python:3.11-slim AS runtime
 RUN --mount=type=bind,from=builder,source=/app,target=/app \
   pip install --no-cache-dir /app/dist/*.whl
 
-CMD ["xcvr-emud"]
+RUN --mount=type=bind,from=builder,source=/app,target=/app \
+  cp /app/src/xcvr_emu/config.yaml .
+
+CMD ["xcvr-emud", "-c", "config.yaml"]
