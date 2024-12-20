@@ -11,7 +11,7 @@ license = { text = "Apache-2.0" }
 readme = "README.md"
 keywords = ["transceiver", "emulation", "network"]
 
-dependencies = ["grpcio==1.51.1", "prompt-toolkit", "PyYAML"]
+dependencies = ["grpcio==1.51.1", "protobuf", "prompt-toolkit", "PyYAML"]
 
 [project.scripts]
 xcvr-emud = "xcvr_emu.xcvr_emud:main"
