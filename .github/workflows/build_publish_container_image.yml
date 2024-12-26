@@ -53,7 +53,15 @@ jobs:
         context: .
         platforms: linux/amd64
         push: ${{ github.event_name != 'pull_request' }}
+        load: ${{ github.event_name == 'pull_request' }}
+        target: ${{ github.event_name == 'pull_request' && 'builder' || 'runtime' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+
+    - name: Test the Docker image
+      if: github.event_name == 'pull_request'
+      run: |
+        docker run --name xcvr-emu -d --rm ${{ steps.meta.outputs.tags }}
+        docker exec xcvr-emu python -m pytest tests/docker

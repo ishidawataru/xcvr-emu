@@ -10,13 +10,23 @@ RUN mkdir src && touch src/__init__.py
 
 RUN pip-compile --verbose --strip-extras pyproject.toml
 
-RUN pip install  --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . /app
 
 RUN python -m build
 
+RUN pip install -e '.[dev]'
+
+CMD ["xcvr-emud", "-c", "src/xcvr_emu/config.yaml"]
+
 FROM python:3.11-slim AS runtime
+
+ARG TARGETARCH
+
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+  apt-get update && apt-get install -y build-essential; \
+  fi
 
 RUN --mount=type=bind,from=builder,source=/app,target=/app \
   pip install --no-cache-dir /app/dist/*.whl
