@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "xcvr-emu"
-version = "1.1.0"
+version = "1.2.0"
 description = "A package for transceiver emulation"
 authors = [{ name = "Wataru Ishida", email = "wataru.ishid@gmail.com" }]
 license = { text = "Apache-2.0" }
