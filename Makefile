@@ -17,7 +17,7 @@ generate-cmis:
 test: ruff mypy pytest
 
 pytest:
-	$(PYTHON) -m pytest -v
+	$(PYTHON) -m pytest -v --ignore=tests/docker
 
 ruff:
 	$(PYTHON) -m ruff check .
