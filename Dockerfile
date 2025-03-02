@@ -1,4 +1,4 @@
-FROM python:3.11 AS builder
+FROM python:3.13 AS builder
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ RUN pip install -e '.[dev]'
 
 CMD ["xcvr-emud", "-c", "src/xcvr_emu/config.yaml"]
 
-FROM python:3.11-slim AS runtime
+FROM python:3.13-slim AS runtime
 
 ARG TARGETARCH
 
