@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/ishidawataru/xcvr-emu/compare/v1.1.0...v1.2.0) (2025-04-01)
+
+
+### Features
+
+* add Docker image testing and improve Dockerfile for development ([f04622d](https://github.com/ishidawataru/xcvr-emu/commit/f04622dcfd268da36dcdb100da6c5b69296c7f76))
+
+
+### Bug Fixes
+
+* adjust platform settings for pull request builds in workflow ([ffa24c3](https://github.com/ishidawataru/xcvr-emu/commit/ffa24c38d2e25f146fa13f0d338f91bbfb01bf14))
+
 ## [1.1.0](https://github.com/ishidawataru/xcvr-emu/compare/v1.0.1...v1.1.0) (2024-12-20)
 
 
