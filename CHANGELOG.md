@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.2.0](https://github.com/ishidawataru/xcvr-emu/compare/v1.1.0...v1.2.0) (2025-04-07)
+
+
+### Features
+
+* add Docker image testing and improve Dockerfile for development ([f04622d](https://github.com/ishidawataru/xcvr-emu/commit/f04622dcfd268da36dcdb100da6c5b69296c7f76))
+* **client:** bank support ([0184893](https://github.com/ishidawataru/xcvr-emu/commit/01848938822b408f645763cc1cb0e9c29a26b1ee))
+* **proto:** add bank field to DataPathStateMachine ([c9a9935](https://github.com/ishidawataru/xcvr-emu/commit/c9a993531080d113a8b8fbda181dd19762325277))
+* **server:** bank support ([7ecec98](https://github.com/ishidawataru/xcvr-emu/commit/7ecec983f30a8022d6dcea370d51c07915e67e96))
+* **server:** PageSelect, BankSelect field emulation ([7bf4943](https://github.com/ishidawataru/xcvr-emu/commit/7bf4943949c273724edc7674f25019b9dc3f56fb))
+
+
+### Bug Fixes
+
+* adjust platform settings for pull request builds in workflow ([ffa24c3](https://github.com/ishidawataru/xcvr-emu/commit/ffa24c38d2e25f146fa13f0d338f91bbfb01bf14))
+* allow RESERVED value to be appeared once ([ef1c59d](https://github.com/ishidawataru/xcvr-emu/commit/ef1c59d34fac54b767b5335eaac8ae90fcb56567))
+
 ## [1.1.0](https://github.com/ishidawataru/xcvr-emu/compare/v1.0.1...v1.1.0) (2024-12-20)
 
 
