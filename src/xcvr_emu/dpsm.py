@@ -12,8 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class DataPathStateMachine:
-    def __init__(self, mem_map: MemMap, dpid: int) -> None:
+    def __init__(self, mem_map: MemMap, bank: int, dpid: int) -> None:
         self._mem_map = mem_map
+        self._bank = bank
         self._dpid = dpid
 
         self._lanemask = [0] * 8
@@ -57,7 +58,7 @@ class DataPathStateMachine:
         deinit = deinits[0]
         output = outputs[0]
 
-        logger.info(f"{deinit=}, {output=}, {lanes=}, {appsels=}")
+        logger.info(f"{self._name}: {deinit=}, {output=}, {lanes=}, {appsels=}")
 
         prev_state = self._state
 
@@ -70,16 +71,18 @@ class DataPathStateMachine:
         for i in lanes:
             self._mem_map.DPStateHostLane[i].value = state
             if state in [DPStateHostLane.DPACTIVATED, DPStateHostLane.DPINITIALIZED]:
-                self._mem_map.DPInitPendingLane[i].value = (
-                    DPInitPendingLane.NOT_PENDING
-                )
+                self._mem_map.DPInitPendingLane[i].value = DPInitPendingLane.NOT_PENDING
                 # flag down DP Pending
 
         if state != prev_state:
-            logger.info(f"updating DPSM({self._dpid}) state: {prev_state} -> {state}")
+            logger.info(f"updating {self._name} state: {prev_state} -> {state}")
             self._state = state
 
         return True
 
+    @property
+    def _name(self) -> str:
+        return f"DPSM({self._bank}:{self._dpid})"
+
     def __str__(self) -> str:
-        return f"DPSM({self._dpid}): Lanes: {self._lanemask}, AppSel: {self._appsel}, State: {self._state}"
+        return f"{self._name}: Lanes: {self._lanemask}, AppSel: {self._appsel}, State: {self._state}"

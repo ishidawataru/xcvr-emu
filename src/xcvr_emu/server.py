@@ -148,7 +148,7 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorServiceServicer):
         xcvr = self.xcvrs[req.index]
         dpsms = [
             pb2.DataPathStateMachine(
-                dpid=v._dpid, appsel=v._appsel, state=str(v._state)
+                bank=v._bank, dpid=v._dpid, appsel=v._appsel, state=str(v._state)
             )
             for v in xcvr._dpsms.values()
         ]

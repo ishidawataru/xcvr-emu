@@ -145,3 +145,56 @@ async def test_dpsm_output_disable_handling(caplog, xcvr: CMISTransceiver):
 
     for i in range(4):
         assert m.DPStateHostLane[i].value == m.DPStateHostLane.DPACTIVATED
+
+@pytest.mark.asyncio
+async def test_dpsm_activation_with_bank(caplog, xcvr: CMISTransceiver):
+
+    m = MemMap(remote=MemoryAccessor(xcvr))
+
+    m.LowPwrRequestSW.value = m.LowPwrRequestSW.NO_REQUEST
+
+    await asyncio.sleep(0.1)
+
+    assert m.ModuleState.value == m.ModuleState.MODULE_READY
+    assert m.ApplicationDescriptor[0].HostLaneCount.value == LanesEnum.FOUR_LANES
+    assert m.BanksSupported.value == m.BanksSupported.BANKS_0_3_SUPPORTED
+
+    for i in range(4):
+        assert m.DPStateHostLane[i].value == m.DPStateHostLane.DPACTIVATED
+        assert m.DPStateHostLane[i + 4].value == m.DPStateHostLane.DPDEACTIVATED
+
+    for deinit in m.DPDeinitLane:
+        assert deinit.value == deinit.INITIALIZE
+
+    for i in range(4):
+        m.DPDeinitLane[i].lvalue = m.DPDeinitLane.DEINITIALIZE
+
+    m.DPDeinitLane.store()
+
+    await asyncio.sleep(0.1)
+
+    for i in range(4):
+        assert m.DPStateHostLane[i].value == m.DPStateHostLane.DPDEACTIVATED
+
+    for bank in range(1, 4):
+        m.bank = bank
+        for i in range(4):
+            assert m.DPStateHostLane[i].value == m.DPStateHostLane.DPACTIVATED
+
+    m.bank = 1
+    for i in range(4):
+        m.DPDeinitLane[i].lvalue = m.DPDeinitLane.DEINITIALIZE
+
+    m.DPDeinitLane.store()
+
+    await asyncio.sleep(0.1)
+
+    for bank in [0, 1]:
+        m.bank = bank
+        for i in range(4):
+            assert m.DPStateHostLane[i].value == m.DPStateHostLane.DPDEACTIVATED
+
+    for bank in [2, 3]:
+        m.bank = bank
+        for i in range(4):
+            assert m.DPStateHostLane[i].value == m.DPStateHostLane.DPACTIVATED
