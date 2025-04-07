@@ -87,6 +87,7 @@ class CdbStatusRange(RangeGroup, CdbStatus):
 
 class LanesEnum(Enum):
 
+    RESERVED = 0
     ONE_LANE = 1
     TWO_LANES = 2
     FOUR_LANES = 4
@@ -118,6 +119,7 @@ class ApplicationDescriptor(Group):
 
         EnumClass = LanesEnum
 
+        RESERVED = LanesEnum.RESERVED
         ONE_LANE = LanesEnum.ONE_LANE
         TWO_LANES = LanesEnum.TWO_LANES
         FOUR_LANES = LanesEnum.FOUR_LANES
@@ -132,6 +134,7 @@ class ApplicationDescriptor(Group):
 
         EnumClass = LanesEnum
 
+        RESERVED = LanesEnum.RESERVED
         ONE_LANE = LanesEnum.ONE_LANE
         TWO_LANES = LanesEnum.TWO_LANES
         FOUR_LANES = LanesEnum.FOUR_LANES
@@ -353,6 +356,7 @@ class DurationEnum(Enum):
     BETWEEN_5_AND_10_MIN = 11
     BETWEEN_10_AND_50_MIN = 12
     GREATER_THAN_50_MIN = 13
+    RESERVED = 14
 
 
 class Duration:
@@ -371,6 +375,7 @@ class Duration:
     BETWEEN_5_AND_10_MIN = DurationEnum.BETWEEN_5_AND_10_MIN
     BETWEEN_10_AND_50_MIN = DurationEnum.BETWEEN_10_AND_50_MIN
     GREATER_THAN_50_MIN = DurationEnum.GREATER_THAN_50_MIN
+    RESERVED = DurationEnum.RESERVED
 
 
 class SupportFlagEnum(Enum):
@@ -529,6 +534,7 @@ class AdaptiveInputEqFreezeTxRange(RangeGroup, AdaptiveInputEqFreezeTx):
 
 
 class AdaptiveInputEqStoreTxEnum(Enum):
+    RESERVED = 0
     STORE_BUFFER_1 = 1
     STORE_BUFFER_2 = 2
 
@@ -537,6 +543,7 @@ class AdaptiveInputEqStoreTx(Field):
 
     EnumClass = AdaptiveInputEqStoreTxEnum
 
+    RESERVED = AdaptiveInputEqStoreTxEnum.RESERVED
     STORE_BUFFER_1 = AdaptiveInputEqStoreTxEnum.STORE_BUFFER_1
     STORE_BUFFER_2 = AdaptiveInputEqStoreTxEnum.STORE_BUFFER_2
 
@@ -747,6 +754,7 @@ class RecallBufferEnum(Enum):
     DO_NOT_RECALL = 0
     RECALL_BUFFER_1 = 1
     RECALL_BUFFER_2 = 2
+    RESERVED = 3
 
 
 class BypassedOrEnabledEnum(Enum):
@@ -789,6 +797,7 @@ class TxControl(Group):
         DO_NOT_RECALL = RecallBufferEnum.DO_NOT_RECALL
         RECALL_BUFFER_1 = RecallBufferEnum.RECALL_BUFFER_1
         RECALL_BUFFER_2 = RecallBufferEnum.RECALL_BUFFER_2
+        RESERVED = RecallBufferEnum.RESERVED
 
     class AdaptiveInputEqRecallTxRangeCls(RangeGroup):
         def __getitem__(self, index: int) -> "TxControl.AdaptiveInputEqRecallTxCls":
@@ -1367,6 +1376,7 @@ class OutputStatusChangedMaskRxRange(RangeGroup, OutputStatusChangedMaskRx):
 
 
 class DPStateHostLaneEnum(Enum):
+    RESERVED = 0
     DPDEACTIVATED = 1
     DPINIT = 2
     DPDEINIT = 3
@@ -1380,6 +1390,7 @@ class DPStateHostLane(Field):
 
     EnumClass = DPStateHostLaneEnum
 
+    RESERVED = DPStateHostLaneEnum.RESERVED
     DPDEACTIVATED = DPStateHostLaneEnum.DPDEACTIVATED
     DPINIT = DPStateHostLaneEnum.DPINIT
     DPDEINIT = DPStateHostLaneEnum.DPDEINIT
@@ -1909,6 +1920,7 @@ class TxControls(Group):
         DO_NOT_RECALL = RecallBufferEnum.DO_NOT_RECALL
         RECALL_BUFFER_1 = RecallBufferEnum.RECALL_BUFFER_1
         RECALL_BUFFER_2 = RecallBufferEnum.RECALL_BUFFER_2
+        RESERVED = RecallBufferEnum.RESERVED
 
     class AdaptiveInputEqRecallTxRangeCls(RangeGroup):
         def __getitem__(self, index: int) -> "TxControls.AdaptiveInputEqRecallTxCls":
@@ -2039,6 +2051,7 @@ class MciMaxSpeedEnum(Enum):
 
     UP_TO_400_KHZ = 0
     UP_TO_1_MHZ = 1
+    RESERVED = 2
 
 
 class MciMaxSpeed(Field):
@@ -2047,6 +2060,7 @@ class MciMaxSpeed(Field):
 
     UP_TO_400_KHZ = MciMaxSpeedEnum.UP_TO_400_KHZ
     UP_TO_1_MHZ = MciMaxSpeedEnum.UP_TO_1_MHZ
+    RESERVED = MciMaxSpeedEnum.RESERVED
 
 
 class SteppedConfigOnlyEnum(Enum):
@@ -2093,6 +2107,7 @@ class InterruptDeasserted(Field):
 
 class ModuleStateEnum(Enum):
 
+    RESERVED = 0
     MODULE_LOW_PWR = 1
     MODULE_PWR_UP = 2
     MODULE_READY = 3
@@ -2104,6 +2119,7 @@ class ModuleState(Field):
 
     EnumClass = ModuleStateEnum
 
+    RESERVED = ModuleStateEnum.RESERVED
     MODULE_LOW_PWR = ModuleStateEnum.MODULE_LOW_PWR
     MODULE_PWR_UP = ModuleStateEnum.MODULE_PWR_UP
     MODULE_READY = ModuleStateEnum.MODULE_READY
@@ -2906,6 +2922,7 @@ class LengthMultiplierSMFEnum(Enum):
     MULTIPLIER_0_1 = 0
     MULTIPLIER_1 = 1
     MULTIPLIER_10 = 2
+    RESERVED = 3
 
 
 class LengthMultiplierSMF(Field):
@@ -2915,6 +2932,7 @@ class LengthMultiplierSMF(Field):
     MULTIPLIER_0_1 = LengthMultiplierSMFEnum.MULTIPLIER_0_1
     MULTIPLIER_1 = LengthMultiplierSMFEnum.MULTIPLIER_1
     MULTIPLIER_10 = LengthMultiplierSMFEnum.MULTIPLIER_10
+    RESERVED = LengthMultiplierSMFEnum.RESERVED
 
 
 class LengthOM5(Field):
@@ -2952,6 +2970,7 @@ class BanksSupportedEnum(Enum):
     BANK_0_SUPPORTED = 0
     BANKS_0_1_SUPPORTED = 1
     BANKS_0_3_SUPPORTED = 2
+    RESERVED = 3
 
 
 class BanksSupported(Field):
@@ -2961,6 +2980,7 @@ class BanksSupported(Field):
     BANK_0_SUPPORTED = BanksSupportedEnum.BANK_0_SUPPORTED
     BANKS_0_1_SUPPORTED = BanksSupportedEnum.BANKS_0_1_SUPPORTED
     BANKS_0_3_SUPPORTED = BanksSupportedEnum.BANKS_0_3_SUPPORTED
+    RESERVED = BanksSupportedEnum.RESERVED
 
 
 class Page03hSupported(Field):
@@ -3155,6 +3175,7 @@ class RxOutputEqTypeEnum(Enum):
     PEAK_TO_PEAK = 0
     STEADY_STATE = 1
     AVERAGE_PP_STEADY = 2
+    RESERVED = 3
 
 
 class RxOutputEqType(Field):
@@ -3164,6 +3185,7 @@ class RxOutputEqType(Field):
     PEAK_TO_PEAK = RxOutputEqTypeEnum.PEAK_TO_PEAK
     STEADY_STATE = RxOutputEqTypeEnum.STEADY_STATE
     AVERAGE_PP_STEADY = RxOutputEqTypeEnum.AVERAGE_PP_STEADY
+    RESERVED = RxOutputEqTypeEnum.RESERVED
 
 
 class OpticalDetectorTypeEnum(Enum):
@@ -3359,6 +3381,7 @@ class TxBiasCurrentScalingFactorEnum(Enum):
     MULTIPLY_X1 = 0
     MULTIPLY_X2 = 1
     MULTIPLY_X4 = 2
+    RESERVED = 3
 
 
 class TxBiasCurrentScalingFactor(Field):
@@ -3368,6 +3391,7 @@ class TxBiasCurrentScalingFactor(Field):
     MULTIPLY_X1 = TxBiasCurrentScalingFactorEnum.MULTIPLY_X1
     MULTIPLY_X2 = TxBiasCurrentScalingFactorEnum.MULTIPLY_X2
     MULTIPLY_X4 = TxBiasCurrentScalingFactorEnum.MULTIPLY_X4
+    RESERVED = TxBiasCurrentScalingFactorEnum.RESERVED
 
 
 class TxCDRSupported(Field, SupportFlag):
@@ -3405,6 +3429,7 @@ class TxInputEqRecallBuffersSupportedEnum(Enum):
     NOT_SUPPORTED = 0
     BUFFER_COUNT_1 = 1
     BUFFER_COUNT_2 = 2
+    RESERVED = 3
 
 
 class TxInputEqRecallBuffersSupported(Field):
@@ -3414,6 +3439,7 @@ class TxInputEqRecallBuffersSupported(Field):
     NOT_SUPPORTED = TxInputEqRecallBuffersSupportedEnum.NOT_SUPPORTED
     BUFFER_COUNT_1 = TxInputEqRecallBuffersSupportedEnum.BUFFER_COUNT_1
     BUFFER_COUNT_2 = TxInputEqRecallBuffersSupportedEnum.BUFFER_COUNT_2
+    RESERVED = TxInputEqRecallBuffersSupportedEnum.RESERVED
 
 
 class RxCDRSupported(Field, SupportFlag):
@@ -3494,6 +3520,7 @@ class CdbInstancesSupportedEnum(Enum):
     NOT_SUPPORTED = 0
     ONE_INSTANCE = 1
     TWO_INSTANCES = 2
+    RESERVED = 3
 
 
 class CdbInstancesSupported(Field):
@@ -3503,6 +3530,7 @@ class CdbInstancesSupported(Field):
     NOT_SUPPORTED = CdbInstancesSupportedEnum.NOT_SUPPORTED
     ONE_INSTANCE = CdbInstancesSupportedEnum.ONE_INSTANCE
     TWO_INSTANCES = CdbInstancesSupportedEnum.TWO_INSTANCES
+    RESERVED = CdbInstancesSupportedEnum.RESERVED
 
 
 class CdbReadWriteLengthExtension(Field):

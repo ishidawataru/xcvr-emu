@@ -8,15 +8,19 @@ from .base import Field, MemMap, RangeGroup
 logger = logging.getLogger(__name__)
 
 FILTERED_FIELDNAMES = ["Reserved", "Custom"]
-FILTERED_VALUENAMES = ["RESERVED"]
+FILTERED_VALUENAMES_ONCE = ["RESERVED"]
 
 
 def get_values(fields):
-    return [
-        (v[1], k)
-        for k, v in fields.get("Values", {}).items()
-        if isinstance(k, int) and v[1] not in FILTERED_VALUENAMES
-    ]
+    onces = {}
+    values = []
+    for k, v in fields.get("Values", {}).items():
+        if isinstance(k, int):
+            if v[1] in FILTERED_VALUENAMES_ONCE and v[1] in onces:
+                continue
+            values.append((v[1], k))
+            onces[v[1]] = k
+    return values
 
 
 def get_value_enum_name(f, values):
