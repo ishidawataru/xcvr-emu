@@ -2,7 +2,7 @@ import logging
 from typing import Generator
 
 from xcvr_emu.cli import Command, Context
-from cmis import Address, MemMap
+from cmis import Address, MemMap, Field
 from xcvr_emu.proto import emulator_pb2 as pb2
 
 stdout = logging.getLogger("stdout")
@@ -26,9 +26,13 @@ class TransceiverCommand(Command):
     def mem_map(self):
         return self.context.mem_map
 
+    @property
+    def bank(self):
+        return self.context.bank
+
 
 class RegisterCommand(TransceiverCommand):
-    def __init__(self, context, parent, name, **options):
+    def __init__(self, context: "BankContext", parent, name, **options):
         super().__init__(context, parent, name, **options)
         self._arguments = []
         for key in self.mem_map.group_map.keys():
@@ -60,7 +64,7 @@ class Read(RegisterCommand):
             address = field.address
 
         v = self.read(
-            bank=0,
+            bank=self.bank,
             page=address.page,
             offset=address.start_byte,
             length=address.byte_size,
@@ -97,7 +101,7 @@ class Write(RegisterCommand):
             src_int = int(line[1], 0)
             if address.bit is not None:
                 dst = self.read(
-                    bank=0,
+                    bank=self.bank,
                     page=address.page,
                     offset=address.start_byte,
                     length=address.byte_size,
@@ -117,7 +121,7 @@ class Write(RegisterCommand):
             return
 
         self.write(
-            bank=0,
+            bank=self.bank,
             page=address.page,
             offset=address.start_byte,
             length=address.byte_size,
@@ -182,7 +186,7 @@ class Info(TransceiverCommand):
             stdout.info("  DPSM:")
             for dpsm in res.dpsms:
                 stdout.info(
-                    f"    DPID: {dpsm.dpid}, Active AppSel: {dpsm.appsel}, State: {dpsm.state}"
+                    f"    DPID: {dpsm.bank}:{dpsm.dpid}, Active AppSel: {dpsm.appsel}, State: {dpsm.state}"
                 )
 
 
@@ -197,13 +201,13 @@ class MemoryAccessor:
                 index=self.index, bank=bank, page=page, offset=offset, length=length
             )
         )
-        stdout.info(f"Read: {bank=}, {page=}, {offset=}, {length=}, {res.data=}")
+        # stdout.info(f"Read: {bank=}, {page=}, {offset=}, {length=}, {res.data=}")
         return res.data
 
     def write(
         self, bank: int, page: int, offset: int, length: int, data: bytes
     ) -> None:
-        stdout.info(f"Write: {bank=}, {page=}, {offset=}, {length=}, {data=}")
+        # stdout.info(f"Write: {bank=}, {page=}, {offset=}, {length=}, {data=}")
         self.conn.Write(
             pb2.WriteRequest(
                 index=self.index,
@@ -216,12 +220,13 @@ class MemoryAccessor:
         )
 
 
-class TransceiverContext(Context):
-    def __init__(self, parent, index):
+class BankContext(Context):
+    def __init__(self, parent, index, bank=0):
         super().__init__(parent, fuzzy_completion=True)
         self.index = index
+        self.bank = bank
 
-        acc = MemoryAccessor(index, parent.conn)
+        acc = MemoryAccessor(index, parent.root().conn)
 
         self.mem_map = MemMap(acc)
 
@@ -234,6 +239,34 @@ class TransceiverContext(Context):
         self.add_command("remove", Remove)
         self.add_command("insert", Insert)
         self.add_command("info", Info)
+
+    def __str__(self):
+        return f"bank({self.bank})"
+
+
+class Bank(TransceiverCommand):
+    def arguments(self) -> Generator[str, None, None]:
+        f: Field = self.mem_map.search_by_name("BanksSupported", include_fields=True)
+        v = self.read(
+            bank=0,
+            page=f.address.page,
+            offset=f.address.start_byte,
+            length=f.address.byte_size,
+        )
+        return (str(i) for i in range(2 ** int(v[0])))
+
+    def exec(self, line):
+        if not line:
+            stderr.error(f"usage: {self.name} <bank>")
+            return
+
+        return BankContext(self.context, self.context.index, int(line[0], 0))
+
+
+class TransceiverContext(BankContext):
+    def __init__(self, parent, index):
+        super().__init__(parent, index)
+        self.add_command("bank", Bank)
 
     def __str__(self):
         return f"transceiver({self.index})"

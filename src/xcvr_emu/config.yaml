@@ -20,6 +20,7 @@ transceivers:
       MediaType: "OPTICAL_SMF"
       ModulePowerClass: "CLASS_8"
       MaxPower: 40 # 10.0 W
+      BanksSupported: "BANKS_0_3_SUPPORTED"
 
       ConnectorType: "MPO_1X16"
       ModuleActiveFirmwareMajorRevision: 1
