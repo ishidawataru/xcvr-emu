@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0e\x65mulator.proto\x12\x08\x65mulator\",\n\rCreateRequest\x12\r\n\x05index\x18\x01 \x01(\r\x12\x0c\n\x04type\x18\x02 \x01(\t\"\x10\n\x0e\x43reateResponse\"\x1e\n\rDeleteRequest\x12\r\n\x05index\x18\x01 \x01(\r\"\x10\n\x0e\x44\x65leteResponse\"g\n\x0bReadRequest\x12\r\n\x05index\x18\x01 \x01(\r\x12\x0c\n\x04\x62\x61nk\x18\x02 \x01(\r\x12\x0c\n\x04page\x18\x03 \x01(\r\x12\x0e\n\x06offset\x18\x04 \x01(\r\x12\x0e\n\x06length\x18\x05 \x01(\r\x12\r\n\x05\x66orce\x18\x06 \x01(\x08\"\x1c\n\x0cReadResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"g\n\x0cWriteRequest\x12\r\n\x05index\x18\x01 \x01(\r\x12\x0c\n\x04\x62\x61nk\x18\x02 \x01(\r\x12\x0c\n\x04page\x18\x03 \x01(\r\x12\x0e\n\x06offset\x18\x04 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\x0c\x12\x0e\n\x06length\x18\x06 \x01(\r\"\x0f\n\rWriteResponse\"\x1f\n\x0eGetInfoRequest\x12\r\n\x05index\x18\x01 \x01(\r\"C\n\x14\x44\x61taPathStateMachine\x12\x0c\n\x04\x64pid\x18\x01 \x01(\r\x12\x0e\n\x06\x61ppsel\x18\x02 \x01(\r\x12\r\n\x05state\x18\x03 \x01(\t\"1\n\x0bModuleState\x12\r\n\x05state\x18\x01 \x01(\t\x12\x13\n\x0bvendor_name\x18\x02 \x01(\t\"\x84\x01\n\x0fGetInfoResponse\x12\x0f\n\x07present\x18\x01 \x01(\x08\x12\r\n\x05index\x18\x02 \x01(\r\x12\"\n\x03msm\x18\x03 \x01(\x0b\x32\x15.emulator.ModuleState\x12-\n\x05\x64psms\x18\x04 \x03(\x0b\x32\x1e.emulator.DataPathStateMachine\"3\n\x11UpdateInfoRequest\x12\r\n\x05index\x18\x01 \x01(\r\x12\x0f\n\x07present\x18\x02 \x01(\x08\"\x14\n\x12UpdateInfoResponse\"\x1f\n\x0eMonitorRequest\x12\r\n\x05index\x18\x01 \x01(\r\"\x8a\x01\n\x0fMonitorResponse\x12\r\n\x05index\x18\x01 \x01(\r\x12\x0c\n\x04\x62\x61nk\x18\x02 \x01(\r\x12\x0c\n\x04page\x18\x03 \x01(\r\x12\x0e\n\x06offset\x18\x04 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\x0c\x12\x0e\n\x06length\x18\x06 \x01(\r\x12\x0f\n\x07present\x18\x07 \x01(\x08\x12\r\n\x05write\x18\x08 \x01(\x08\"\r\n\x0bListRequest\"8\n\x0cListResponse\x12(\n\x05infos\x18\x01 \x03(\x0b\x32\x19.emulator.GetInfoResponse2\x91\x04\n\x12SfpEmulatorService\x12=\n\x06\x43reate\x12\x17.emulator.CreateRequest\x1a\x18.emulator.CreateResponse\"\x00\x12=\n\x06\x44\x65lete\x12\x17.emulator.DeleteRequest\x1a\x18.emulator.DeleteResponse\"\x00\x12\x37\n\x04Read\x12\x15.emulator.ReadRequest\x1a\x16.emulator.ReadResponse\"\x00\x12:\n\x05Write\x12\x16.emulator.WriteRequest\x1a\x17.emulator.WriteResponse\"\x00\x12@\n\x07GetInfo\x12\x18.emulator.GetInfoRequest\x1a\x19.emulator.GetInfoResponse\"\x00\x12I\n\nUpdateInfo\x12\x1b.emulator.UpdateInfoRequest\x1a\x1c.emulator.UpdateInfoResponse\"\x00\x12\x42\n\x07Monitor\x12\x18.emulator.MonitorRequest\x1a\x19.emulator.MonitorResponse\"\x00\x30\x01\x12\x37\n\x04List\x12\x15.emulator.ListRequest\x1a\x16.emulator.ListResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0e\x65mulator.proto\x12\x08\x65mulator\",\n\rCreateRequest\x12\r\n\x05index\x18\x01 \x01(\r\x12\x0c\n\x04type\x18\x02 \x01(\t\"\x10\n\x0e\x43reateResponse\"\x1e\n\rDeleteRequest\x12\r\n\x05index\x18\x01 \x01(\r\"\x10\n\x0e\x44\x65leteResponse\"g\n\x0bReadRequest\x12\r\n\x05index\x18\x01 \x01(\r\x12\x0c\n\x04\x62\x61nk\x18\x02 \x01(\r\x12\x0c\n\x04page\x18\x03 \x01(\r\x12\x0e\n\x06offset\x18\x04 \x01(\r\x12\x0e\n\x06length\x18\x05 \x01(\r\x12\r\n\x05\x66orce\x18\x06 \x01(\x08\"\x1c\n\x0cReadResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"g\n\x0cWriteRequest\x12\r\n\x05index\x18\x01 \x01(\r\x12\x0c\n\x04\x62\x61nk\x18\x02 \x01(\r\x12\x0c\n\x04page\x18\x03 \x01(\r\x12\x0e\n\x06offset\x18\x04 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\x0c\x12\x0e\n\x06length\x18\x06 \x01(\r\"\x0f\n\rWriteResponse\"\x1f\n\x0eGetInfoRequest\x12\r\n\x05index\x18\x01 \x01(\r\"Q\n\x14\x44\x61taPathStateMachine\x12\x0c\n\x04\x62\x61nk\x18\x01 \x01(\r\x12\x0c\n\x04\x64pid\x18\x02 \x01(\r\x12\x0e\n\x06\x61ppsel\x18\x03 \x01(\r\x12\r\n\x05state\x18\x04 \x01(\t\"1\n\x0bModuleState\x12\r\n\x05state\x18\x01 \x01(\t\x12\x13\n\x0bvendor_name\x18\x02 \x01(\t\"\x84\x01\n\x0fGetInfoResponse\x12\x0f\n\x07present\x18\x01 \x01(\x08\x12\r\n\x05index\x18\x02 \x01(\r\x12\"\n\x03msm\x18\x03 \x01(\x0b\x32\x15.emulator.ModuleState\x12-\n\x05\x64psms\x18\x04 \x03(\x0b\x32\x1e.emulator.DataPathStateMachine\"3\n\x11UpdateInfoRequest\x12\r\n\x05index\x18\x01 \x01(\r\x12\x0f\n\x07present\x18\x02 \x01(\x08\"\x14\n\x12UpdateInfoResponse\"\x1f\n\x0eMonitorRequest\x12\r\n\x05index\x18\x01 \x01(\r\"\x8a\x01\n\x0fMonitorResponse\x12\r\n\x05index\x18\x01 \x01(\r\x12\x0c\n\x04\x62\x61nk\x18\x02 \x01(\r\x12\x0c\n\x04page\x18\x03 \x01(\r\x12\x0e\n\x06offset\x18\x04 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\x0c\x12\x0e\n\x06length\x18\x06 \x01(\r\x12\x0f\n\x07present\x18\x07 \x01(\x08\x12\r\n\x05write\x18\x08 \x01(\x08\"\r\n\x0bListRequest\"8\n\x0cListResponse\x12(\n\x05infos\x18\x01 \x03(\x0b\x32\x19.emulator.GetInfoResponse2\x91\x04\n\x12SfpEmulatorService\x12=\n\x06\x43reate\x12\x17.emulator.CreateRequest\x1a\x18.emulator.CreateResponse\"\x00\x12=\n\x06\x44\x65lete\x12\x17.emulator.DeleteRequest\x1a\x18.emulator.DeleteResponse\"\x00\x12\x37\n\x04Read\x12\x15.emulator.ReadRequest\x1a\x16.emulator.ReadResponse\"\x00\x12:\n\x05Write\x12\x16.emulator.WriteRequest\x1a\x17.emulator.WriteResponse\"\x00\x12@\n\x07GetInfo\x12\x18.emulator.GetInfoRequest\x1a\x19.emulator.GetInfoResponse\"\x00\x12I\n\nUpdateInfo\x12\x1b.emulator.UpdateInfoRequest\x1a\x1c.emulator.UpdateInfoResponse\"\x00\x12\x42\n\x07Monitor\x12\x18.emulator.MonitorRequest\x1a\x19.emulator.MonitorResponse\"\x00\x30\x01\x12\x37\n\x04List\x12\x15.emulator.ListRequest\x1a\x16.emulator.ListResponse\"\x00\x62\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'emulator_pb2', globals())
@@ -39,23 +39,23 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _GETINFOREQUEST._serialized_start=399
   _GETINFOREQUEST._serialized_end=430
   _DATAPATHSTATEMACHINE._serialized_start=432
-  _DATAPATHSTATEMACHINE._serialized_end=499
-  _MODULESTATE._serialized_start=501
-  _MODULESTATE._serialized_end=550
-  _GETINFORESPONSE._serialized_start=553
-  _GETINFORESPONSE._serialized_end=685
-  _UPDATEINFOREQUEST._serialized_start=687
-  _UPDATEINFOREQUEST._serialized_end=738
-  _UPDATEINFORESPONSE._serialized_start=740
-  _UPDATEINFORESPONSE._serialized_end=760
-  _MONITORREQUEST._serialized_start=762
-  _MONITORREQUEST._serialized_end=793
-  _MONITORRESPONSE._serialized_start=796
-  _MONITORRESPONSE._serialized_end=934
-  _LISTREQUEST._serialized_start=936
-  _LISTREQUEST._serialized_end=949
-  _LISTRESPONSE._serialized_start=951
-  _LISTRESPONSE._serialized_end=1007
-  _SFPEMULATORSERVICE._serialized_start=1010
-  _SFPEMULATORSERVICE._serialized_end=1539
+  _DATAPATHSTATEMACHINE._serialized_end=513
+  _MODULESTATE._serialized_start=515
+  _MODULESTATE._serialized_end=564
+  _GETINFORESPONSE._serialized_start=567
+  _GETINFORESPONSE._serialized_end=699
+  _UPDATEINFOREQUEST._serialized_start=701
+  _UPDATEINFOREQUEST._serialized_end=752
+  _UPDATEINFORESPONSE._serialized_start=754
+  _UPDATEINFORESPONSE._serialized_end=774
+  _MONITORREQUEST._serialized_start=776
+  _MONITORREQUEST._serialized_end=807
+  _MONITORRESPONSE._serialized_start=810
+  _MONITORRESPONSE._serialized_end=948
+  _LISTREQUEST._serialized_start=950
+  _LISTREQUEST._serialized_end=963
+  _LISTRESPONSE._serialized_start=965
+  _LISTRESPONSE._serialized_end=1021
+  _SFPEMULATORSERVICE._serialized_start=1024
+  _SFPEMULATORSERVICE._serialized_end=1553
 # @@protoc_insertion_point(module_scope)
