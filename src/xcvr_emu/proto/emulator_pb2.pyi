@@ -181,20 +181,23 @@ global___GetInfoRequest = GetInfoRequest
 class DataPathStateMachine(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    BANK_FIELD_NUMBER: builtins.int
     DPID_FIELD_NUMBER: builtins.int
     APPSEL_FIELD_NUMBER: builtins.int
     STATE_FIELD_NUMBER: builtins.int
+    bank: builtins.int
     dpid: builtins.int
     appsel: builtins.int
     state: builtins.str
     def __init__(
         self,
         *,
+        bank: builtins.int = ...,
         dpid: builtins.int = ...,
         appsel: builtins.int = ...,
         state: builtins.str = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["appsel", b"appsel", "dpid", b"dpid", "state", b"state"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["appsel", b"appsel", "bank", b"bank", "dpid", b"dpid", "state", b"state"]) -> None: ...
 
 global___DataPathStateMachine = DataPathStateMachine
 

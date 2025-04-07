@@ -50,9 +50,10 @@ message WriteResponse {}
 message GetInfoRequest { uint32 index = 1; }
 
 message DataPathStateMachine {
-  uint32 dpid = 1;
-  uint32 appsel = 2;
-  string state = 3;
+  uint32 bank = 1;
+  uint32 dpid = 2;
+  uint32 appsel = 3;
+  string state = 4;
 }
 
 message ModuleState {
