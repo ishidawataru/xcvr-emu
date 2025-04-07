@@ -130,13 +130,29 @@ class CMISTransceiver:
     def present(self) -> bool:
         return self._present
 
+    def _page_bank_emulation(self, req: ReadRequest | WriteRequest) -> None:
+        if req.offset >= 128: # upper page
+            self.mem_map.PageSelect.value = req.page
+            if req.page >= 0x10: # banked page
+                max_bank = 1
+                match self.mem_map.BanksSupported.value:
+                    case BanksSupportedEnum.BANKS_0_1_SUPPORTED:
+                        max_bank = 2
+                    case BanksSupportedEnum.BANKS_0_3_SUPPORTED:
+                        max_bank = 4
+
+                if req.bank < max_bank:
+                    self.mem_map.BankSelect.value = req.bank
+
     def read(self, req: ReadRequest) -> bytes:
         if not req.force and not self.present:
             return b"\x00" * req.length
-        return self.mem_map.read(req.index, req.page, req.offset, req.length)
+        self._page_bank_emulation(req)
+        return self.mem_map.read(req.bank, req.page, req.offset, req.length)
 
     def write(self, req: WriteRequest) -> None:
-        self.mem_map.write(req.index, req.page, req.offset, req.length, req.data)
+        self._page_bank_emulation(req)
+        self.mem_map.write(req.bank, req.page, req.offset, req.length, req.data)
         if req.length == 1:
             address = Address(req.page, req.offset)
         else:
