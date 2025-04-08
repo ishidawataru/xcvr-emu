@@ -2,7 +2,7 @@ import logging
 import os
 import re
 from copy import deepcopy
-from typing import Generator
+from typing import Generator, ContextManager
 
 logger = logging.getLogger(__name__)
 
@@ -716,6 +716,18 @@ class Page:
     def __str__(self):
         return self.to_str()
 
+class BankContext:
+    def __init__(self, mem_map: "MemMap", bank: int) -> None:
+        self.mem_map = mem_map
+        self.bank = bank
+
+    def __enter__(self):
+        self.original_bank = self.mem_map.bank
+        self.mem_map.bank = self.bank
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.mem_map.bank = self.original_bank
+
 
 class MemMap:
     def register(self, info, filename=""):
@@ -762,6 +774,9 @@ class MemMap:
             if info:
                 logger.info(f"registering {f}, table={info['Name']}")
                 self.register(info, f)
+
+    def with_bank(self, bank: int) -> ContextManager:
+        return BankContext(self, bank)
 
     def search(
         self,
