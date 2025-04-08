@@ -53,3 +53,44 @@ def test_mem_map(caplog):
 
     assert m.CmisRevision.Major.value == 5
     assert m.CmisRevision.Minor.value == 3
+
+def test_with_bank(caplog):
+    caplog.set_level(logging.DEBUG)
+    m = MemMap()
+
+    # accessing banked registers
+
+    with m.with_bank(1):
+       assert m.ACS_DPConfigLane[0].value == 0
+       m.ACS_DPConfigLane[0].value = 1
+
+    assert m.ACS_DPConfigLane[0].value == 0
+
+    with m.with_bank(1):
+        assert m.ACS_DPConfigLane[0].value == 1
+
+    with m.with_bank(2):
+        assert m.ACS_DPConfigLane[0].value == 0
+
+    # accessing non-banked registers
+
+    assert m.LowPwrRequestSW.value == m.LowPwrRequestSW.NO_REQUEST
+    m.LowPwrRequestSW.value = m.LowPwrRequestSW.LOW_POWER_MODE
+
+    with m.with_bank(1):
+        assert m.LowPwrRequestSW.value == m.LowPwrRequestSW.LOW_POWER_MODE
+
+    with m.with_bank(2):
+        assert m.LowPwrRequestSW.value == m.LowPwrRequestSW.LOW_POWER_MODE
+
+    with m.with_bank(3):
+        m.LowPwrRequestSW.value = m.LowPwrRequestSW.NO_REQUEST
+
+    assert m.LowPwrRequestSW.value == m.LowPwrRequestSW.NO_REQUEST
+
+    with m.with_bank(1):
+        assert m.LowPwrRequestSW.value == m.LowPwrRequestSW.NO_REQUEST
+
+    with m.with_bank(2):
+        assert m.LowPwrRequestSW.value == m.LowPwrRequestSW.NO_REQUEST
+
