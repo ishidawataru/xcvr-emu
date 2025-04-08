@@ -12,7 +12,7 @@ generate-grpc:
 
 .PHONY: generate-cmis
 generate-cmis:
-	cd src/cmis && $(PYTHON) -m base.gen > cmis.py && black cmis.py
+	cd src/cmis && $(PYTHON) -m base.gen > cmis.py && ruff format cmis.py
 
 test: ruff mypy pytest
 
@@ -21,6 +21,7 @@ pytest:
 
 ruff:
 	$(PYTHON) -m ruff check .
+	$(PYTHON) -m ruff format --check .
 
 mypy:
 	$(PYTHON) -m mypy src/xcvr_emu src/cmis tests
