@@ -20,9 +20,9 @@ class EEPROM:
         self.name = name
         self.prefix = f"{self.name}: " if self.name else ""
         self.lower_page: bytearray = bytearray(128)
-        self.higher_pages: dict[tuple[int, int], bytearray] = (
-            {}
-        )  # key: (bank, page), value: b"" * 128
+        self.higher_pages: dict[
+            tuple[int, int], bytearray
+        ] = {}  # key: (bank, page), value: b"" * 128
 
     def read(self, bank: int, page: int, offset: int, length: int) -> bytes:
         if page < 0x10:  # pages under 0x10 are not banked
@@ -218,9 +218,9 @@ class Field:
         if self.value_type is str:
             assert isinstance(src, str), f"{self.name}: Value must be a string"
             src_value = src.encode("ascii")
-            assert (
-                len(src_value) <= self.address.byte_size
-            ), f"{self.name}: Value too long"
+            assert len(src_value) <= self.address.byte_size, (
+                f"{self.name}: Value too long"
+            )
         else:
             assert isinstance(src, int), f"{self.name}: Value must be an integer"
             src_int = src

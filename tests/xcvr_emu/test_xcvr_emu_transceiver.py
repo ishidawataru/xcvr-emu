@@ -59,7 +59,6 @@ class MemoryAccessor:
 
 @pytest.mark.asyncio
 async def test_lowpwr_handling(caplog, xcvr: CMISTransceiver):
-
     m = MemMap(remote=MemoryAccessor(xcvr))
 
     assert m.ModuleState.value == m.ModuleState.MODULE_LOW_PWR
@@ -82,7 +81,6 @@ async def test_lowpwr_handling(caplog, xcvr: CMISTransceiver):
 
 @pytest.mark.asyncio
 async def test_dpsm_activation(caplog, xcvr: CMISTransceiver):
-
     m = MemMap(remote=MemoryAccessor(xcvr))
 
     m.LowPwrRequestSW.value = m.LowPwrRequestSW.NO_REQUEST
@@ -120,7 +118,6 @@ async def test_dpsm_activation(caplog, xcvr: CMISTransceiver):
 
 @pytest.mark.asyncio
 async def test_dpsm_output_disable_handling(caplog, xcvr: CMISTransceiver):
-
     m = MemMap(remote=MemoryAccessor(xcvr))
 
     for output in m.OutputDisableTx:
@@ -146,9 +143,9 @@ async def test_dpsm_output_disable_handling(caplog, xcvr: CMISTransceiver):
     for i in range(4):
         assert m.DPStateHostLane[i].value == m.DPStateHostLane.DPACTIVATED
 
+
 @pytest.mark.asyncio
 async def test_dpsm_activation_with_bank(caplog, xcvr: CMISTransceiver):
-
     m = MemMap(remote=MemoryAccessor(xcvr))
 
     m.LowPwrRequestSW.value = m.LowPwrRequestSW.NO_REQUEST

@@ -305,7 +305,7 @@ class Field:
                     elif "SuffixFunc" in parent_info:
                         self.name += parent_info["SuffixFunc"](byte, bit)
                     else:
-                        self.name += f"{byte+1}_{bit+1}"
+                        self.name += f"{byte + 1}_{bit + 1}"
             except TypeError as e:
                 if not is_group:
                     raise
@@ -370,8 +370,7 @@ class Field:
                         v = value[i].to_bytes(1, "big")
                     elif isinstance(f.address.offset, tuple):
                         v = value[
-                            f.address.offset[0]
-                            - offset : f.address.offset[1]
+                            f.address.offset[0] - offset : f.address.offset[1]
                             - offset
                             + 1
                         ]
@@ -552,12 +551,12 @@ class Page:
 
         if fieldTemplate:
             if "Template" in template:
-                assert (
-                    len(template) == 1
-                ), "Nested field template is only allowed for template renaming"
-                assert (
-                    template["Template"] in templates
-                ), f"Nested field template {template['Template']} not found"
+                assert len(template) == 1, (
+                    "Nested field template is only allowed for template renaming"
+                )
+                assert template["Template"] in templates, (
+                    f"Nested field template {template['Template']} not found"
+                )
                 template = templates[template["Template"]]
 
             field.update(template)
@@ -597,9 +596,9 @@ class Page:
                 else:
                     max_ = max(max_, k)
             required_space = max_ + 1
-            assert (
-                available_space >= required_space
-            ), f"Insufficient space for template {field['Template']}. {required_space} required, {available_space} available"
+            assert available_space >= required_space, (
+                f"Insufficient space for template {field['Template']}. {required_space} required, {available_space} available"
+            )
 
             p["Offsets"] = p["Offsets"][:-1]
 
@@ -716,6 +715,7 @@ class Page:
     def __str__(self):
         return self.to_str()
 
+
 class BankContext:
     def __init__(self, mem_map: "MemMap", bank: int) -> None:
         self.mem_map = mem_map
@@ -738,7 +738,10 @@ class MemMap:
             info["Description"],
         )
         page = self.pages.get(page_num, Page(page_num))
-        page.update({"FileName": filename, "TableName": name, "TableDescription": description}, field_dict)
+        page.update(
+            {"FileName": filename, "TableName": name, "TableDescription": description},
+            field_dict,
+        )
         self.pages[page_num] = page
         self.field_map.update(page.field_map)
         self.group_map.update(page.group_map)

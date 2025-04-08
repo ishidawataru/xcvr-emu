@@ -7,7 +7,6 @@ import pytest
 
 @pytest.fixture
 def cmdClass():
-
     class A(Command):
         def exec(self, line):
             return line

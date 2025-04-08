@@ -8,7 +8,7 @@ from cmis import (
     ModuleState,
     DPStateHostLane,
     BanksSupportedEnum,
-    LanesEnum
+    LanesEnum,
 )
 
 from ..dpsm import DataPathStateMachine
@@ -57,6 +57,7 @@ class CMISTransceiver:
 
     def _init_dpsms(self):
         dpsms = {}
+
         def __init_dpsms(dpsms):
             bank = self.mem_map.bank
             for i, acs in enumerate(self.mem_map.ACS_DPConfigLane):
@@ -76,7 +77,7 @@ class CMISTransceiver:
                 dpsm = dpsms[(bank, dpid)]
                 dpsm.add_lane(i, appsel, explicit_control)
 
-            for ((b, _), dpsm) in dpsms.items():
+            for (b, _), dpsm in dpsms.items():
                 if b != bank:
                     continue
 
@@ -97,12 +98,12 @@ class CMISTransceiver:
                 continue
 
             # TODO validate the config and set appropriate status
-            self.mem_map.DPInitPendingLane[i].value = (
-                self.mem_map.DPInitPendingLane.PENDING
-            )
-            self.mem_map.ConfigStatusLane[i].value = (
-                self.mem_map.ConfigStatusLane.SUCCESS
-            )
+            self.mem_map.DPInitPendingLane[
+                i
+            ].value = self.mem_map.DPInitPendingLane.PENDING
+            self.mem_map.ConfigStatusLane[
+                i
+            ].value = self.mem_map.ConfigStatusLane.SUCCESS
 
         return True
 
@@ -170,15 +171,14 @@ class CMISTransceiver:
         self.mem_map.ModuleState.value = ModuleState.MODULE_LOW_PWR
         self.mem_map.LowPwrRequestSW.value = LowPwrRequestSW.LOW_POWER_MODE
 
-
     @property
     def present(self) -> bool:
         return self._present
 
     def _page_bank_emulation(self, req: ReadRequest | WriteRequest) -> None:
-        if req.offset >= 128: # upper page
+        if req.offset >= 128:  # upper page
             self.mem_map.PageSelect.value = req.page
-            if req.page >= 0x10: # banked page
+            if req.page >= 0x10:  # banked page
                 max_bank = 1
                 match self.mem_map.BanksSupported.value:
                     case BanksSupportedEnum.BANKS_0_1_SUPPORTED:
@@ -273,7 +273,7 @@ class CMISTransceiver:
                         self.mem_map.OutputDisableTx,
                     ]
                     if any(address == f.address for f in dp_state_fields):
-                        for ((b, _), dpsm) in self._dpsms.items():
+                        for (b, _), dpsm in self._dpsms.items():
                             if b != bank:
                                 continue
 
