@@ -54,6 +54,7 @@ def test_mem_map(caplog):
     assert m.CmisRevision.Major.value == 5
     assert m.CmisRevision.Minor.value == 3
 
+
 def test_with_bank(caplog):
     caplog.set_level(logging.DEBUG)
     m = MemMap()
@@ -61,8 +62,8 @@ def test_with_bank(caplog):
     # accessing banked registers
 
     with m.with_bank(1):
-       assert m.ACS_DPConfigLane[0].value == 0
-       m.ACS_DPConfigLane[0].value = 1
+        assert m.ACS_DPConfigLane[0].value == 0
+        m.ACS_DPConfigLane[0].value = 1
 
     assert m.ACS_DPConfigLane[0].value == 0
 
@@ -93,4 +94,3 @@ def test_with_bank(caplog):
 
     with m.with_bank(2):
         assert m.LowPwrRequestSW.value == m.LowPwrRequestSW.NO_REQUEST
-

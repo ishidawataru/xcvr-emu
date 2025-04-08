@@ -172,9 +172,9 @@ class {{name}}(RangeGroup, {{group_name}}):
                 fields = set(f[0]["Name"] for f in v.subfields)
                 if group.original_name in classes:
                     # check the class that is already generated has the same fields
-                    assert (
-                        classes[group.original_name] == fields
-                    ), f"{classes[group.original_name]} {fields}"
+                    assert classes[group.original_name] == fields, (
+                        f"{classes[group.original_name]} {fields}"
+                    )
                 else:
                     classes[group.original_name] = fields
                     subfields: list[
@@ -230,9 +230,9 @@ class {{name}}(RangeGroup, {{group_name}}):
         if isinstance(self.group, RangeGroup):
             if self.clsname in classes:
                 # check the class that is already generated has the same fields
-                assert (
-                    classes[self.clsname] == set()
-                ), f"{self.clsname} {classes[self.clsname]}"
+                assert classes[self.clsname] == set(), (
+                    f"{self.clsname} {classes[self.clsname]}"
+                )
             else:
                 classes[self.clsname] = set()
                 print(
@@ -253,9 +253,9 @@ class Template:
         self.name = name
         self.fields = fields
 
-        assert all(
-            not isinstance(key, str) for key in fields.keys()
-        ), f"{name} field {fields.keys()}"
+        assert all(not isinstance(key, str) for key in fields.keys()), (
+            f"{name} field {fields.keys()}"
+        )
 
         self.subfields: list[tuple[dict, list[tuple[str, int]], bool]] = []
 

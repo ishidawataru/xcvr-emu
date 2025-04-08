@@ -7,13 +7,13 @@ info = {
             (7, 5): {
                 "Name": "ModSelWaitTimeExponent",
                 "Description": "ModSelWaitTime value represented as m*2^e in µs",
-                "Type": ["RO", "Rqd"]
+                "Type": ["RO", "Rqd"],
             },
             (4, 0): {
                 "Name": "ModSelWaitTimeMantissa",
                 "Description": "ModSelWaitTime Mantissa, 00h indicates no data available",
-                "Type": ["RO", "Rqd"]
-            }
+                "Type": ["RO", "Rqd"],
+            },
         },
         144: {
             (7, 4): {
@@ -36,8 +36,8 @@ info = {
                     0b1100: ("10 min <= T_state < 50 min", "BETWEEN_10_AND_50_MIN"),
                     0b1101: ("T_state >= 50 min", "GREATER_THAN_50_MIN"),
                     0b1110: ("Reserved", "RESERVED"),
-                    0b1111: ("Reserved", "RESERVED")
-                }
+                    0b1111: ("Reserved", "RESERVED"),
+                },
             },
             (3, 0): {
                 "Name": "MaxDurationDPInit",
@@ -59,10 +59,9 @@ info = {
                     0b1100: ("10 min <= T_state < 50 min", "BETWEEN_10_AND_50_MIN"),
                     0b1101: ("T_state >= 50 min", "GREATER_THAN_50_MIN"),
                     0b1110: ("Reserved", "RESERVED"),
-                    0b1111: ("Reserved", "RESERVED")
-                }
-            }
-        }
-    }
+                    0b1111: ("Reserved", "RESERVED"),
+                },
+            },
+        },
+    },
 }
-
