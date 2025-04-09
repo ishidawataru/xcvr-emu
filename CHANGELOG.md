@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0](https://github.com/ishidawataru/xcvr-emu/compare/v1.2.0...v1.3.0) (2025-04-09)
+
+
+### Features
+
+* **cmis:** add MemMap.with_bank() for easier bank access ([e711c47](https://github.com/ishidawataru/xcvr-emu/commit/e711c47a6ba39d03765ba2804ed06ebdc627e641))
+* **cmis:** support loading optoe eeprom hexdump ([b6f99d6](https://github.com/ishidawataru/xcvr-emu/commit/b6f99d648f7b70c107da1f65d78c40171ee7d699))
+
 ## [1.2.0](https://github.com/ishidawataru/xcvr-emu/compare/v1.1.0...v1.2.0) (2025-04-07)
 
 
