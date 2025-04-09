@@ -19,5 +19,11 @@ dist/
 # mypy
 .mypy_cache/
 
+# ruff
+.ruff_cache
+
+# pytest
+.pytest-cache/
+
 # vscode
 .vscode

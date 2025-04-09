@@ -32,3 +32,12 @@ docker-compose.yml
 
 # Ignore git files
 .git
+
+# mypy
+.mypy_cache/
+
+# ruff
+.ruff_cache
+
+# pytest
+.pytest-cache/
