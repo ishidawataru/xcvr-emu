@@ -12,7 +12,7 @@ generate-grpc:
 
 .PHONY: generate-cmis
 generate-cmis:
-	cd src/cmis && $(PYTHON) -m base.gen > cmis.py && ruff format cmis.py
+	cd src/cmis && $(PYTHON) -m base.gen $(GEN_OPTION) > tmp.py && ruff format tmp.py && mv tmp.py cmis.py
 
 test: ruff mypy pytest
 

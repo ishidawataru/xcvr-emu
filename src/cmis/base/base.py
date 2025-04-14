@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+import textwrap
 from copy import deepcopy
 from typing import Generator, ContextManager
 
@@ -401,9 +402,13 @@ class Field:
         else:
             values = self.fields.get("Values")
             if values:
-                if not all(isinstance(v[1], str) for v in values.values()):
-                    logger.warning("conditional values? %s", values)
-                    s += f" {values}"
+                if isinstance(values, list):
+                    assert all("When" in v for v in values)
+                    vvv = []
+                    for v in values:
+                        vv = "|".join(vv[1] for k, vv in v.items() if k != "When")
+                        vvv.append(f"{v['When'][0]}: [{vv}]")
+                    values = ", ".join(vvv)
                 else:
                     values = "|".join(v[1] for v in values.values())
                     values = f"[{values}]"
@@ -437,28 +442,42 @@ class Field:
 
         values = self.fields.get("Values", {})
         if values:
-            for k, v in values.items():
-                if vint == k:
-                    return f"{v[1]}({vint!r})"
-                if isinstance(k, tuple) and k[0] <= vint <= k[1]:
-                    return f"{v[1]}({vint!r})"
+            if isinstance(values, list):
+                logger.warning("conditional value handling not implemented")
+            else:
+                for k, v in values.items():
+                    if vint == k:
+                        return f"{v[1]}({vint!r})"
+                    if isinstance(k, tuple) and k[0] <= vint <= k[1]:
+                        return f"{v[1]}({vint!r})"
         return str(vint)
-
+    
     def describe(self):
         lines = []
+        if self.fields.get("When"):
+            lines.append(f"When: {self.fields['When'][0]}")
         lines.append(f"Name: {self.name}, Address: {str(self.address)}")
         lines.append(f"Type: {self.fields.get('Type')}")
         lines.append(f"Table: {self.parent_info['TableName']}")
         if self.parent_info.get("FileName"):
             lines.append(f"File: {self.parent_info['FileName']}")
         if self.fields.get("Description"):
-            lines.append(f"Description: {self.fields.get('Description')}")
+            description = textwrap.indent(textwrap.dedent(self.fields["Description"]), "  ")
+            lines.append(f"Description: {description}")
 
         values = self.fields.get("Values")
         if values:
             lines.append("Valid Values:")
-            for k, v in values.items():
-                lines.append(f"  {k}: {v[1]}")
+            if isinstance(values, list):
+                for v in values:
+                    lines.append(f"  When {v['When'][0]}:")
+                    for k, vv in v.items():
+                        if k == "When":
+                            continue
+                        lines.append(f"   {k}: {vv[1]}")
+            else:
+                for k, v in values.items():
+                    lines.append(f"  {k}: {v[1]}")
 
         if self.subfields:
             lines.append("Subfields:")
@@ -677,7 +696,7 @@ class Page:
                 offsets.append(offset)
                 p["Offsets"] = offsets
 
-                if "Template" in field or "Name" in field:
+                def _handle_field(field):
                     handler = (
                         self.handle_template
                         if "Template" in field
@@ -688,13 +707,22 @@ class Page:
                         if f.name in self.field_map:
                             logger.debug("Duplicate field: %s", f.name)
                         self.field_map[f.name] = f
+
+                if isinstance(field, list):
+                    assert all("Template" in f or "Name" in f for f in field)
+                    assert all("When" in f for f in field)
+                    for f in field:
+                        _handle_field(f)
                 else:
-                    assert len(offsets) == 1
-                    assert type(offsets[0]) in [
-                        int,
-                        tuple,
-                    ]  # range is not supported here
-                    self.update(p, field)
+                    if "Template" in field or "Name" in field:
+                        _handle_field(field)
+                    else:
+                        assert len(offsets) == 1
+                        assert type(offsets[0]) in [
+                            int,
+                            tuple,
+                        ]  # range is not supported here
+                        self.update(p, field)
 
         # keep fields sorted by address
         self.fields.sort(key=lambda x: x.address)
@@ -735,7 +763,7 @@ class MemMap:
             info["Page"],
             info["Name"],
             info["Table"],
-            info["Description"],
+            textwrap.dedent(info["Description"]),
         )
         page = self.pages.get(page_num, Page(page_num))
         page.update(
@@ -878,6 +906,8 @@ def main():
                 include_groups=not args.no_group,
             )
             print(field.describe())
+
+            print("---")
 
             for f, v in m.decode(
                 field.address.page, field.address.offset, bytes([int(args.value, 0)])

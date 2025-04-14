@@ -175,9 +175,9 @@ class Field:
         self.mem_map.store(self.address)
 
     @property
-    def value(self):
+    def value(self, as_int=False) -> int | str | Enum:
         self.fetch()
-        return self.lvalue
+        return self.lvalue(as_int=as_int)
 
     @value.setter
     def value(self, src: int | str | Enum) -> None:
@@ -185,7 +185,7 @@ class Field:
         self.store()
 
     @property
-    def lvalue(self) -> int | str | Enum:
+    def lvalue(self, as_int=False) -> int | str | Enum:
         value = self.mem_map.local.read(
             self.mem_map.bank,
             self.address.page,

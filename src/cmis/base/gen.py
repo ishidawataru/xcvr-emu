@@ -11,16 +11,44 @@ FILTERED_FIELDNAMES = ["Reserved", "Custom"]
 FILTERED_VALUENAMES_ONCE = ["RESERVED"]
 
 
-def get_values(fields):
+def get_values(fields) -> list[tuple[str, int]]:
     onces = {}
-    values = []
-    for k, v in fields.get("Values", {}).items():
+    ret = []
+
+    values = fields.get("Values", {})
+    if isinstance(values, list):
+        return []
+#    logger.info(values)
+
+    for k, v in values.items():
         if isinstance(k, int):
             if v[1] in FILTERED_VALUENAMES_ONCE and v[1] in onces:
                 continue
-            values.append((v[1], k))
+            ret.append((v[1], k))
             onces[v[1]] = k
-    return values
+    return ret
+
+def get_values2(field, fields) -> list[tuple[str, int]]:
+    onces = {}
+    ret = []
+
+    if field.name == "AutoCommissioning":
+        raise Exception(fields)
+
+    values = fields.get("Values", {})
+    if isinstance(values, list):
+        return []
+#    logger.info(values)
+
+    for k, v in values.items():
+        if isinstance(k, int):
+            if v[1] in FILTERED_VALUENAMES_ONCE and v[1] in onces:
+                continue
+            ret.append((v[1], k))
+            onces[v[1]] = k
+    return ret
+
+
 
 
 def get_value_enum_name(f, values):
@@ -270,7 +298,7 @@ class Template:
                     assert f["Name"].isidentifier()
                 else:
                     raise ValueError(f"Invalid field {f}")
-
+                
                 self.subfields.append((f, get_values(f), is_range))
             else:
                 for kk, ff in f.items():
@@ -382,7 +410,8 @@ class MemMap(BaseMemMap):
 
             for f in sorted(page.field_map.values(), key=lambda x: x.address):
                 if f.group is None and f.name not in FILTERED_FIELDNAMES:
-                    values = get_values(f.fields)
+                    logger.info("Generating field for %s", f.name)
+                    values = get_values2(f, f.fields)
                     key = frozenset(values)
                     if values:
                         if key in value_set:
