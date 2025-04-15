@@ -233,7 +233,27 @@ class Field:
         self.store()
 
     @property
-    def lvalue(self):
+    def value_as_int(self) -> int:
+        self.fetch()
+        return self.lvalue_as_int
+
+    @property
+    def lvalue_as_int(self) -> int:
+        value = self.mem_map.local.read(
+            self.mem_map.bank,
+            self.address.page,
+            self.address.start_byte,
+            self.address.byte_size,
+        )
+        v = int.from_bytes(value, "big")
+        if self.address.bit is not None:
+            start_bit = self.address.start_bit % 8
+            v >>= start_bit
+            v &= (1 << self.size) - 1
+        return v
+
+    @property
+    def lvalue(self) -> int | str | Enum:
         value = self.mem_map.local.read(
             self.mem_map.bank,
             self.address.page,
