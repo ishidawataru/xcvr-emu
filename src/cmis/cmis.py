@@ -1937,6 +1937,10 @@ class SFF8024Identifier(Field, Identifier):
     EnumClass = IdentifierEnum
 
 
+class AutoCommissioning(Field):
+    pass
+
+
 class MciMaxSpeedEnum(Enum):
     UP_TO_400_KHZ = 0
     UP_TO_1_MHZ = 1
@@ -3752,6 +3756,11 @@ class MemMap(BaseMemMap):
     def SFF8024Identifier(self) -> SFF8024Identifier:
         return SFF8024Identifier(self, self._search_field("SFF8024Identifier"))
 
+    # 00h:2.0-1
+    @property
+    def AutoCommissioning(self) -> AutoCommissioning:
+        return AutoCommissioning(self, self._search_field("AutoCommissioning"))
+
     # 00h:2.2-3
     @property
     def MciMaxSpeed(self) -> MciMaxSpeed:
@@ -5027,6 +5036,7 @@ CMIS_EXPORTS = [
     "MediaLaneUnsupportedLane",
     "MediaLaneUnsupportedLaneRange",
     "SFF8024Identifier",
+    "AutoCommissioning",
     "MciMaxSpeed",
     "SteppedConfigOnly",
     "MemoryModel",

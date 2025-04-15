@@ -1,3 +1,21 @@
+def version_lt(m, major: int, minor: int):
+    return m.CmisRevision.value < (major << 4 | minor)
+
+def version_lte(m, major: int, minor: int):
+    return m.CmisRevision.value <= (major << 4 | minor)
+
+def version_gt(m, major: int, minor: int):
+    return m.CmisRevision.value > (major << 4 | minor)
+
+def version_gte(m, major: int, minor: int):
+    return m.CmisRevision.value >= (major << 4 | minor)
+
+def intervention_free(m):
+    return m.SteppedConfigOnly.value(as_int=True) == 0
+
+def step_by_step(m):
+    return m.SteppedConfigOnly.value(as_int=True) == 1
+
 info = {
     "Name": "ManagementCharacteristics",
     "Description": "CMIS v5.2 8.2.1 Management Characteristics page 127",
@@ -113,7 +131,50 @@ info = {
                     0b11: ("Reserved", "RESERVED"),
                 },
             },
-            (1, 0): {"Name": "Reserved", "Description": "Reserved"},
+            (1, 0): [
+                {
+                    "When": ("version < v5.3", lambda m: version_lt(m, 5, 3)),
+                    "Name": "Reserved",
+                    "Description": "Reserved",
+                },
+                {
+                    "When": ("version >= v5.3", lambda m: version_gte(m, 5, 3)),
+                    "Name": "AutoCommissioning",
+                    "Description": """
+                    This field allows modules to support just one of the two intervention-free reconfiguration procedures, either the regular (automatic DPSM state changing) one or the hot one (staying in DPSM state):
+                    SteppedConfigOnly = 0:
+                        xx: both regular and hot supported (legacy default)
+                    SteppedConfigOnly = 1:
+                        00: none, neither regular nor hot supported
+                        01: only regular supported (affects ApplyDPInit)
+                        10: only hot supported (affects ApplyImmediate)
+                        11: reserved
+                    Effect on ApplyImmediate:
+                        When hot intervention-free reconfiguration is unsupported,
+                        the module ignores any WRITE to ApplyImmediate registers
+                    Effect on ApplyDPInit:
+                        When regular intervention-free reconfiguration is not
+                        supported, the module accepts ApplyDPInit in all states as a
+                        Provision command (see Table 6-4) , but the DPSM excludes
+                        the DPReinitT term in the DPDeReinitS transition signal (see
+                        Case 2 in section 6.3.3.1)
+                    """,
+                    "Type": ["RO", "Rqd"],
+                    "Values": [
+                        {
+                            "When": ("intervention-free", intervention_free),
+                            (0x00, 0xff): ("Reserved", "RESERVED"),
+                        },
+                        {
+                            "When": ("step-by-step", step_by_step),
+                            0: ("None", "NONE"),
+                            1: ("Only regular supported", "ONLY_REGULAR_SUPPORTED"),
+                            2: ("Only hot supported", "ONLY_HOT_SUPPORTED"),
+                            (3, 0xff): ("Reserved", "RESERVED"),
+                        },
+                    ],
+                },
+            ],
         },
     },
 }
