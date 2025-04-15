@@ -1,20 +1,26 @@
 def version_lt(m, major: int, minor: int):
     return m.CmisRevision.value < (major << 4 | minor)
 
+
 def version_lte(m, major: int, minor: int):
     return m.CmisRevision.value <= (major << 4 | minor)
+
 
 def version_gt(m, major: int, minor: int):
     return m.CmisRevision.value > (major << 4 | minor)
 
+
 def version_gte(m, major: int, minor: int):
     return m.CmisRevision.value >= (major << 4 | minor)
+
 
 def intervention_free(m):
     return m.SteppedConfigOnly.value(as_int=True) == 0
 
+
 def step_by_step(m):
     return m.SteppedConfigOnly.value(as_int=True) == 1
+
 
 info = {
     "Name": "ManagementCharacteristics",
@@ -163,14 +169,14 @@ info = {
                     "Values": [
                         {
                             "When": ("intervention-free", intervention_free),
-                            (0x00, 0xff): ("Reserved", "RESERVED"),
+                            (0x00, 0xFF): ("Reserved", "RESERVED"),
                         },
                         {
                             "When": ("step-by-step", step_by_step),
                             0: ("None", "NONE"),
                             1: ("Only regular supported", "ONLY_REGULAR_SUPPORTED"),
                             2: ("Only hot supported", "ONLY_HOT_SUPPORTED"),
-                            (3, 0xff): ("Reserved", "RESERVED"),
+                            (3, 0xFF): ("Reserved", "RESERVED"),
                         },
                     ],
                 },

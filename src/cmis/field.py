@@ -20,9 +20,9 @@ class EEPROM:
         self.name = name
         self.prefix = f"{self.name}: " if self.name else ""
         self.lower_page: bytearray = bytearray(128)
-        self.higher_pages: dict[tuple[int, int], bytearray] = (
-            {}
-        )  # key: (bank, page), value: b"" * 128
+        self.higher_pages: dict[
+            tuple[int, int], bytearray
+        ] = {}  # key: (bank, page), value: b"" * 128
 
     def read(self, bank: int, page: int, offset: int, length: int) -> bytes:
         if page < 0x10:  # pages under 0x10 are not banked
@@ -151,18 +151,22 @@ class ConditionalEnum:
         values = self.field.fields.get("Values")
         assert isinstance(values, list), f"{self.field.name}: Values must be a list"
         self.values: list[dict] = values
-        assert self.EnumClasses and len(self.EnumClasses) == len(
-            self.values
-        ), f"{self.field.name}: EnumClasses must be the same length as Values"
+        assert self.EnumClasses and len(self.EnumClasses) == len(self.values), (
+            f"{self.field.name}: EnumClasses must be the same length as Values"
+        )
 
     def value(self, value: int) -> Enum | int:
         for i, v in enumerate(self.values):
             when = v["When"][1]
-            if (self.index is None and when(self.mem_map)) or when(self.mem_map, self.index):
+            if (self.index is None and when(self.mem_map)) or when(
+                self.mem_map, self.index
+            ):
                 try:
                     return self.EnumClasses[i](value)
                 except ValueError:
-                    logger.debug(f"Value {value} not in {self.EnumClasses[i]} (when: {self.when()})")
+                    logger.debug(
+                        f"Value {value} not in {self.EnumClasses[i]} (when: {self.when()})"
+                    )
                     return value
         else:
             return value
@@ -170,7 +174,11 @@ class ConditionalEnum:
     def when(self) -> str | None:
         for i, v in enumerate(self.values):
             when = v["When"][1]
-            if self.index is None and when(self.mem_map) or when(self.mem_map, self.index):
+            if (
+                self.index is None
+                and when(self.mem_map)
+                or when(self.mem_map, self.index)
+            ):
                 return v["When"][0]
         return None
 
@@ -262,9 +270,9 @@ class Field:
         if self.value_type is str:
             assert isinstance(src, str), f"{self.name}: Value must be a string"
             src_value = src.encode("ascii")
-            assert (
-                len(src_value) <= self.address.byte_size
-            ), f"{self.name}: Value too long"
+            assert len(src_value) <= self.address.byte_size, (
+                f"{self.name}: Value too long"
+            )
         else:
             assert isinstance(src, int), f"{self.name}: Value must be an integer"
             src_int = src

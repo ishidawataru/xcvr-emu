@@ -462,7 +462,9 @@ class Field:
         if self.parent_info.get("FileName"):
             lines.append(f"File: {self.parent_info['FileName']}")
         if self.fields.get("Description"):
-            description = textwrap.indent(textwrap.dedent(self.fields["Description"]), "  ")
+            description = textwrap.indent(
+                textwrap.dedent(self.fields["Description"]), "  "
+            )
             lines.append(f"Description: {description}")
 
         values = self.fields.get("Values")
