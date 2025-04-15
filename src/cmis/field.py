@@ -140,9 +140,29 @@ class BaseMemMap(MemMap):
     def store(self, addr: Address) -> None:
         self._sync(addr, self.local, self.remote)
 
+class ConditionalEnum:
+    EnumClasses: None | list[Type[Enum]] = None
+
+    def __init__(
+        self, mem_map: BaseMemMap, field: BaseField
+    ):
+        self.mem_map = mem_map
+        self.field = field
+        values = self.field.fields.get("Values")
+        assert isinstance(values, list), f"{self.field.name}: Values must be a list"
+        self.values: list[dict] = values
+        assert self.EnumClasses and len(self.EnumClasses) == len(self.values), f"{self.field.name}: EnumClasses must be the same length as Values"
+
+    def value(self, value: int) -> Enum | int:
+        for i, v in enumerate(self.values):
+            if v["When"][1](self.mem_map):
+                return self.EnumClasses[i](value) # type: ignore
+        else:
+            return  value
 
 class Field:
     EnumClass: None | Type[Enum] = None
+    ConditionalEnumClass: None | Type[ConditionalEnum] = None
 
     def __init__(
         self, mem_map: BaseMemMap, field: BaseField, index: int | None = None
@@ -153,6 +173,9 @@ class Field:
         self.value_type = self.field.fields.get("ValueType")
         if self.value_type is str:
             assert self.size % 8 == 0, "ASCIIField size must be a multiple of 8"
+        self.conditional_enum = self.ConditionalEnumClass(
+            mem_map, field
+        ) if self.ConditionalEnumClass else None
 
     @property
     def name(self) -> str:
@@ -175,7 +198,7 @@ class Field:
         self.mem_map.store(self.address)
 
     @property
-    def value(self):
+    def value(self) -> int | str | Enum:
         self.fetch()
         return self.lvalue
 
@@ -204,6 +227,10 @@ class Field:
             e = self.EnumClass(v)
             logger.debug(f"Get {self.name}({self.address}): {e}({e.value})")
             return e
+        elif self.conditional_enum:
+            d = self.conditional_enum.value(v)
+            logger.debug(f"Get {self.name}({self.address}): {d}")
+            return d
 
         logger.debug(f"Get {self.name}({self.address}): {v:0b}")
         return v

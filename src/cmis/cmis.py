@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Iterator
 from enum import Enum
 
-from .field import BaseMemMap, Field, Group, RangeGroup
+from .field import BaseMemMap, Field, Group, RangeGroup, ConditionalEnum
 
 
 class CmisRevision(Group):
@@ -36,6 +36,31 @@ class SuccessOrFailedEnum(Enum):
     FAILED = 1
 
 
+class CdbCommandResultEnum(ConditionalEnum):
+    class CdbCommandResultEnum0(Enum):
+        RESERVED = 0
+        CAPTURED = 1
+        CHECKING = 2
+        EXECUTING = 3
+
+    class CdbCommandResultEnum1(Enum):
+        RESERVED = 0
+        COMPLETED = 1
+        ABORTED = 3
+
+    class CdbCommandResultEnum2(Enum):
+        RESERVED = 0
+        UNKNOWN_CMDID = 1
+        PARAM_ERROR = 2
+        NOT_ABORTED = 3
+        TIMEOUT = 4
+        CHKCODE_ERROR = 5
+        PASSWORD_ERROR = 6
+        INCOMPATIBLE_STATUS = 7
+
+    EnumClasses = [CdbCommandResultEnum0, CdbCommandResultEnum1, CdbCommandResultEnum2]
+
+
 class CdbStatus(Group):
     class CdbIsBusyCls(Field):
         EnumClass = IdleOrBusyEnum
@@ -60,7 +85,25 @@ class CdbStatus(Group):
         return CdbStatus.CdbHasFailedCls(self.mem_map, field, self.index)
 
     class CdbCommandResultCls(Field):
-        pass
+        ConditionalEnumClass = CdbCommandResultEnum
+
+        # RESERVED = CdbCommandResultEnum.CdbCommandResultEnum0.RESERVED # omitted because of the duplicate
+        CAPTURED = CdbCommandResultEnum.CdbCommandResultEnum0.CAPTURED
+        CHECKING = CdbCommandResultEnum.CdbCommandResultEnum0.CHECKING
+        EXECUTING = CdbCommandResultEnum.CdbCommandResultEnum0.EXECUTING
+        # RESERVED = CdbCommandResultEnum.CdbCommandResultEnum1.RESERVED # omitted because of the duplicate
+        COMPLETED = CdbCommandResultEnum.CdbCommandResultEnum1.COMPLETED
+        ABORTED = CdbCommandResultEnum.CdbCommandResultEnum1.ABORTED
+        # RESERVED = CdbCommandResultEnum.CdbCommandResultEnum2.RESERVED # omitted because of the duplicate
+        UNKNOWN_CMDID = CdbCommandResultEnum.CdbCommandResultEnum2.UNKNOWN_CMDID
+        PARAM_ERROR = CdbCommandResultEnum.CdbCommandResultEnum2.PARAM_ERROR
+        NOT_ABORTED = CdbCommandResultEnum.CdbCommandResultEnum2.NOT_ABORTED
+        TIMEOUT = CdbCommandResultEnum.CdbCommandResultEnum2.TIMEOUT
+        CHKCODE_ERROR = CdbCommandResultEnum.CdbCommandResultEnum2.CHKCODE_ERROR
+        PASSWORD_ERROR = CdbCommandResultEnum.CdbCommandResultEnum2.PASSWORD_ERROR
+        INCOMPATIBLE_STATUS = (
+            CdbCommandResultEnum.CdbCommandResultEnum2.INCOMPATIBLE_STATUS
+        )
 
     @property
     def CdbCommandResult(self) -> "CdbStatus.CdbCommandResultCls":
@@ -1937,8 +1980,23 @@ class SFF8024Identifier(Field, Identifier):
     EnumClass = IdentifierEnum
 
 
+class AutoCommissioningEnum(ConditionalEnum):
+    class AutoCommissioningEnum1(Enum):
+        NONE = 0
+        ONLY_REGULAR_SUPPORTED = 1
+        ONLY_HOT_SUPPORTED = 2
+
+    EnumClasses = [AutoCommissioningEnum1]
+
+
 class AutoCommissioning(Field):
-    pass
+    ConditionalEnumClass = AutoCommissioningEnum
+
+    NONE = AutoCommissioningEnum.AutoCommissioningEnum1.NONE
+    ONLY_REGULAR_SUPPORTED = (
+        AutoCommissioningEnum.AutoCommissioningEnum1.ONLY_REGULAR_SUPPORTED
+    )
+    ONLY_HOT_SUPPORTED = AutoCommissioningEnum.AutoCommissioningEnum1.ONLY_HOT_SUPPORTED
 
 
 class MciMaxSpeedEnum(Enum):
@@ -5027,6 +5085,7 @@ CMIS_EXPORTS = [
     "CmisRevision",
     "IdleOrBusyEnum",
     "SuccessOrFailedEnum",
+    "CdbCommandResultEnum",
     "CdbStatus",
     "CdbStatusRange",
     "LanesEnum",
