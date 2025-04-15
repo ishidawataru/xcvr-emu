@@ -1,11 +1,23 @@
-def cdb_in_progress(m):
-    return m.CdbIsBusy.value(as_int=True) == 1
+def cdb_in_progress(m, index):
+    status = m.CdbStatus[index]
+    return status.CdbIsBusy.value == status.CdbIsBusy.BUSY
 
-def cdb_success(m):
-    return m.CdbIsBusy.value(as_int=True) == 0 and m.CdbHasFailed.value(as_int=True) == 0
 
-def cdb_failed(m):
-    return m.CdbIsBusy.value(as_int=True) == 0 and m.CdbHasFailed.value(as_int=True) == 1
+def cdb_success(m, index):
+    status = m.CdbStatus[index]
+    return (
+        status.CdbIsBusy.value == status.CdbIsBusy.IDLE
+        and status.CdbHasFailed.value == status.CdbHasFailed.SUCCESS
+    )
+
+
+def cdb_failed(m, index):
+    status = m.CdbStatus[index]
+    return (
+        status.CdbIsBusy.value == status.CdbIsBusy.IDLE
+        and status.CdbHasFailed.value == status.CdbHasFailed.FAILED
+    )
+
 
 info = {
     "Name": "CdbStatusFields",

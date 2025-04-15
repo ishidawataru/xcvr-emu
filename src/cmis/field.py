@@ -20,9 +20,9 @@ class EEPROM:
         self.name = name
         self.prefix = f"{self.name}: " if self.name else ""
         self.lower_page: bytearray = bytearray(128)
-        self.higher_pages: dict[
-            tuple[int, int], bytearray
-        ] = {}  # key: (bank, page), value: b"" * 128
+        self.higher_pages: dict[tuple[int, int], bytearray] = (
+            {}
+        )  # key: (bank, page), value: b"" * 128
 
     def read(self, bank: int, page: int, offset: int, length: int) -> bytes:
         if page < 0x10:  # pages under 0x10 are not banked
@@ -140,25 +140,40 @@ class BaseMemMap(MemMap):
     def store(self, addr: Address) -> None:
         self._sync(addr, self.local, self.remote)
 
-class ConditionalEnum:
-    EnumClasses: None | list[Type[Enum]] = None
 
-    def __init__(
-        self, mem_map: BaseMemMap, field: BaseField
-    ):
+class ConditionalEnum:
+    EnumClasses: list[Type[Enum]] = []
+
+    def __init__(self, mem_map: BaseMemMap, field: BaseField, index: int | None = None):
         self.mem_map = mem_map
         self.field = field
+        self.index = index
         values = self.field.fields.get("Values")
         assert isinstance(values, list), f"{self.field.name}: Values must be a list"
         self.values: list[dict] = values
-        assert self.EnumClasses and len(self.EnumClasses) == len(self.values), f"{self.field.name}: EnumClasses must be the same length as Values"
+        assert self.EnumClasses and len(self.EnumClasses) == len(
+            self.values
+        ), f"{self.field.name}: EnumClasses must be the same length as Values"
 
     def value(self, value: int) -> Enum | int:
         for i, v in enumerate(self.values):
-            if v["When"][1](self.mem_map):
-                return self.EnumClasses[i](value) # type: ignore
+            when = v["When"][1]
+            if (self.index is None and when(self.mem_map)) or when(self.mem_map, self.index):
+                try:
+                    return self.EnumClasses[i](value)
+                except ValueError:
+                    logger.debug(f"Value {value} not in {self.EnumClasses[i]} (when: {self.when()})")
+                    return value
         else:
-            return  value
+            return value
+
+    def when(self) -> str | None:
+        for i, v in enumerate(self.values):
+            when = v["When"][1]
+            if self.index is None and when(self.mem_map) or when(self.mem_map, self.index):
+                return v["When"][0]
+        return None
+
 
 class Field:
     EnumClass: None | Type[Enum] = None
@@ -173,9 +188,11 @@ class Field:
         self.value_type = self.field.fields.get("ValueType")
         if self.value_type is str:
             assert self.size % 8 == 0, "ASCIIField size must be a multiple of 8"
-        self.conditional_enum = self.ConditionalEnumClass(
-            mem_map, field
-        ) if self.ConditionalEnumClass else None
+        self.conditional_enum = (
+            self.ConditionalEnumClass(mem_map, field, index)
+            if self.ConditionalEnumClass
+            else None
+        )
 
     @property
     def name(self) -> str:
@@ -208,7 +225,7 @@ class Field:
         self.store()
 
     @property
-    def lvalue(self) -> int | str | Enum:
+    def lvalue(self):
         value = self.mem_map.local.read(
             self.mem_map.bank,
             self.address.page,
@@ -245,9 +262,9 @@ class Field:
         if self.value_type is str:
             assert isinstance(src, str), f"{self.name}: Value must be a string"
             src_value = src.encode("ascii")
-            assert len(src_value) <= self.address.byte_size, (
-                f"{self.name}: Value too long"
-            )
+            assert (
+                len(src_value) <= self.address.byte_size
+            ), f"{self.name}: Value too long"
         else:
             assert isinstance(src, int), f"{self.name}: Value must be an integer"
             src_int = src
@@ -294,6 +311,11 @@ class Field:
             return values[value][1]
 
         return str(value)
+
+    def when(self) -> str | None:
+        if self.conditional_enum:
+            return self.conditional_enum.when()
+        return None
 
 
 class Group(Field):
