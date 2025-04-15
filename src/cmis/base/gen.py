@@ -1,5 +1,7 @@
 import logging
-from typing import Collection
+import hashlib
+import random
+import string
 
 import jinja2
 
@@ -11,16 +13,30 @@ FILTERED_FIELDNAMES = ["Reserved", "Custom"]
 FILTERED_VALUENAMES_ONCE = ["RESERVED"]
 
 
-def get_values(fields):
+def deterministic_random_string(value: str, length: int = 8) -> str:
+    hash_bytes = hashlib.sha256(value.encode()).digest()
+    seed = int.from_bytes(hash_bytes, "big")
+
+    rng = random.Random(seed)
+    chars = string.ascii_letters
+    return "".join(rng.choices(chars, k=length))
+
+
+def get_values(fields) -> list[tuple[str, int]]:
     onces = {}
-    values = []
-    for k, v in fields.get("Values", {}).items():
+    ret = []
+
+    values = fields.get("Values", {})
+    if isinstance(values, list):
+        return [] # conditional enum not supported yet
+
+    for k, v in values.items():
         if isinstance(k, int):
             if v[1] in FILTERED_VALUENAMES_ONCE and v[1] in onces:
                 continue
-            values.append((v[1], k))
+            ret.append((v[1], k))
             onces[v[1]] = k
-    return values
+    return ret
 
 
 def get_value_enum_name(f, values):
@@ -49,7 +65,9 @@ def get_value_enum_name(f, values):
     elif any(v[0] == "GBIC" for v in values):
         return "Identifier"
 
-    return f"ValueEnum_{id(f)}"
+    # generate a fixed random unique name from values
+    name = deterministic_random_string("".join(v[0] for v in values))
+    return f"ValueEnum_{name}"
 
 
 class Group:
@@ -172,9 +190,9 @@ class {{name}}(RangeGroup, {{group_name}}):
                 fields = set(f[0]["Name"] for f in v.subfields)
                 if group.original_name in classes:
                     # check the class that is already generated has the same fields
-                    assert classes[group.original_name] == fields, (
-                        f"{classes[group.original_name]} {fields}"
-                    )
+                    assert (
+                        classes[group.original_name] == fields
+                    ), f"{classes[group.original_name]} {fields}"
                 else:
                     classes[group.original_name] = fields
                     subfields: list[
@@ -230,9 +248,9 @@ class {{name}}(RangeGroup, {{group_name}}):
         if isinstance(self.group, RangeGroup):
             if self.clsname in classes:
                 # check the class that is already generated has the same fields
-                assert classes[self.clsname] == set(), (
-                    f"{self.clsname} {classes[self.clsname]}"
-                )
+                assert (
+                    classes[self.clsname] == set()
+                ), f"{self.clsname} {classes[self.clsname]}"
             else:
                 classes[self.clsname] = set()
                 print(
@@ -253,9 +271,9 @@ class Template:
         self.name = name
         self.fields = fields
 
-        assert all(not isinstance(key, str) for key in fields.keys()), (
-            f"{name} field {fields.keys()}"
-        )
+        assert all(
+            not isinstance(key, str) for key in fields.keys()
+        ), f"{name} field {fields.keys()}"
 
         self.subfields: list[tuple[dict, list[tuple[str, int]], bool]] = []
 
@@ -299,52 +317,51 @@ from enum import Enum
 from .field import BaseMemMap, Field, Group, RangeGroup
 """
 
-    ValueEnumTemplate = jinja2.Template(
+    EnumTemplate = jinja2.Template(
         """class {{name}}Enum(Enum):
 {% for (key, value) in values %}
     {{key}} = {{value}}
+{%- else %}
+    pass
 {%- endfor %}
+"""
+    )
 
-class {{name}}:
+    ValueEnumTemplate = jinja2.Template(
+        """class {{name}}:
 {% for (key, _) in values %}
     {{key}} = {{name}}Enum.{{key}}
 {%- endfor %}
 """
     )
 
-    MemMapTemplate = jinja2.Template(
-        """{% for (f, values, valuecls) in fields %}
-{% if values | length > 1 %}
-class {{ f.name }}Enum(Enum):
-{% for (key, value) in values %}
-    {{key}} = {{value}}
-{%- endfor %}
-{% endif %}
-{% if valuecls %}
-class {{ f.name }}(Field, {{ valuecls }}):
-    EnumClass = {{ valuecls }}Enum
-{% else %}
-class {{ f.name }}(Field):
-{% endif %}
-{% if values | length > 1 %}
+    FieldTemplate = jinja2.Template(
+        """class {{ f.name }}(Field):
+{% if values %}
     EnumClass = {{f.name}}Enum
-{% endif %}
 {% for (key, _) in values %}
     {{key}} = {{f.name}}Enum.{{key}}
-{%- else %}
-{% if not valuecls %}
-    pass
-{% endif %}
-{% endfor %}
 {%- endfor %}
-class MemMap(BaseMemMap):
+{%- else %}
+    pass
+{%- endif %}
+"""
+    )
+
+    FieldTemplateWithValueCls = jinja2.Template(
+        """class {{ f.name }}(Field, {{ valuecls }}):
+    EnumClass = {{ valuecls }}Enum"""
+    )
+
+    MemMapTemplate = jinja2.Template(
+        """class MemMap(BaseMemMap):
 {% for g in groups %}
     # {{ g.address }}
     @property
     def {{ g.name }}(self) -> {{ g.clsname }}:
         return {{ g.clsname }}(self, self._search_group("{{ g.name }}"))
 {% endfor %}
-{% for f, _, _ in fields %}
+{% for f, _ in fields %}
     # {{ f.address }}
     @property
     def {{ f.name }}(self) -> {{ f.name }}:
@@ -367,7 +384,7 @@ class MemMap(BaseMemMap):
 
         groups = []
         exports: list[str] = ["MemMap"]
-        fields: list[tuple[Field, Collection, str | None]] = []
+        fields: list[tuple[Field, list[tuple[str, int]]]] = []
 
         value_set: dict[frozenset[tuple[str, int]], dict] = {}
 
@@ -382,6 +399,7 @@ class MemMap(BaseMemMap):
 
             for f in sorted(page.field_map.values(), key=lambda x: x.address):
                 if f.group is None and f.name not in FILTERED_FIELDNAMES:
+                    logger.info("Generating field for %s", f.name)
                     values = get_values(f.fields)
                     key = frozenset(values)
                     if values:
@@ -391,9 +409,16 @@ class MemMap(BaseMemMap):
                                 logger.info(
                                     f"Generating {value_set[key]['name']} {values}"
                                 )
+                                values = sorted(values, key=lambda x: x[1])
+                                print(
+                                    self.EnumTemplate.render(
+                                        values=values,
+                                        name=name,
+                                    )
+                                )
                                 print(
                                     self.ValueEnumTemplate.render(
-                                        values=sorted(values, key=lambda x: x[1]),
+                                        values=values,
                                         name=name,
                                     )
                                 )
@@ -403,23 +428,27 @@ class MemMap(BaseMemMap):
                             value_set[key]["fields"].append(f.name)
                         else:
                             name = get_value_enum_name(f, values)
+                            logger.info(f"Generating {name} {f.name}")
                             value_set[key] = {
                                 "fields": [f.name],
                                 "name": name,
                             }
-                    fields.append((f, values, None))
+                    fields.append((f, values))
                     exports.append(f.name)
 
-        fields = [
-            (
-                (f, [], value_set[frozenset(values)]["name"])
-                if values and len(value_set[frozenset(values)]["fields"]) > 1
-                else (f, sorted(values, key=lambda x: x[1]), None)
-            )
-            for f, values, _ in fields
-        ]
+        for f, values in fields:
+            if (
+                values and len(value_set[frozenset(values)]["fields"]) > 1
+            ):  # if used by multiple fields
+                valuecls = value_set[frozenset(values)]["name"]
+                field = self.FieldTemplateWithValueCls.render(f=f, valuecls=valuecls)
+            else:
+                if len(values) > 0:
+                    values = sorted(values, key=lambda x: x[1])
+                    print(self.EnumTemplate.render(values=values, name=f.name))
+                field = self.FieldTemplate.render(f=f, values=values)
 
-        print()
+            print(field)
 
         mem_map = self.MemMapTemplate.render(groups=groups, fields=fields)
         print(mem_map)
