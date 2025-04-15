@@ -1,3 +1,12 @@
+def cdb_in_progress(m):
+    return m.CdbIsBusy.value(as_int=True) == 1
+
+def cdb_success(m):
+    return m.CdbIsBusy.value(as_int=True) == 0 and m.CdbHasFailed.value(as_int=True) == 0
+
+def cdb_failed(m):
+    return m.CdbIsBusy.value(as_int=True) == 0 and m.CdbHasFailed.value(as_int=True) == 1
+
 info = {
     "Name": "CdbStatusFields",
     "Description": "CMIS v5.2 8.13 CdbStatus fields and 8.14 Bit definitions within CdbStatus fields",
@@ -28,8 +37,9 @@ info = {
             (5, 0): {
                 "Name": "CdbCommandResult",
                 "Description": "Provides detailed classification for the status of the last CDB command.",
-                "Values": {
-                    "IN_PROGRESS": {
+                "Values": [
+                    {
+                        "When": ("cdb-in-progress", cdb_in_progress),
                         0x00: ("Reserved", "RESERVED"),
                         0x01: ("Command is captured but not processed", "CAPTURED"),
                         0x02: ("Command checking is in progress", "CHECKING"),
@@ -37,7 +47,8 @@ info = {
                         (0x04, 0x2F): ("Reserved", "RESERVED"),
                         (0x30, 0x3F): ("Custom", "CUSTOM"),
                     },
-                    "SUCCESS": {
+                    {
+                        "When": ("cdb-success", cdb_success),
                         0x00: ("Reserved", "RESERVED"),
                         0x01: ("Command completed successfully", "COMPLETED"),
                         0x02: ("Reserved", "RESERVED"),
@@ -46,7 +57,8 @@ info = {
                         (0x20, 0x2F): ("Reserved", "RESERVED"),
                         (0x30, 0x3F): ("Custom", "CUSTOM"),
                     },
-                    "FAILED": {
+                    {
+                        "When": ("cdb-failed", cdb_failed),
                         0x00: ("Reserved", "RESERVED"),
                         0x01: ("CMDID unknown", "UNKNOWN_CMDID"),
                         0x02: (
@@ -78,7 +90,7 @@ info = {
                         ),
                         (0x30, 0x3F): ("Custom", "CUSTOM"),
                     },
-                },
+                ],
             },
         },
     },
