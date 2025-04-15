@@ -2,6 +2,8 @@ import logging
 import hashlib
 import random
 import string
+from collections import Counter
+from typing import TypeAlias, Iterable
 
 import jinja2
 
@@ -11,6 +13,11 @@ logger = logging.getLogger(__name__)
 
 FILTERED_FIELDNAMES = ["Reserved", "Custom"]
 FILTERED_VALUENAMES_ONCE = ["RESERVED"]
+
+EnumValue: TypeAlias = tuple[str, str, int]
+EnumKey: TypeAlias = frozenset[tuple[str, int]]
+Values: TypeAlias = list[EnumValue]
+ConditionalValues: TypeAlias = list[tuple[str, list[tuple[str, int]]]]
 
 
 def deterministic_random_string(value: str, length: int = 8) -> str:
@@ -27,8 +34,7 @@ def get_values(fields) -> list[tuple[str, int]]:
     ret = []
 
     values = fields.get("Values", {})
-    if isinstance(values, list):
-        return [] # conditional enum not supported yet
+    assert isinstance(values, dict), f"Invalid field {fields}"
 
     for k, v in values.items():
         if isinstance(k, int):
@@ -36,7 +42,7 @@ def get_values(fields) -> list[tuple[str, int]]:
                 continue
             ret.append((v[1], k))
             onces[v[1]] = k
-    return ret
+    return sorted(ret, key=lambda x: x[1])
 
 
 def get_value_enum_name(f, values):
@@ -64,34 +70,55 @@ def get_value_enum_name(f, values):
         return "ExplicitControlFlag"
     elif any(v[0] == "GBIC" for v in values):
         return "Identifier"
+    elif any(v[0] == "CAPTURED" for v in values):
+        return "CdbCommandResult"
 
     # generate a fixed random unique name from values
     name = deterministic_random_string("".join(v[0] for v in values))
     return f"ValueEnum_{name}"
 
 
-class Group:
-    ValueEnumTemplate = jinja2.Template(
-        """class {{name}}Enum(Enum):
-{% for (key, value) in values %}
+EnumTemplate = jinja2.Template(
+    """class {{name}}Enum(Enum):
+{% for (_, key, value) in values %}
     {{key}} = {{value}}
+{%- else %}
+pass
 {%- endfor %}
 """
-    )
+)
 
+ConditionalEnumTemplate = jinja2.Template(
+    """class {{name}}Enum(ConditionalEnum):
+{% for (enum_name, values) in enums %}
+    class {{enum_name}}(Enum):
+{% for (key, value) in values %}
+        {{key}} = {{value}}
+{%- endfor %}
+{%- endfor %}
+    EnumClasses = [{{ enums | map(attribute=0) | join(', ') }}]
+"""
+)
+
+
+class Group:
     GroupTemplate = jinja2.Template(
         """
 class {{name}}(Group):
-{%- for (f, values, is_range, enum_class) in subfields %}
+{%- for (f, values, is_range, enum_class, conditional) in subfields %}
     class {{f["Name"]}}Cls(Field):
-{% if enum_class %}
+{% if values %}
+{% if conditional %}
+        ConditionalEnumClass = {{enum_class}}
+{% else %}
         EnumClass = {{enum_class}}
 {% endif %}
-{%- for (key, value) in values %}
-        {{key}}={{value}}
+{%- for (enumcls, key, _) in values %}
+        {% if enumcls.startswith("#") %}{{enumcls}}{% else %}{{key}} = {{enumcls}}.{{key}}{% endif %}
+{%- endfor %}
 {%- else %}
         pass
-{% endfor %}
+{%- endif %}
 {% if is_range %}
     class {{f["Name"]}}RangeCls(RangeGroup):
         def __getitem__(self, index: int) -> "{{name}}.{{f["Name"]}}Cls":
@@ -158,6 +185,47 @@ class {{name}}(RangeGroup, {{group_name}}):
         else:
             return self.group.original_name
 
+    def _generate_conditional_enum(self, name: str, field: dict) -> Values:
+        lists = []
+        v = field.get("Values")
+        assert isinstance(v, list), f"Invalid field {field}"
+
+        conditional_values: ConditionalValues = []
+        for i, value in enumerate(v):
+            n = f"{name}Enum{i}"
+            value = {k: v for (k, v) in value.items() if k != "When"}
+            v = get_values({"Values": value})
+            if len(v) == 0:
+                continue
+            conditional_values.append((n, v))
+            lists += [(f"{name}Enum.{n}", e[0], 0) for e in v]
+
+        counter = Counter(v[1] for v in lists)
+        values: Values = []
+
+        for item in lists:
+            if counter[item[1]] > 1:
+                values.append(
+                    (
+                        f"# {item[1]} = {item[0]}.{item[1]} # omitted because of the duplicate",
+                        "",
+                        0,
+                    )
+                )
+            else:
+                values.append(item)
+
+        if len(values) == 0:
+            return []
+
+        print(
+            ConditionalEnumTemplate.render(
+                enums=conditional_values,
+                name=name,
+            )
+        )
+        return values
+
     def generate(
         self,
         classes: dict[str, set[str]],
@@ -186,8 +254,8 @@ class {{name}}(RangeGroup, {{group_name}}):
                 exports.append(group.original_name)
             else:
                 # byte level or bit level template
-                v = Template(self.name, template, group.parent_info["Templates"])
-                fields = set(f[0]["Name"] for f in v.subfields)
+                t = Template(self.name, template, group.parent_info["Templates"])
+                fields = set(f[0]["Name"] for f in t.subfields)
                 if group.original_name in classes:
                     # check the class that is already generated has the same fields
                     assert (
@@ -196,22 +264,35 @@ class {{name}}(RangeGroup, {{group_name}}):
                 else:
                     classes[group.original_name] = fields
                     subfields: list[
-                        tuple[dict, list[tuple[str, str]], bool, str | None]
+                        tuple[dict, list[tuple[str, str, int]], bool, str, bool]
                     ] = []
-                    for f, values, is_range in v.subfields:
-                        key = frozenset(values)
-                        if values:
+                    for f, v, is_range in t.subfields:
+                        key = frozenset(v)
+                        conditional = False
+                        enum_class = ""
+                        if v:
                             if key in value_set:
                                 name = value_set[key]["name"]
+                                values = [
+                                    (f"{name}Enum", key, value) for (key, value) in v
+                                ]
                             else:
-                                name = get_value_enum_name(f, values)
-                                logger.info(f"Generating {name} {values}")
-                                print(
-                                    self.ValueEnumTemplate.render(
-                                        values=sorted(values, key=lambda x: x[1]),
-                                        name=name,
+                                name = get_value_enum_name(f, v)
+                                logger.info(f"Generating {name} {v}")
+                                conditional = isinstance(f.get("Values"), list)
+                                if conditional:
+                                    values = self._generate_conditional_enum(name, f)
+                                else:
+                                    values = [
+                                        (f"{name}Enum", key, value)
+                                        for (key, value) in v
+                                    ]
+                                    print(
+                                        EnumTemplate.render(
+                                            values=values,
+                                            name=name,
+                                        )
                                     )
-                                )
                                 exports.append(f"{name}Enum")
                                 value_set[key] = {
                                     "fields": [
@@ -220,16 +301,11 @@ class {{name}}(RangeGroup, {{group_name}}):
                                     ],  # dummy fields to suppress duplicate generation in Generator.generate()
                                     "name": name,
                                 }
-                            subfields.append(
-                                (
-                                    f,
-                                    [(key, f"{name}Enum.{key}") for (key, _) in values],
-                                    is_range,
-                                    f"{name}Enum",
-                                )
-                            )
+                            enum_class = f"{name}Enum"
                         else:
-                            subfields.append((f, [], is_range, None))
+                            values = []
+
+                        subfields.append((f, values, is_range, enum_class, conditional))
 
                     print(
                         self.GroupTemplate.render(
@@ -275,7 +351,7 @@ class Template:
             not isinstance(key, str) for key in fields.keys()
         ), f"{name} field {fields.keys()}"
 
-        self.subfields: list[tuple[dict, list[tuple[str, int]], bool]] = []
+        self.subfields: list[tuple[dict, Iterable[tuple[str, int]], bool]] = []
 
         for k, f in fields.items():
             is_range = isinstance(k, range)
@@ -289,7 +365,19 @@ class Template:
                 else:
                     raise ValueError(f"Invalid field {f}")
 
-                self.subfields.append((f, get_values(f), is_range))
+                v = f.get("Values")
+                # generate key for value_set
+                if isinstance(v, list):  # conditional register generation
+                    lists = []
+                    for value in v:
+                        value = {k: v for (k, v) in value.items() if k != "When"}
+                        v = get_values({"Values": value})
+                        lists += v
+                    values = lists
+                else:
+                    values = get_values(f)
+
+                self.subfields.append((f, values, is_range))
             else:
                 for kk, ff in f.items():
                     is_range = isinstance(kk, range)
@@ -303,7 +391,9 @@ class Template:
                     else:
                         raise ValueError(f"Invalid field {ff}")
 
-                    self.subfields.append((ff, get_values(ff), is_range))
+                    values = get_values(ff)
+
+                    self.subfields.append((ff, values, is_range))
 
 
 class Generator:
@@ -314,23 +404,13 @@ from __future__ import annotations
 from typing import Iterator
 from enum import Enum
 
-from .field import BaseMemMap, Field, Group, RangeGroup
+from .field import BaseMemMap, Field, Group, RangeGroup, ConditionalEnum
 """
-
-    EnumTemplate = jinja2.Template(
-        """class {{name}}Enum(Enum):
-{% for (key, value) in values %}
-    {{key}} = {{value}}
-{%- else %}
-    pass
-{%- endfor %}
-"""
-    )
 
     ValueEnumTemplate = jinja2.Template(
         """class {{name}}:
-{% for (key, _) in values %}
-    {{key}} = {{name}}Enum.{{key}}
+{% for (enumcls, key, _) in values %}
+    {% if enumcls.startswith("#") %}{{enumcls}}{% else %}{{key}} = {{enumcls}}.{{key}}{% endif %}
 {%- endfor %}
 """
     )
@@ -338,9 +418,13 @@ from .field import BaseMemMap, Field, Group, RangeGroup
     FieldTemplate = jinja2.Template(
         """class {{ f.name }}(Field):
 {% if values %}
+{% if conditional %}
+    ConditionalEnumClass = {{f.name}}Enum
+{% else %}
     EnumClass = {{f.name}}Enum
-{% for (key, _) in values %}
-    {{key}} = {{f.name}}Enum.{{key}}
+{% endif %}
+{% for (enumcls, key, _) in values %}
+    {% if enumcls.startswith("#") %}{{enumcls}}{% else %}{{key}} = {{enumcls}}.{{key}}{% endif %}
 {%- endfor %}
 {%- else %}
     pass
@@ -361,7 +445,7 @@ from .field import BaseMemMap, Field, Group, RangeGroup
     def {{ g.name }}(self) -> {{ g.clsname }}:
         return {{ g.clsname }}(self, self._search_group("{{ g.name }}"))
 {% endfor %}
-{% for f, _ in fields %}
+{% for f, _, _ in fields %}
     # {{ f.address }}
     @property
     def {{ f.name }}(self) -> {{ f.name }}:
@@ -379,14 +463,75 @@ from .field import BaseMemMap, Field, Group, RangeGroup
     def __init__(self, mem_map: MemMap) -> None:
         self.mem_map = mem_map
 
+    def _generate_conditional_enum(self, name: str, field: Field) -> Values:
+        lists = []
+        v = field.fields.get("Values")
+        assert isinstance(v, list), f"Invalid field {field.fields}"
+
+        conditional_values: ConditionalValues = []
+        for i, value in enumerate(v):
+            n = f"{name}Enum{i}"
+            value = {k: v for (k, v) in value.items() if k != "When"}
+            v = get_values({"Values": value})
+            if len(v) == 0:
+                continue
+            conditional_values.append((n, v))
+            lists += [(f"{name}Enum.{n}", e[0], 0) for e in v]
+
+        counter = Counter(v[1] for v in lists)
+        values: Values = []
+
+        for item in lists:
+            if counter[item[1]] > 1:
+                values.append(
+                    (
+                        f"# {item[1]} = {item[0]}.{item[1]} # omitted because of the duplicate",
+                        "",
+                        0,
+                    )
+                )
+            else:
+                values.append(item)
+
+        if len(values) == 0:
+            return []
+
+        print(
+            ConditionalEnumTemplate.render(
+                enums=conditional_values,
+                name=name,
+            )
+        )
+        return values
+
+    def _generate_enum(self, name: str, field: Field) -> Values:
+        if isinstance(field.fields.get("Values"), list):
+            return self._generate_conditional_enum(name, field)
+        else:
+            values: Values = [
+                (f"{name}Enum", v[0], v[1]) for v in get_values(field.fields)
+            ]
+
+            if len(values) == 0:
+                return []
+
+            print(
+                EnumTemplate.render(
+                    values=values,
+                    name=name,
+                )
+            )
+            return values
+
     def generate(self) -> None:
         print(self.Header)
 
-        groups = []
+        groups: list = []
         exports: list[str] = ["MemMap"]
-        fields: list[tuple[Field, list[tuple[str, int]]]] = []
+        fields: list[tuple[Field, EnumKey, bool]] = []
 
-        value_set: dict[frozenset[tuple[str, int]], dict] = {}
+        # EnumClsName,EnumValueName,EnumValue
+        value_set: dict[EnumKey, dict] = {}
 
         classes: dict[str, set[str]] = {}
         for _, page in sorted(self.mem_map.pages.items(), key=lambda x: x[0]):
@@ -400,22 +545,32 @@ from .field import BaseMemMap, Field, Group, RangeGroup
             for f in sorted(page.field_map.values(), key=lambda x: x.address):
                 if f.group is None and f.name not in FILTERED_FIELDNAMES:
                     logger.info("Generating field for %s", f.name)
-                    values = get_values(f.fields)
-                    key = frozenset(values)
-                    if values:
+
+                    conditional: bool = False
+                    v = f.fields.get("Values")
+
+                    # generate key for value_set
+                    if isinstance(v, list):  # conditional register generation
+                        lists = []
+                        for value in v:
+                            value = {k: v for (k, v) in value.items() if k != "When"}
+                            v = get_values({"Values": value})
+                            lists += v
+                        key = frozenset(lists)
+                        conditional = True
+                    else:
+                        key = frozenset(get_values(f.fields))
+
+                    if key != frozenset([]):
                         if key in value_set:
-                            if len(value_set[key]["fields"]) == 1:
+                            if (
+                                len(value_set[key]["fields"]) == 1
+                            ):  # generate only once when used by multiple fields
                                 name = value_set[key]["name"]
-                                logger.info(
-                                    f"Generating {value_set[key]['name']} {values}"
-                                )
-                                values = sorted(values, key=lambda x: x[1])
-                                print(
-                                    self.EnumTemplate.render(
-                                        values=values,
-                                        name=name,
-                                    )
-                                )
+                                logger.info(f"Generating {value_set[key]['name']}")
+
+                                values = self._generate_enum(name, f)
+
                                 print(
                                     self.ValueEnumTemplate.render(
                                         values=values,
@@ -427,26 +582,27 @@ from .field import BaseMemMap, Field, Group, RangeGroup
 
                             value_set[key]["fields"].append(f.name)
                         else:
-                            name = get_value_enum_name(f, values)
+                            name = get_value_enum_name(f, key)
                             logger.info(f"Generating {name} {f.name}")
                             value_set[key] = {
                                 "fields": [f.name],
                                 "name": name,
                             }
-                    fields.append((f, values))
+
+                    fields.append((f, key, conditional))
                     exports.append(f.name)
 
-        for f, values in fields:
+        for f, key, conditional in fields:
             if (
-                values and len(value_set[frozenset(values)]["fields"]) > 1
-            ):  # if used by multiple fields
-                valuecls = value_set[frozenset(values)]["name"]
+                len(key) > 0 and len(value_set[key]["fields"]) > 1
+            ):  # if used by multiple fields. enums are already generated
+                valuecls = value_set[key]["name"]
                 field = self.FieldTemplateWithValueCls.render(f=f, valuecls=valuecls)
             else:
-                if len(values) > 0:
-                    values = sorted(values, key=lambda x: x[1])
-                    print(self.EnumTemplate.render(values=values, name=f.name))
-                field = self.FieldTemplate.render(f=f, values=values)
+                values = self._generate_enum(f.name, f)
+                field = self.FieldTemplate.render(
+                    f=f, values=values, conditional=conditional
+                )
 
             print(field)
 
