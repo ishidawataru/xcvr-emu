@@ -2,7 +2,6 @@ import logging
 
 from cmis import MemMap
 
-
 def test_mem_map(caplog):
     caplog.set_level(logging.DEBUG)
     m = MemMap()
@@ -94,3 +93,43 @@ def test_with_bank(caplog):
 
     with m.with_bank(2):
         assert m.LowPwrRequestSW.value == m.LowPwrRequestSW.NO_REQUEST
+
+def test_conditional_register(caplog):
+    caplog.set_level(logging.DEBUG)
+    m = MemMap()
+
+    status = m.CdbStatus[0]
+    assert status.CdbCommandResult.when() == "cdb-success"
+    # COMPLETED, CAPTURED and UNKNOWN_CMDID are the same value
+    assert status.CdbCommandResult.COMPLETED.value ==  status.CdbCommandResult.CAPTURED.value
+
+    status.CdbCommandResult.value = status.CdbCommandResult.COMPLETED # cdb-success
+
+    assert status.CdbCommandResult.value == status.CdbCommandResult.COMPLETED
+    assert status.CdbCommandResult.value != status.CdbCommandResult.CAPTURED
+    assert status.CdbCommandResult.value != status.CdbCommandResult.UNKNOWN_CMDID
+
+    status.CdbIsBusy.value = status.CdbIsBusy.BUSY
+    assert status.CdbCommandResult.when() == "cdb-in-progress"
+
+    assert status.CdbCommandResult.value != status.CdbCommandResult.COMPLETED
+    assert status.CdbCommandResult.value == status.CdbCommandResult.CAPTURED
+    assert status.CdbCommandResult.value != status.CdbCommandResult.UNKNOWN_CMDID
+
+    status.CdbIsBusy.value = status.CdbIsBusy.IDLE
+    status.CdbHasFailed.value = status.CdbHasFailed.FAILED
+    assert status.CdbCommandResult.when() == "cdb-failed"
+
+    assert status.CdbCommandResult.value != status.CdbCommandResult.COMPLETED
+    assert status.CdbCommandResult.value != status.CdbCommandResult.CAPTURED
+    assert status.CdbCommandResult.value == status.CdbCommandResult.UNKNOWN_CMDID
+
+    status.CdbCommandResult.value = status.CdbCommandResult.INCOMPATIBLE_STATUS
+    assert status.CdbCommandResult.value == status.CdbCommandResult.INCOMPATIBLE_STATUS
+
+    status.CdbHasFailed.value = status.CdbHasFailed.SUCCESS
+
+    assert status.CdbCommandResult.value != status.CdbCommandResult.INCOMPATIBLE_STATUS
+
+    # if no matching enum value in the current state, the value is int
+    assert status.CdbCommandResult.value == 0x07
