@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.3.0](https://github.com/ishidawataru/xcvr-emu/compare/v1.2.0...v1.3.0) (2025-04-15)
+
+
+### Features
+
+* **base:** support parting a table with conditional register definitions ([9e1aad6](https://github.com/ishidawataru/xcvr-emu/commit/9e1aad6b8f1ff3699973d48b02e0fcf78bcee08c))
+* **cmis:** add MemMap.with_bank() for easier bank access ([e711c47](https://github.com/ishidawataru/xcvr-emu/commit/e711c47a6ba39d03765ba2804ed06ebdc627e641))
+* **cmis:** support loading optoe eeprom hexdump ([b6f99d6](https://github.com/ishidawataru/xcvr-emu/commit/b6f99d648f7b70c107da1f65d78c40171ee7d699))
+* initial conditional register definition ([e980f4d](https://github.com/ishidawataru/xcvr-emu/commit/e980f4dd50b64bde253b2662283c8064157de4eb))
+* support generating Python classes for conditional registers ([b2da96b](https://github.com/ishidawataru/xcvr-emu/commit/b2da96b9f7d8b4c15e2422f33d45df44f7e2344a))
+
+
+### Bug Fixes
+
+* silence mypy ([3c08c74](https://github.com/ishidawataru/xcvr-emu/commit/3c08c74c8585d12f2191a8c9192a06898361b0ce))
+* when handler needs to take index if the field is ranged ([b19699d](https://github.com/ishidawataru/xcvr-emu/commit/b19699d7e2ef980ba9380b5f7cfe69265c5e6a64))
+
 ## [1.2.0](https://github.com/ishidawataru/xcvr-emu/compare/v1.1.0...v1.2.0) (2025-04-07)
 
 
