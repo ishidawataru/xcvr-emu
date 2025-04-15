@@ -55,17 +55,17 @@ class DataPathStateMachine:
             return False
 
         self._appsel = appsels[0]
-        deinit = deinits[0]
-        output = outputs[0]
+        deinit_v = deinits[0]
+        output_v = outputs[0]
 
-        logger.info(f"{self._name}: {deinit=}, {output=}, {lanes=}, {appsels=}")
+        logger.info(f"{self._name}: {deinit_v=}, {output_v=}, {lanes=}, {appsels=}")
 
         prev_state = self._state
 
         state = DPStateHostLane.DPINITIALIZED
-        if deinit == DPDeinitLane.DEINITIALIZE:
+        if deinit_v == DPDeinitLane.DEINITIALIZE:
             state = DPStateHostLane.DPDEACTIVATED
-        elif output == OutputDisableTx.ENABLED:
+        elif output_v == OutputDisableTx.ENABLED:
             state = DPStateHostLane.DPACTIVATED
 
         for i in lanes:

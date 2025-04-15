@@ -228,7 +228,7 @@ class CMISTransceiver:
                 page=control.address.page,
                 offset=control.address.offset,
                 length=control.address.byte_size,
-                data=bytes([control.value]),
+                data=bytes([control.value_as_int]),
             )
         )
 
