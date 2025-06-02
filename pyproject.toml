@@ -12,7 +12,7 @@ readme = "README.md"
 keywords = ["transceiver", "emulation", "network"]
 
 dependencies = [
-  "grpcio==1.51.1",
+  "grpcio==1.72.1",
   "protobuf",
   "prompt-toolkit",
   "PyYAML"
