@@ -25,7 +25,7 @@ xcvr-emush = "xcvr_emu.xcvr_emush:main"
 [project.optional-dependencies]
 dev = [
   "ruff",
-  "grpcio-tools==1.51.1",
+  "grpcio-tools==1.72.1",
   "pytest",
   "pytest-asyncio",
   "mypy",
