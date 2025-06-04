@@ -1,4 +1,4 @@
-FROM python:3.11 AS builder
+FROM python:3.13 AS builder
 
 WORKDIR /app
 
@@ -37,7 +37,7 @@ RUN python -m build
 
 CMD ["xcvr-emud", "-c", "src/xcvr_emu/config.yaml"]
 
-FROM python:3.11-slim AS runtime
+FROM python:3.13-slim AS runtime
 
 RUN --mount=type=bind,from=builder,source=/app,target=/app \
   pip install --no-cache-dir /app/dist/*.whl
