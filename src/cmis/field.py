@@ -72,14 +72,20 @@ class EEPROM:
 class BaseMemMap(MemMap):
     def __init__(
         self,
-        remote: MemoryAccessor = EEPROM("remote"),
-        local: MemoryAccessor = EEPROM("local"),
+        remote: MemoryAccessor | None = None,
+        local: MemoryAccessor | None = None,
         no_default=False,
         table_filter=None,
     ) -> None:
         super().__init__(no_default=no_default, table_filter=table_filter)
-        self.remote = remote
-        self.local = local
+        # NOTE: default to None and allocate a fresh EEPROM per instance. Using
+        # EEPROM("remote")/EEPROM("local") as default argument values would
+        # evaluate them ONCE at function-definition time, so every BaseMemMap
+        # built without explicit accessors would share the SAME two EEPROM byte
+        # buffers (the classic Python mutable-default pitfall). That aliases the
+        # register state of every emulated module together.
+        self.remote = remote if remote is not None else EEPROM("remote")
+        self.local = local if local is not None else EEPROM("local")
         self.bank = 0
 
     def read(self, bank: int, page: int, offset: int, length: int) -> bytes:

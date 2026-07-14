@@ -250,6 +250,14 @@ class CMISTransceiver:
                 if software_reset.value == software_reset.RESET:
                     logger.info("Software reset")
                     self._init()
+                    # SoftwareReset (00h:26.3) is Write-Only / Self-Clearing per
+                    # the CMIS spec: once the module has acted on the trigger the
+                    # bit must read back 0. Clear it here so a subsequent
+                    # read-modify-write of ModuleGlobalControls (e.g. the host
+                    # clearing LowPwrRequestSW) does not re-trigger a reset.
+                    self.mem_map.SoftwareReset.value = (
+                        self.mem_map.SoftwareReset.NO_ACTION
+                    )
 
                 low_pwr = self.mem_map.LowPwrRequestSW
                 if low_pwr.value == low_pwr.LOW_POWER_MODE:

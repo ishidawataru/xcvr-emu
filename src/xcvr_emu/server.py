@@ -11,8 +11,6 @@ import yaml
 from .proto import emulator_pb2 as pb2
 from .transceiver import CMISTransceiver
 
-from cmis import MemMap
-
 # see https://github.com/grpc/grpc/issues/29459#issuecomment-1641587881
 proto_dir = os.path.dirname(pb2.__file__)
 sys.path.append(proto_dir)
@@ -25,7 +23,6 @@ logger = logging.getLogger(__name__)
 class EmulatorServer(emulator_pb2_grpc.SfpEmulatorServiceServicer):
     def __init__(self, config: str = "") -> None:
         super().__init__()
-        self._cmis_mem_map = MemMap()
         self.xcvrs: dict[int, CMISTransceiver] = {}
         self.monitors: list[asyncio.Queue] = []
         if config:
@@ -43,7 +40,10 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorServiceServicer):
                 raise e from None
 
         for k, v in config["transceivers"].items():
-            xcvr = CMISTransceiver(k, v, self._cmis_mem_map)
+            # Each transceiver gets its OWN MemMap (CMISTransceiver defaults
+            # mem_map to a fresh MemMap when None) so emulated modules do not
+            # share/alias register state.
+            xcvr = CMISTransceiver(k, v)
             self.xcvrs[k] = xcvr
 
     async def stop(self):
@@ -61,7 +61,7 @@ class EmulatorServer(emulator_pb2_grpc.SfpEmulatorServiceServicer):
                 f"Transceiver({req.index}) already exists",
             )
 
-        xcvr = CMISTransceiver(req.index, {}, self._cmis_mem_map)
+        xcvr = CMISTransceiver(req.index, {})
         self.xcvrs[req.index] = xcvr
 
         return pb2.CreateResponse()
